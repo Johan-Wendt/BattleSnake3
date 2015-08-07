@@ -25,6 +25,16 @@ public class EventHandler {
         this.gameGrid = gameGrid;
         
     }
+    //Getters
+    public String getEvent(int blockId) {
+        for(Event event: eventList) {
+            if(event.getEventId() == blockId) {
+                event.isTaken();
+                return event.getEventHappening();
+            }
+        }
+        return "";
+    }
     //Mutators
     public void eventRound() {
         if(EVENT_PROBABILITY > Math.random()) createEvent();
