@@ -23,8 +23,15 @@ public class Event {
         this.longevity = longevity;
         this.eventBlock = eventBlock;
         this.revertColor = revertColor;
-        eventBlock.getRectangle().setFill(color);
-        startTime = System.currentTimeMillis();
+        System.out.println(eventBlock.getRectangle().getFill().equals(revertColor));
+        if(eventBlock.getRectangle().getFill().equals(revertColor)) {
+            eventBlock.getRectangle().setFill(color);
+            startTime = System.currentTimeMillis();
+        }
+        else {
+            isToRemove = true;
+            isTaken = true;
+        }
     }
     public boolean isToRemove() {
         if(System.currentTimeMillis() - startTime > longevity) {

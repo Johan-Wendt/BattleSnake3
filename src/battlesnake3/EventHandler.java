@@ -18,7 +18,7 @@ public class EventHandler {
     private ArrayList <Event> eventList = new ArrayList<>();
     private static int LONGEVITY_MIN = 2000;
     private static int LONGEVITY_MAX = 10000;
-    private static double EVENT_PROBABILITY = 0.03;
+    private static double EVENT_PROBABILITY = 0.003;
     private GameGrid gameGrid;
     
     public EventHandler(GameGrid gameGrid) {
