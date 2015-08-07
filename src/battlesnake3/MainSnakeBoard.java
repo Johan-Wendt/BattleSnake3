@@ -31,7 +31,11 @@ public class MainSnakeBoard extends Application {
     public static final int GRID_HEIGTH = 640;
     public static final int PLAYER_START_LENGTH = 8; 
     public static final int MULIPLIER_X = 1000;
-    private long gameSpeed = 10;
+    public static final int RIGHT = MULIPLIER_X;
+    public static final int LEFT = -MULIPLIER_X;
+    public static final int DOWN = 1;
+    public static final int UP = -1;
+    private long gameSpeed = 3;
     private boolean isRunning = true;
     private String currentDirection = "Right";
     private String turnDirection = "Right";
@@ -65,7 +69,7 @@ public class MainSnakeBoard extends Application {
                     player.movePlayer();
                     eventHandler.eventRound();
 
-                    Thread.sleep(1000/gameSpeed);
+                    Thread.sleep(gameSpeed);
                 }    
             }
             catch (InterruptedException ex) {
@@ -80,13 +84,14 @@ public class MainSnakeBoard extends Application {
         mainScene.setOnKeyPressed(e -> {
             switch (e.getCode()) {
                 
-                case RIGHT: player.setCurrentDirection("Right"); break;
-                case LEFT: player.setCurrentDirection("Left"); break;
-                case UP: player.setCurrentDirection("Up"); break;
-                case DOWN: player.setCurrentDirection("Down"); break;
+                case RIGHT: player.setCurrentDirection(RIGHT); break;
+                case LEFT: player.setCurrentDirection(LEFT); break;
+                case UP: player.setCurrentDirection(UP); break;
+                case DOWN: player.setCurrentDirection(DOWN); break;
                 case ENTER: player.setAlive(); break;
                 case L: player.setLength(player.getLength() + 1); break;
-                case F: gameSpeed += 2; break;
+                case F: turnUpGameSpeed(); break;
+                case S: turnDownGameSpeed(); break;
                 case R: restart(); break;
                 case P: System.out.println(thread.isAlive()); break;
                 //default only for testing
@@ -97,6 +102,16 @@ public class MainSnakeBoard extends Application {
     public void restart() {
         player.erasePlayer();
         player = new Player(1010, PLAYER_START_LENGTH, Color.RED, gameGrid, eventHandler);
-
+    }
+    public void turnUpGameSpeed() {
+        if(gameSpeed > 1) {
+            gameSpeed --;
+            System.out.println(gameSpeed);
+        }
+    }
+    public void turnDownGameSpeed() {
+        if(gameSpeed < 10) {
+            gameSpeed ++;
+        }
     }
 }

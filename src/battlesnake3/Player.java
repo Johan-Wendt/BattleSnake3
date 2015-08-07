@@ -19,6 +19,8 @@ import java.util.Iterator;
  * @author johanwendt
  */
 public class Player {
+    private int moves;
+    private int playerSlownes = 30;
     private int length;
     private int currentLocation;
     private int currentDirection;
@@ -41,14 +43,14 @@ public class Player {
             BuildingBlock startSnake = gameGrid.getBlock(j);
             startSnake.setColor(color);
             body.add(0, startSnake);
-            setCurrentDirection("Right");
+            setCurrentDirection(MainSnakeBoard.RIGHT);
         }
     }
     //mutators
 
     public void movePlayer() {
-        if(isAlive) {
-            int destination = currentLocation + currentDirection;
+        if(isAlive && moves % playerSlownes == 0) {
+            int destination = currentLocation + currentDirection;           
             if(gameGrid.getBlock(destination).getBlockId() < 0 || containsBlock(destination)) {
                 isAlive = false;
                 System.out.println("Dead");
@@ -63,11 +65,13 @@ public class Player {
                 body.pop().setColor(gameGrid.getColor());  
             }
         }
+        moves ++;
     }
     //Mutators
     public void handleEvents(String eventHappening) {
         switch(eventHappening) {
-        case "Regular": length++; break;
+        case "Regular": length += 2; makeFaster(); break;
+            
         }
     }
     public void setAlive() {
@@ -76,6 +80,11 @@ public class Player {
     public void erasePlayer() {
         while(body.size() > 0) {
             body.pop().setColor(gameGrid.getColor());
+        }
+    }
+    public void makeFaster() {
+        if(playerSlownes > 3) {
+            playerSlownes--;
         }
     }
     
@@ -115,13 +124,9 @@ public class Player {
     public void setCurrentLocation(int newLocation) {
         currentLocation = newLocation;
     }
-    public void setCurrentDirection(String direction) {
-        switch (direction) {
-        case "Right": currentDirection = MainSnakeBoard.MULIPLIER_X; break;
-        case "Left": currentDirection = -MainSnakeBoard.MULIPLIER_X; break;
-        case "Down": currentDirection = 1; break;
-        case "Up": currentDirection = -1; break;
-        
-    }
+    public void setCurrentDirection(int direction) {
+        if(direction != -currentDirection) {
+            currentDirection = direction;
+        }
     }
 }

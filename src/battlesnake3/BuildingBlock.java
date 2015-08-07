@@ -19,6 +19,7 @@ import javafx.scene.shape.Rectangle;
 public class BuildingBlock {
     private int blockId;
     private Rectangle rectangle;
+    private Color color;
     
     public BuildingBlock(int blockId) {
         this.blockId = blockId;
@@ -26,6 +27,7 @@ public class BuildingBlock {
     
     public BuildingBlock(int setX, int setY, int size, int blockId, Color color) {
         this.blockId = blockId;
+        this.color = color;
         createRectangle(setX, setY, size, color);
     }
     public void createRectangle(int X, int Y, int size, Color color) {
@@ -49,7 +51,5 @@ public class BuildingBlock {
     }
     public void setColor(Color color) {
         rectangle.setFill(color);
-    }
-            
-            
+    }       
 }
