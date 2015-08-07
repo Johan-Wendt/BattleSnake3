@@ -14,8 +14,10 @@ public class Event {
     private double longevity;
     private double startTime;
     private boolean isToRemove = false;
+    private boolean isTaken = false;
     private Color revertColor;
     private BuildingBlock eventBlock;
+    private String eventHappening = "Regular";
     
     public Event(BuildingBlock eventBlock,Color color, Color revertColor, int longevity) {
         this.longevity = longevity;
@@ -27,8 +29,18 @@ public class Event {
     public boolean isToRemove() {
         if(System.currentTimeMillis() - startTime > longevity) {
             isToRemove = true;
-            eventBlock.getRectangle().setFill(revertColor);
+            if(!isTaken) eventBlock.getRectangle().setFill(revertColor);
         }
         return isToRemove;
+    }
+    public String getEventHappening() {
+        return eventHappening; 
+    }
+    public int getEventId() {
+        return eventBlock.getBlockId();
+    }
+    public void isTaken() {
+        isTaken = true;
+        isToRemove = true;
     }
 }

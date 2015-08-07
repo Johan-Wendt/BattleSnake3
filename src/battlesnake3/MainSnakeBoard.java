@@ -49,8 +49,9 @@ public class MainSnakeBoard extends Application {
     public void start(Stage BattleStage) throws InterruptedException {
         Scene mainScene = new Scene(pane, GRID_WIDTH, GRID_HEIGTH);
         gameGrid = new GameGrid(GRID_HEIGTH, GRID_WIDTH, pane, MULIPLIER_X, Color.AQUA, BLOCK_SIZE);
-        player = new Player(1010, PLAYER_START_LENGTH, MULIPLIER_X, Color.RED, gameGrid);
         eventHandler = new EventHandler(gameGrid);
+        player = new Player(1010, PLAYER_START_LENGTH, Color.RED, gameGrid, eventHandler);
+
         
         
         BattleStage.setScene(mainScene);
@@ -95,7 +96,7 @@ public class MainSnakeBoard extends Application {
     }
     public void restart() {
         player.erasePlayer();
-        player = new Player(1010, PLAYER_START_LENGTH, MULIPLIER_X, Color.RED, gameGrid);
+        player = new Player(1010, PLAYER_START_LENGTH, Color.RED, gameGrid, eventHandler);
 
     }
 }

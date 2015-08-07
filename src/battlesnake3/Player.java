@@ -20,24 +20,24 @@ import java.util.Iterator;
  */
 public class Player {
     private int length;
-    private int mulitplierX;
     private int currentLocation;
     private int currentDirection;
     private boolean isAlive;
     private Color color;
     private GameGrid gameGrid;
     private Stack<BuildingBlock> body = new Stack<>();
+    private EventHandler events;
     
-    public Player(int startPoint, int length, int mulitplierX, Color color, GameGrid gameGrid) {
+    public Player(int startPoint, int length, Color color, GameGrid gameGrid, EventHandler events) {
         this.length = length;
         this.color = color;
         this.gameGrid = gameGrid;
-        this.mulitplierX = mulitplierX;
-        createPlayer(startPoint, length, mulitplierX, color);
-        currentLocation = startPoint + length * mulitplierX -mulitplierX;   
+        this.events = events;
+        createPlayer(startPoint, length, MainSnakeBoard.MULIPLIER_X, color);
+        currentLocation = startPoint + length * MainSnakeBoard.MULIPLIER_X - MainSnakeBoard.MULIPLIER_X;   
     }
     public void createPlayer(int startPoint, int length, int mulitplierX, Color color) {
-        for(int j = startPoint; j < startPoint + mulitplierX*length; j += mulitplierX) {
+        for(int j = startPoint; j < startPoint + MainSnakeBoard.MULIPLIER_X*length; j += MainSnakeBoard.MULIPLIER_X) {
             BuildingBlock startSnake = gameGrid.getBlock(j);
             startSnake.setColor(color);
             body.add(0, startSnake);
@@ -56,6 +56,7 @@ public class Player {
             }
             BuildingBlock moveTo = gameGrid.getBlock(destination);
             moveTo.setColor(color);
+            handleEvents(events.getEvent(destination));
             currentLocation = moveTo.getBlockId();
             body.add(0, moveTo);
             if(body.size() > length) {
@@ -64,6 +65,11 @@ public class Player {
         }
     }
     //Mutators
+    public void handleEvents(String eventHappening) {
+        switch(eventHappening) {
+        case "Regular": length++; break;
+        }
+    }
     public void setAlive() {
         isAlive = true;
     }
@@ -111,8 +117,8 @@ public class Player {
     }
     public void setCurrentDirection(String direction) {
         switch (direction) {
-        case "Right": currentDirection = mulitplierX; break;
-        case "Left": currentDirection = -mulitplierX; break;
+        case "Right": currentDirection = MainSnakeBoard.MULIPLIER_X; break;
+        case "Left": currentDirection = -MainSnakeBoard.MULIPLIER_X; break;
         case "Down": currentDirection = 1; break;
         case "Up": currentDirection = -1; break;
         
