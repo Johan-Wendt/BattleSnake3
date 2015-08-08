@@ -19,59 +19,76 @@ import java.util.Iterator;
  * @author johanwendt
  */
 public class Player {
-    private int moves;
-    private int playerSlownes = 30;
-    private int length;
+    private int turn;
     private int currentLocation;
     private int currentDirection;
+    private int PLAYER_START_LENGTH = 8;
+    private int currentLength = PLAYER_START_LENGTH;
+    private int PLAYER_START_SLOWNESS = 30;
+    private int playerSlownes = PLAYER_START_SLOWNESS;
     private boolean isAlive;
     private Color color;
     private GameGrid gameGrid;
     private Stack<BuildingBlock> body = new Stack<>();
     private EventHandler events;
+    private boolean mayChangeDirection = true;
+    private int startPoint;
+    private int startDirection;
     
-    public Player(int startPoint, int length, Color color, GameGrid gameGrid, EventHandler events) {
-        this.length = length;
+    
+    public Player(int startPoint, int startDirection, Color color, GameGrid gameGrid, EventHandler events) {
+        this.startPoint = startPoint;
+        this.startDirection = startDirection;
         this.color = color;
         this.gameGrid = gameGrid;
         this.events = events;
-        createPlayer(startPoint, length, MainSnakeBoard.MULIPLIER_X, color);
-        currentLocation = startPoint + length * MainSnakeBoard.MULIPLIER_X - MainSnakeBoard.MULIPLIER_X;   
+        createPlayer(); 
     }
-    public void createPlayer(int startPoint, int length, int mulitplierX, Color color) {
-        for(int j = startPoint; j < startPoint + MainSnakeBoard.MULIPLIER_X*length; j += MainSnakeBoard.MULIPLIER_X) {
-            BuildingBlock startSnake = gameGrid.getBlock(j);
-            startSnake.setColor(color);
-            body.add(0, startSnake);
-            setCurrentDirection(MainSnakeBoard.RIGHT);
+    public void createPlayer() {
+        makeShort();
+        makeSlow();
+        for(int i = 0; i < PLAYER_START_LENGTH; i ++) {
+            BuildingBlock startSnake = gameGrid.getBlock(startPoint + startDirection * i);
+            startSnake.revertDeathBlock();
+            startSnake.setRectangleColor(color);
+            body.add(0, startSnake);    
         }
+        gameGrid.getBlock(startPoint + startDirection*(PLAYER_START_LENGTH)).revertDeathBlock();
+        currentDirection = startDirection;
+        currentLocation = startPoint + PLAYER_START_LENGTH * startDirection - startDirection;
     }
     //mutators
 
     public void movePlayer() {
-        if(isAlive && moves % playerSlownes == 0) {
-            int destination = currentLocation + currentDirection;           
-            if(gameGrid.getBlock(destination).getBlockId() < 0 || containsBlock(destination)) {
+        if(isAlive && turn % playerSlownes == 0) {
+            int destination = currentLocation + currentDirection; 
+            if(gameGrid.getBlock(destination).isDeathBlock()) {
                 isAlive = false;
-                System.out.println("Dead");
+                killPlayer();
                 return;
             }
             BuildingBlock moveTo = gameGrid.getBlock(destination);
-            moveTo.setColor(color);
+            moveTo.setRectangleColor(color);
+            moveTo.setIsDeathBlock();
             handleEvents(events.getEvent(destination));
             currentLocation = moveTo.getBlockId();
             body.add(0, moveTo);
-            if(body.size() > length) {
-                body.pop().setColor(gameGrid.getColor());  
+            mayChangeDirection = true;
+            if (body.size() > currentLength) {
+                body.pop().revertDeathBlock();  
+            }
+            if (body.size() > currentLength) {
+                body.pop().revertDeathBlock();  
             }
         }
-        moves ++;
+        turn ++;
     }
     //Mutators
-    public void handleEvents(String eventHappening) {
+    public void handleEvents(int eventHappening) {
+        
         switch(eventHappening) {
-        case "Regular": length += 2; makeFaster(); break;
-            
+        case EventHandler.REGULAR_EVENT_HAPPENING: makeLonger(); makeFaster(); break;
+        case EventHandler.MAKE_SHORT__EVENT_HAPPENING: makeShort();   
         }
     }
     public void setAlive() {
@@ -79,16 +96,31 @@ public class Player {
     }
     public void erasePlayer() {
         while(body.size() > 0) {
-            body.pop().setColor(gameGrid.getColor());
+            body.pop().setRectangleColor(GameGrid.GAMEGRID_COLOR);
         }
+    }
+    public void killPlayer() {
+        while(body.size() > 0) {
+            body.pop().setRectangleColor(Color.BLACK);
+        }
+        createPlayer();
+        turn = 1;
+        isAlive = true;
     }
     public void makeFaster() {
         if(playerSlownes > 3) {
             playerSlownes--;
         }
+    }    
+    public void makeLonger() {
+        currentLength ++;
     }
-    
-    
+    public void makeShort() {
+        currentLength = PLAYER_START_LENGTH;
+    }
+    public void makeSlow() {
+        playerSlownes = PLAYER_START_SLOWNESS;
+    }
     //Getters
     public BuildingBlock getBlock(int blockId) {
         for(BuildingBlock block: body) {
@@ -102,7 +134,7 @@ public class Player {
         return currentLocation;
     }
     public int getLength() {
-        return length;
+        return currentLength;
     }
     public boolean containsBlock(int blockId) {
         boolean isFound = false;
@@ -119,14 +151,15 @@ public class Player {
         return isAlive;
     }
     public void setLength(int newLength) {
-        length = newLength;
+        currentLength = newLength;
     }
     public void setCurrentLocation(int newLocation) {
         currentLocation = newLocation;
     }
     public void setCurrentDirection(int direction) {
-        if(direction != -currentDirection) {
+        if(direction != -currentDirection && mayChangeDirection) {
             currentDirection = direction;
+            mayChangeDirection = false;
         }
     }
 }

@@ -19,18 +19,21 @@ import java.util.Random;
  * @author johanwendt
  */
 public class GameGrid {
-    private Color color;
     private ArrayList<BuildingBlock> gridList = new ArrayList<>();
     private BuildingBlock deathBlock;
+    public static final Color GAMEGRID_COLOR = Color.AQUA;
 
     
-    public GameGrid(int height, int width, Pane pane, int multiplierX, Color color, int blockSize) {
-        this.color = color;
+    public GameGrid(int height, int width, Pane pane, int multiplierX, int blockSize) {
 
         for(int i = 0; i < width/blockSize; i ++) {
             for(int j = 0; j < height/blockSize; j ++) {
-                BuildingBlock block = new BuildingBlock(i * blockSize, j * blockSize, blockSize, (j + i * multiplierX), color);
+                BuildingBlock block = new BuildingBlock(i * blockSize, j * blockSize, blockSize, (j + i * multiplierX));
                 pane.getChildren().add(block.getRectangle());
+                if(i == 0 || j==0 || i == width/blockSize - 1 || j == height/blockSize - 1) {
+                    block.setIsDeathBlock();
+                    block.setRectangleColor(Color.BLACK);
+                }
                 gridList.add(block);
 
             }
@@ -50,9 +53,6 @@ public class GameGrid {
             }
         }
         return deathBlock;
-    }
-    public Color getColor() {
-        return color;
     }
     public BuildingBlock getRandomBlock() {
         Random random = new Random();

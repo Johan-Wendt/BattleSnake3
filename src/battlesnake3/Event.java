@@ -10,22 +10,20 @@ import javafx.scene.paint.Color;
  *
  * @author johanwendt
  */
-public class Event {
+public abstract class Event {
     private double longevity;
+    private int eventHappening;
     private double startTime;
     private boolean isToRemove = false;
     private boolean isTaken = false;
-    private Color revertColor;
     private BuildingBlock eventBlock;
-    private String eventHappening = "Regular";
     
-    public Event(BuildingBlock eventBlock,Color color, Color revertColor, int longevity) {
+    public Event(BuildingBlock eventBlock, Color eventColor, int longevity, int eventHappening) {
         this.longevity = longevity;
         this.eventBlock = eventBlock;
-        this.revertColor = revertColor;
-        System.out.println(eventBlock.getRectangle().getFill().equals(revertColor));
-        if(eventBlock.getRectangle().getFill().equals(revertColor)) {
-            eventBlock.getRectangle().setFill(color);
+        this.eventHappening = eventHappening;
+        if(eventBlock.getRectangle().getFill().equals(GameGrid.GAMEGRID_COLOR)) {
+            eventBlock.getRectangle().setFill(eventColor);
             startTime = System.currentTimeMillis();
         }
         else {
@@ -36,18 +34,20 @@ public class Event {
     public boolean isToRemove() {
         if(System.currentTimeMillis() - startTime > longevity) {
             isToRemove = true;
-            if(!isTaken) eventBlock.getRectangle().setFill(revertColor);
+            if(!isTaken) eventBlock.getRectangle().setFill(GameGrid.GAMEGRID_COLOR);
         }
         return isToRemove;
-    }
-    public String getEventHappening() {
-        return eventHappening; 
     }
     public int getEventId() {
         return eventBlock.getBlockId();
     }
+    public int getEventHappening() {
+        return eventHappening;
+    }
     public void isTaken() {
         isTaken = true;
         isToRemove = true;
+    }
+    public void executeEvent(GameGrid gameGrid) {
     }
 }
