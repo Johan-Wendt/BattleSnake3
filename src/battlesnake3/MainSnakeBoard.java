@@ -29,19 +29,28 @@ public class MainSnakeBoard extends Application {
     public static final int BLOCK_SIZE = 16;
     public static final int GRID_WIDTH = 800;
     public static final int GRID_HEIGTH = 640;
-    public static final int PLAYER_START_LENGTH = 8; 
     public static final int MULIPLIER_X = 1000;
     public static final int RIGHT = MULIPLIER_X;
     public static final int LEFT = -MULIPLIER_X;
     public static final int DOWN = 1;
     public static final int UP = -1;
+    public static final Color PLAYER_1_COLOR = Color.RED;
+    public static final Color PLAYER_2_COLOR = Color.ORANGE;
+    public static final Color PLAYER_3_COLOR = Color.RED;
+    public static final Color PLAYER_4_COLOR = Color.ORANGE;
+    public static final int PLAYER_1_STARTPOINT = 35010;
+    public static final int PLAYER_2_STARTPOINT = 25020;
+    public static final int PLAYER_3_STARTPOINT = 1010;
+    public static final int PLAYER_4_STARTPOINT = 1020;
+    public static final int PLAYER_1_AND_3_STARTDIRECTION = RIGHT;
+    public static final int PLAYER_2_AND_4_STARTDIRECTION = LEFT;
     private long gameSpeed = 3;
     private boolean isRunning = true;
-    private String currentDirection = "Right";
-    private String turnDirection = "Right";
-    private boolean isHorizontal = true;
     private GameGrid gameGrid;
-    private Player player;
+    private Player player1;
+    private Player player2;
+    private Player player3;
+    private Player player4;
     private Thread thread;
     private EventHandler eventHandler;
     
@@ -52,9 +61,10 @@ public class MainSnakeBoard extends Application {
     @Override
     public void start(Stage BattleStage) throws InterruptedException {
         Scene mainScene = new Scene(pane, GRID_WIDTH, GRID_HEIGTH);
-        gameGrid = new GameGrid(GRID_HEIGTH, GRID_WIDTH, pane, MULIPLIER_X, Color.AQUA, BLOCK_SIZE);
+        gameGrid = new GameGrid(GRID_HEIGTH, GRID_WIDTH, pane, MULIPLIER_X, BLOCK_SIZE);
         eventHandler = new EventHandler(gameGrid);
-        player = new Player(1010, PLAYER_START_LENGTH, Color.RED, gameGrid, eventHandler);
+        player1 = new Player(PLAYER_1_STARTPOINT, PLAYER_1_AND_3_STARTDIRECTION, PLAYER_1_COLOR, gameGrid, eventHandler);
+        player2 = new Player(PLAYER_2_STARTPOINT, PLAYER_2_AND_4_STARTDIRECTION, PLAYER_2_COLOR, gameGrid, eventHandler);
 
         
         
@@ -66,7 +76,8 @@ public class MainSnakeBoard extends Application {
         public void run() {
             try {
                 while (isRunning) {
-                    player.movePlayer();
+                    player1.movePlayer();
+                    player2.movePlayer();
                     eventHandler.eventRound();
 
                     Thread.sleep(gameSpeed);
@@ -84,24 +95,19 @@ public class MainSnakeBoard extends Application {
         mainScene.setOnKeyPressed(e -> {
             switch (e.getCode()) {
                 
-                case RIGHT: player.setCurrentDirection(RIGHT); break;
-                case LEFT: player.setCurrentDirection(LEFT); break;
-                case UP: player.setCurrentDirection(UP); break;
-                case DOWN: player.setCurrentDirection(DOWN); break;
-                case ENTER: player.setAlive(); break;
-                case L: player.setLength(player.getLength() + 1); break;
-                case F: turnUpGameSpeed(); break;
-                case S: turnDownGameSpeed(); break;
-                case R: restart(); break;
-                case P: System.out.println(thread.isAlive()); break;
-                //default only for testing
-                default:player.movePlayer();
+                case RIGHT: player1.setCurrentDirection(RIGHT); break;
+                case LEFT: player1.setCurrentDirection(LEFT); break;
+                case UP: player1.setCurrentDirection(UP); break;
+                case DOWN: player1.setCurrentDirection(DOWN); break;
+                case D: player2.setCurrentDirection(RIGHT); break;
+                case A: player2.setCurrentDirection(LEFT); break;
+                case W: player2.setCurrentDirection(UP); break;
+                case S: player2.setCurrentDirection(DOWN); break;
+                case ENTER: player1.setAlive(); player2.setAlive(); break;
+                case L: player1.setLength(player1.getLength() + 1); break;    
+
             }
         });
-    }
-    public void restart() {
-        player.erasePlayer();
-        player = new Player(1010, PLAYER_START_LENGTH, Color.RED, gameGrid, eventHandler);
     }
     public void turnUpGameSpeed() {
         if(gameSpeed > 1) {

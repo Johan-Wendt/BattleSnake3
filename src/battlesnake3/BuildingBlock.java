@@ -20,14 +20,21 @@ public class BuildingBlock {
     private int blockId;
     private Rectangle rectangle;
     private Color color;
+    private boolean isDeathBlock = false;
     
     public BuildingBlock(int blockId) {
         this.blockId = blockId;
     }
     
-    public BuildingBlock(int setX, int setY, int size, int blockId, Color color) {
+    public BuildingBlock(int setX, int setY, int size, int blockId) {
         this.blockId = blockId;
-        this.color = color;
+        color = GameGrid.GAMEGRID_COLOR;
+        createRectangle(setX, setY, size, color);
+    }
+    public BuildingBlock(int setX, int setY, int size, int blockId, boolean isDeathBlock) {
+        this.blockId = blockId;
+        color = GameGrid.GAMEGRID_COLOR;
+        this.isDeathBlock = isDeathBlock;
         createRectangle(setX, setY, size, color);
     }
     public void createRectangle(int X, int Y, int size, Color color) {
@@ -49,7 +56,17 @@ public class BuildingBlock {
     public Rectangle getRectangle() {
         return rectangle;
     }
-    public void setColor(Color color) {
-        rectangle.setFill(color);
-    }       
+    public boolean isDeathBlock() {
+        return isDeathBlock;
+    }
+    public void setIsDeathBlock() {
+        isDeathBlock = true;
+    }
+    public void setIsNotDeathBlock() {
+        isDeathBlock = false;
+    }
+    public void revertDeathBlock() {
+        isDeathBlock = false;  
+        rectangle.setFill(GameGrid.GAMEGRID_COLOR);
+    }
 }
