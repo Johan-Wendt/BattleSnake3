@@ -22,14 +22,15 @@ public class EventHandler {
     private GameGrid gameGrid;
     private Random random;
     
+    public static final Color DETHBLOCK_COLOR = Color.BLACK;
     public static final int REGULAR_EVENT_HAPPENING = 0;
-    public static final Color REGULAR_EVENT_COLOR = Color.YELLOW;
+    public static final Color REGULAR_EVENT_COLOR = Color.ORANGE;
     public static final int REGULAR_EVENT_PROBABILTY_FACTOR = 10;
     public static final int MAKE_SHORT__EVENT_HAPPENING = 1;
     public static final Color MAKE_SHORT_EVENT_COLOR = Color.PINK;
     public static final int MAKE_SHORT__EVENT_PROBABILTY_FACTOR = 1;
     public static final int ADD_DEATH_BLOCK_EVENT_HAPPENING = 4;
-    public static final Color ADD_DEATH_BLOCK_EVENT_COLOR = Color.WHITE;
+    public static final Color ADD_DEATH_BLOCK_EVENT_COLOR = Color.PURPLE;
     public static final int ADD_DEATH_BLOCK_EVENT_PROBABILTY_FACTOR = 2;
     
     public EventHandler(GameGrid gameGrid) {

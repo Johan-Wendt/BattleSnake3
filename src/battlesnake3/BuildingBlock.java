@@ -10,7 +10,9 @@ package battlesnake3;
  * @author johanwendt
  */
 import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.shape.*;
 
 /**
  *
@@ -50,10 +52,13 @@ public class BuildingBlock {
     public int getBlockId() {
         return blockId;
     }
-    public void setRectangleColor(Color color) {
+    public void setBlockColor(Color color) {
         rectangle.setFill(color);
     }
-    public Rectangle getRectangle() {
+    public Paint getBlockColor() {
+        return rectangle.getFill();
+    }
+    public Shape addToPane() {
         return rectangle;
     }
     public boolean isDeathBlock() {
@@ -65,8 +70,13 @@ public class BuildingBlock {
     public void setIsNotDeathBlock() {
         isDeathBlock = false;
     }
-    public void revertDeathBlock() {
-        isDeathBlock = false;  
-        rectangle.setFill(GameGrid.GAMEGRID_COLOR);
+    public void revertDeathBlock(boolean isInSafeZone) {
+        isDeathBlock = false;
+        if(isInSafeZone) {
+            rectangle.setFill(GameGrid.SAFE_ZONE_COLOR);
+        }
+        else {
+            rectangle.setFill(GameGrid.GAMEGRID_COLOR);
+        }
     }
 }

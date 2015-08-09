@@ -20,7 +20,7 @@ public class AddDeathBlocksEvent extends Event{
     public void executeEvent(GameGrid gameGrid) {
         BuildingBlock deathBlock = gameGrid.getRandomBlock();
         deathBlock.setBlockId(-1);
-        deathBlock.setRectangleColor(Color.BLACK);
+        deathBlock.setBlockColor(Color.BLACK);
     }
     
 }
