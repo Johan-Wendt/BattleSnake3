@@ -22,6 +22,7 @@ public class GameGrid {
     private ArrayList<BuildingBlock> gridList = new ArrayList<>();
     private BuildingBlock deathBlock;
     public static final Color GAMEGRID_COLOR = Color.AQUA;
+    public static final Color SAFE_ZONE_COLOR = Color.LIGHTBLUE;
 
     
     public GameGrid(int height, int width, Pane pane, int multiplierX, int blockSize) {
@@ -29,16 +30,21 @@ public class GameGrid {
         for(int i = 0; i < width/blockSize; i ++) {
             for(int j = 0; j < height/blockSize; j ++) {
                 BuildingBlock block = new BuildingBlock(i * blockSize, j * blockSize, blockSize, (j + i * multiplierX));
-                pane.getChildren().add(block.getRectangle());
+                pane.getChildren().add(block.addToPane());
                 if(i == 0 || j==0 || i == width/blockSize - 1 || j == height/blockSize - 1) {
                     block.setIsDeathBlock();
-                    block.setRectangleColor(Color.BLACK);
+                    block.setBlockColor(EventHandler.DETHBLOCK_COLOR);
+                }
+                if(isInSafeZone(block.getBlockId())) {
+                    block.setBlockColor(SAFE_ZONE_COLOR);
                 }
                 gridList.add(block);
 
             }
         }
         deathBlock = new BuildingBlock(-1);
+        getBlock(MainSnakeBoard.PLAYER_STARTPOINT).isDeathBlock();
+        getBlock(MainSnakeBoard.PLAYER_STARTPOINT).setBlockColor(EventHandler.DETHBLOCK_COLOR);
     }
     /**
      * Returns the BuildingBlock with the given ID. If the ID is not in the list
@@ -46,6 +52,18 @@ public class GameGrid {
      * @param blockId The ID of the BuildingBlock.
      * @return BuildingBlock with requested ID or first block added.
      */
+    public boolean isInSafeZone(int blockId) {
+        int startPoint = MainSnakeBoard.PLAYER_STARTPOINT - Player.PLAYER_START_LENGTH - Player.PLAYER_START_LENGTH * MainSnakeBoard.MULIPLIER_X; 
+        for(int i = 0; i < 2 * Player.PLAYER_START_LENGTH + 1; i++) {
+            for(int j = 0; j < 2 * Player.PLAYER_START_LENGTH + 1; j++) {
+                if(blockId == startPoint + i + j * MainSnakeBoard.MULIPLIER_X) {
+                    return true;
+                }
+                
+            }
+        }
+        return false;
+    }
     public BuildingBlock getBlock(int blockId) {
         for(BuildingBlock block: gridList) {
             if(block.getBlockId() == blockId) {

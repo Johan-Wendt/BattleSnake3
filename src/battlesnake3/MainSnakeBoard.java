@@ -15,6 +15,7 @@ import javafx.stage.Stage;
 import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
+import java.util.ArrayList;
 
 
 
@@ -35,18 +36,18 @@ public class MainSnakeBoard extends Application {
     public static final int DOWN = 1;
     public static final int UP = -1;
     public static final Color PLAYER_1_COLOR = Color.RED;
-    public static final Color PLAYER_2_COLOR = Color.ORANGE;
-    public static final Color PLAYER_3_COLOR = Color.RED;
-    public static final Color PLAYER_4_COLOR = Color.ORANGE;
-    public static final int PLAYER_1_STARTPOINT = 35010;
-    public static final int PLAYER_2_STARTPOINT = 25020;
-    public static final int PLAYER_3_STARTPOINT = 1010;
-    public static final int PLAYER_4_STARTPOINT = 1020;
-    public static final int PLAYER_1_AND_3_STARTDIRECTION = RIGHT;
-    public static final int PLAYER_2_AND_4_STARTDIRECTION = LEFT;
+    public static final Color PLAYER_2_COLOR = Color.GREEN;
+    public static final Color PLAYER_3_COLOR = Color.BLUE;
+    public static final Color PLAYER_4_COLOR = Color.YELLOW;
+    public static final int PLAYER_STARTPOINT = ((GRID_WIDTH * MULIPLIER_X) / BLOCK_SIZE) / 2 + ((GRID_HEIGTH / BLOCK_SIZE) / 2);
+    public static final int PLAYER_1_STARTDIRECTION = RIGHT;
+    public static final int PLAYER_2_STARTDIRECTION = LEFT;
+    public static final int PLAYER_3_STARTDIRECTION = UP;
+    public static final int PLAYER_4_STARTDIRECTION = DOWN;
     private long gameSpeed = 3;
     private boolean isRunning = true;
     private GameGrid gameGrid;
+    private ArrayList<Player> players = new ArrayList<>();
     private Player player1;
     private Player player2;
     private Player player3;
@@ -63,9 +64,10 @@ public class MainSnakeBoard extends Application {
         Scene mainScene = new Scene(pane, GRID_WIDTH, GRID_HEIGTH);
         gameGrid = new GameGrid(GRID_HEIGTH, GRID_WIDTH, pane, MULIPLIER_X, BLOCK_SIZE);
         eventHandler = new EventHandler(gameGrid);
-        player1 = new Player(PLAYER_1_STARTPOINT, PLAYER_1_AND_3_STARTDIRECTION, PLAYER_1_COLOR, gameGrid, eventHandler);
-        player2 = new Player(PLAYER_2_STARTPOINT, PLAYER_2_AND_4_STARTDIRECTION, PLAYER_2_COLOR, gameGrid, eventHandler);
-
+        players.add(player1 = new Player(PLAYER_1_STARTDIRECTION, PLAYER_1_COLOR, gameGrid, eventHandler));
+        players.add(player2 = new Player(PLAYER_2_STARTDIRECTION, PLAYER_2_COLOR, gameGrid, eventHandler));
+        //players.add(player3 = new Player(PLAYER_3_STARTDIRECTION, PLAYER_3_COLOR, gameGrid, eventHandler));
+        //players.add(player4 = new Player(PLAYER_4_STARTDIRECTION, PLAYER_4_COLOR, gameGrid, eventHandler));
         
         
         BattleStage.setScene(mainScene);
@@ -76,8 +78,9 @@ public class MainSnakeBoard extends Application {
         public void run() {
             try {
                 while (isRunning) {
-                    player1.movePlayer();
-                    player2.movePlayer();
+                    for(Player player: players) {
+                        player.movePlayer();
+                    }
                     eventHandler.eventRound();
 
                     Thread.sleep(gameSpeed);
@@ -103,11 +106,23 @@ public class MainSnakeBoard extends Application {
                 case A: player2.setCurrentDirection(LEFT); break;
                 case W: player2.setCurrentDirection(UP); break;
                 case S: player2.setCurrentDirection(DOWN); break;
-                case ENTER: player1.setAlive(); player2.setAlive(); break;
-                case L: player1.setLength(player1.getLength() + 1); break;    
+                case H: player3.setCurrentDirection(RIGHT); break;
+                case F: player3.setCurrentDirection(LEFT); break;
+                case T: player3.setCurrentDirection(UP); break;
+                case G: player3.setCurrentDirection(DOWN); break;
+                case L: player4.setCurrentDirection(RIGHT); break;
+                case J: player4.setCurrentDirection(LEFT); break;
+                case I: player4.setCurrentDirection(UP); break;
+                case K: player4.setCurrentDirection(DOWN); break;
+                case ENTER: begin();break;   
 
             }
         });
+    }
+    public void begin() {
+        for(Player player: players) {
+            player.setAlive();
+        }
     }
     public void turnUpGameSpeed() {
         if(gameSpeed > 1) {

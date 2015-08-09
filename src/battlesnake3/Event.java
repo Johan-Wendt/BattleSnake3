@@ -22,8 +22,8 @@ public abstract class Event {
         this.longevity = longevity;
         this.eventBlock = eventBlock;
         this.eventHappening = eventHappening;
-        if(eventBlock.getRectangle().getFill().equals(GameGrid.GAMEGRID_COLOR)) {
-            eventBlock.getRectangle().setFill(eventColor);
+        if(eventBlock.getBlockColor().equals(GameGrid.GAMEGRID_COLOR)) {
+            eventBlock.setBlockColor(eventColor);
             startTime = System.currentTimeMillis();
         }
         else {
@@ -34,7 +34,7 @@ public abstract class Event {
     public boolean isToRemove() {
         if(System.currentTimeMillis() - startTime > longevity) {
             isToRemove = true;
-            if(!isTaken) eventBlock.getRectangle().setFill(GameGrid.GAMEGRID_COLOR);
+            if(!isTaken) eventBlock.setBlockColor(GameGrid.GAMEGRID_COLOR);
         }
         return isToRemove;
     }
