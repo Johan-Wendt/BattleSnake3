@@ -27,9 +27,6 @@ import java.util.ArrayList;
 public class MainSnakeBoard extends Application {
     
     private Pane pane = new Pane();
-    public static final int BLOCK_SIZE = 16;
-    public static final int GRID_WIDTH = 800;
-    public static final int GRID_HEIGTH = 640;
     public static final int MULIPLIER_X = 1000;
     public static final int RIGHT = MULIPLIER_X;
     public static final int LEFT = -MULIPLIER_X;
@@ -39,7 +36,6 @@ public class MainSnakeBoard extends Application {
     public static final Color PLAYER_2_COLOR = Color.GREEN;
     public static final Color PLAYER_3_COLOR = Color.BLUE;
     public static final Color PLAYER_4_COLOR = Color.YELLOW;
-    public static final int PLAYER_STARTPOINT = ((GRID_WIDTH * MULIPLIER_X) / BLOCK_SIZE) / 2 + ((GRID_HEIGTH / BLOCK_SIZE) / 2);
     public static final int PLAYER_1_STARTDIRECTION = RIGHT;
     public static final int PLAYER_2_STARTDIRECTION = LEFT;
     public static final int PLAYER_3_STARTDIRECTION = UP;
@@ -61,11 +57,11 @@ public class MainSnakeBoard extends Application {
     
     @Override
     public void start(Stage BattleStage) throws InterruptedException {
-        Scene mainScene = new Scene(pane, GRID_WIDTH, GRID_HEIGTH);
-        gameGrid = new GameGrid(GRID_HEIGTH, GRID_WIDTH, pane, MULIPLIER_X, BLOCK_SIZE);
+        Scene mainScene = new Scene(pane, GameGrid.GRID_SIZE, GameGrid.GRID_SIZE);
+        gameGrid = new GameGrid(pane);
         eventHandler = new EventHandler(gameGrid);
         players.add(player1 = new Player(PLAYER_1_STARTDIRECTION, PLAYER_1_COLOR, gameGrid, eventHandler));
-        players.add(player2 = new Player(PLAYER_2_STARTDIRECTION, PLAYER_2_COLOR, gameGrid, eventHandler));
+        //players.add(player2 = new Player(PLAYER_2_STARTDIRECTION, PLAYER_2_COLOR, gameGrid, eventHandler));
         //players.add(player3 = new Player(PLAYER_3_STARTDIRECTION, PLAYER_3_COLOR, gameGrid, eventHandler));
         //players.add(player4 = new Player(PLAYER_4_STARTDIRECTION, PLAYER_4_COLOR, gameGrid, eventHandler));
         
@@ -80,6 +76,7 @@ public class MainSnakeBoard extends Application {
                 while (isRunning) {
                     for(Player player: players) {
                         player.movePlayer();
+                        gameGrid.deathBuilder();
                     }
                     eventHandler.eventRound();
 

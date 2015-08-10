@@ -46,6 +46,12 @@ public class BuildingBlock {
         rectangle.setStroke(Color.BLACK);
     }
     // getters and setter
+    public int getYpart() {
+        return (int) rectangle.getY()/GameGrid.BLOCK_SIZE;
+    }
+    public int getXpart() {
+        return (int) rectangle.getX()/GameGrid.BLOCK_SIZE;
+    }
     public void setBlockId(int id) {
         blockId = id;
     }
@@ -67,6 +73,12 @@ public class BuildingBlock {
     public void setIsDeathBlock() {
         isDeathBlock = true;
     }
+    public void setIsDeathBlock(boolean makeBlack) {
+        isDeathBlock = true;
+        if(makeBlack) {
+            setBlockColor(EventHandler.DETHBLOCK_COLOR);
+        }
+    }
     public void setIsNotDeathBlock() {
         isDeathBlock = false;
     }
@@ -76,7 +88,7 @@ public class BuildingBlock {
             rectangle.setFill(GameGrid.SAFE_ZONE_COLOR);
         }
         else {
-            rectangle.setFill(GameGrid.GAMEGRID_COLOR);
+            rectangle.setFill(GameGrid.GAMEGRID_COLOR);         
         }
     }
 }

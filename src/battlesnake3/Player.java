@@ -45,21 +45,24 @@ public class Player {
     public void createPlayer() {
         makeShort();
         makeSlow();
-        BuildingBlock startSnake = gameGrid.getBlock(MainSnakeBoard.PLAYER_STARTPOINT + (startDirection));
+        BuildingBlock startSnake = gameGrid.getBlock(GameGrid.PLAYER_STARTPOINT + (startDirection));
         startSnake.revertDeathBlock(true);
         startSnake.setBlockColor(playerColor);
         body.add(0, startSnake);    
         
-        gameGrid.getBlock(MainSnakeBoard.PLAYER_STARTPOINT + (startDirection * 2)).revertDeathBlock(true);
+        gameGrid.getBlock(GameGrid.PLAYER_STARTPOINT + (startDirection * 2)).revertDeathBlock(true);
         currentDirection = startDirection;
-        currentLocation = MainSnakeBoard.PLAYER_STARTPOINT + startDirection;
+        currentLocation = GameGrid.PLAYER_STARTPOINT + startDirection;
     }
     //mutators
 
     public void movePlayer() {
         if(isAlive && turn > 0 && turn % playerSlownes == 0) {
-            int destination = currentLocation + currentDirection; 
-            if(gameGrid.getBlock(destination).isDeathBlock()) {
+            int destination = currentLocation + currentDirection;
+            if(gameGrid.getBlock(destination).getBlockId() < 0) {
+                destination = jumpToOtherSide(gameGrid.getBlock(currentLocation));
+            }
+            if(gameGrid.getBlock(destination).isDeathBlock() || gameGrid.getBlock(destination).getBlockId() == GameGrid.PLAYER_STARTPOINT) {
                 isAlive = false;
                 killPlayer();
                 return;
@@ -103,6 +106,10 @@ public class Player {
             }
                         
         }
+    }
+    public int jumpToOtherSide(BuildingBlock block) {
+
+            return block.getBlockId() - (currentDirection * ((GameGrid.GRID_SIZE / GameGrid.BLOCK_SIZE) - 1));
     }
     public void killPlayer() {
         erasePlayer();
