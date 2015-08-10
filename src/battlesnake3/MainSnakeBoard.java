@@ -76,7 +76,7 @@ public class MainSnakeBoard extends Application {
                 while (isRunning) {
                     for(Player player: players) {
                         player.movePlayer();
-                        gameGrid.deathBuilder();
+                        playerKiller(gameGrid.deathBuilder());
                     }
                     eventHandler.eventRound();
 
@@ -130,6 +130,13 @@ public class MainSnakeBoard extends Application {
     public void turnDownGameSpeed() {
         if(gameSpeed < 10) {
             gameSpeed ++;
+        }
+    }
+    public void playerKiller(int deathBlock) {
+        for(Player player: players) {
+            if(player.containsBlock(deathBlock)) {
+                player.killPlayer();
+            }
         }
     }
 }
