@@ -22,8 +22,8 @@ public class GameGrid {
     private ArrayList<BuildingBlock> gridList = new ArrayList<>();
     private BuildingBlock outsideBlock;
     public static final int BLOCK_SIZE = 16;
-    public static final int GRID_SIZE = 768;
-    public static final int PLAYER_STARTPOINT = ((GRID_SIZE * MainSnakeBoard.MULIPLIER_X) / BLOCK_SIZE) / 2 + ((GRID_SIZE / BLOCK_SIZE) / 2);
+    public static final int GRID_SIZE = 2* (BLOCK_SIZE * 22) + BLOCK_SIZE;
+    public static final int PLAYER_STARTPOINT = (((GRID_SIZE - BLOCK_SIZE) * MainSnakeBoard.MULIPLIER_X) / BLOCK_SIZE) / 2 + (((GRID_SIZE - BLOCK_SIZE) / BLOCK_SIZE) / 2);
     public static final Color GAMEGRID_COLOR = Color.AQUA;
     public static final Color SAFE_ZONE_COLOR = Color.LIGHTBLUE;
     private int currentGridSize = GRID_SIZE / BLOCK_SIZE;
@@ -31,7 +31,8 @@ public class GameGrid {
     private int deathLocation = 0;
     private int deathDirection = MainSnakeBoard.RIGHT;
     private int deathPause = 0;
-    private static final int DEATH_SLOWNESS = 10;
+    private int DEATH_SLOWNESS = Player.PLAYER_START_SLOWNESS;
+    private boolean isDeathRunning = true;
 
     
     public GameGrid(Pane pane) {
@@ -40,10 +41,7 @@ public class GameGrid {
             for(int j = 0; j < GRID_SIZE/BLOCK_SIZE; j ++) {
                 BuildingBlock block = new BuildingBlock(i * BLOCK_SIZE, j * BLOCK_SIZE, BLOCK_SIZE, (j + i * MainSnakeBoard.MULIPLIER_X));
                 pane.getChildren().add(block.addToPane());
-             //   if(i == 0 || j==0 || i == GRID_SIZE/BLOCK_SIZE - 1 || j == GRID_HEIGTH/BLOCK_SIZE - 1) {
-               //     block.setIsDeathBlock();
-                 //   block.setBlockColor(EventHandler.DETHBLOCK_COLOR);
-                //}
+
                 if(isInSafeZone(block.getBlockId())) {
                     block.setBlockColor(SAFE_ZONE_COLOR);
                 }
@@ -54,11 +52,17 @@ public class GameGrid {
         getBlock(PLAYER_STARTPOINT).setBlockColor(EventHandler.DETHBLOCK_COLOR);
         outsideBlock = new BuildingBlock(-1);   
     }
-    public void deathBuilder() {
-        if(currentGridSize > 2 * Player.PLAYER_START_LENGTH + 1) {
+    public int deathBuilder() {
+        int deathReturn = -1;
+        if(isInSafeZone(deathLocation) == true) {
+            isDeathRunning = false;
+        }
+        if(isDeathRunning) {
             if(deathPause % DEATH_SLOWNESS == 0) {
-                if(deathCounter < currentGridSize - 1) {
+
+                if(deathCounter < currentGridSize -1) {
                     getBlock(deathLocation).setIsDeathBlock(true);
+                    deathReturn = deathLocation;
                     deathCounter ++;
                     deathLocation += deathDirection;
                 }
@@ -67,11 +71,13 @@ public class GameGrid {
                 }
             }
             deathPause ++;
+            
         }
+        return deathReturn;
     }
     public void changeDeathDirection() {
         switch(deathDirection) {
-            case MainSnakeBoard.RIGHT: deathDirection = MainSnakeBoard.DOWN; deathCounter = 0; if (deathPause > (GRID_SIZE / BLOCK_SIZE) * DEATH_SLOWNESS) currentGridSize --; break;
+            case MainSnakeBoard.RIGHT: deathDirection = MainSnakeBoard.DOWN; deathCounter = 0; if(deathPause / DEATH_SLOWNESS > GRID_SIZE / BLOCK_SIZE) currentGridSize --; break;
             case MainSnakeBoard.DOWN: deathDirection = MainSnakeBoard.LEFT; deathCounter = 0; break;
             case MainSnakeBoard.LEFT: deathDirection = MainSnakeBoard.UP; deathCounter = 0; currentGridSize --; break;          
             case MainSnakeBoard.UP: deathDirection = MainSnakeBoard.RIGHT; deathCounter = 0; break;

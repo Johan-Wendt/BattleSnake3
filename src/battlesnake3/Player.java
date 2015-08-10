@@ -24,7 +24,7 @@ public class Player {
     private int currentDirection;
     public static final int PLAYER_START_LENGTH = 8;
     private int currentLength = PLAYER_START_LENGTH;
-    private int PLAYER_START_SLOWNESS = 30;
+    public static final int PLAYER_START_SLOWNESS = 30;
     private int playerSlownes = PLAYER_START_SLOWNESS;
     private boolean isAlive;
     private Color playerColor;
@@ -63,7 +63,6 @@ public class Player {
                 destination = jumpToOtherSide(gameGrid.getBlock(currentLocation));
             }
             if(gameGrid.getBlock(destination).isDeathBlock() || gameGrid.getBlock(destination).getBlockId() == GameGrid.PLAYER_STARTPOINT) {
-                isAlive = false;
                 killPlayer();
                 return;
             }
@@ -112,6 +111,7 @@ public class Player {
             return block.getBlockId() - (currentDirection * ((GameGrid.GRID_SIZE / GameGrid.BLOCK_SIZE) - 1));
     }
     public void killPlayer() {
+        isAlive = false;
         erasePlayer();
         while(body.size() > 0) {
             body.pop().setBlockColor(EventHandler.DETHBLOCK_COLOR);
