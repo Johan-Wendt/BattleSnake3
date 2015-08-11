@@ -23,6 +23,7 @@ public class BuildingBlock {
     private Rectangle rectangle;
     private Color color;
     private boolean isDeathBlock = false;
+    private boolean isDeathBlockIrrevertible = false;
     
     public BuildingBlock(int blockId) {
         this.blockId = blockId;
@@ -73,11 +74,11 @@ public class BuildingBlock {
     public void setIsDeathBlock() {
         isDeathBlock = true;
     }
-    public void setIsDeathBlock(boolean makeBlack) {
+    public void setIsDeathBlockIrreveritble() {
         isDeathBlock = true;
-        if(makeBlack) {
-            setBlockColor(EventHandler.DETHBLOCK_COLOR);
-        }
+        setBlockColor(EventHandler.DETHBLOCK_COLOR);
+        isDeathBlockIrrevertible = true;
+
     }
     public void setIsNotDeathBlock() {
         isDeathBlock = false;

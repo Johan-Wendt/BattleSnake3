@@ -24,7 +24,7 @@ import java.util.ArrayList;
  *
  * @author johanwendt
  */
-public class MainSnakeBoard extends Application {
+public class GameEngine extends Application {
     
     private Pane pane = new Pane();
     public static final int MULIPLIER_X = 1000;
@@ -50,20 +50,19 @@ public class MainSnakeBoard extends Application {
     private Player player4;
     private Thread thread;
     private EventHandler eventHandler;
+    private int numberOfPlayers = 2;
+    private Scene mainScene;
     
-    public MainSnakeBoard () {
+    public GameEngine () {
         
     }
     
     @Override
     public void start(Stage BattleStage) throws InterruptedException {
-        Scene mainScene = new Scene(pane, GameGrid.GRID_SIZE, GameGrid.GRID_SIZE);
+        mainScene = new Scene(pane, GameGrid.GRID_SIZE, GameGrid.GRID_SIZE);
         gameGrid = new GameGrid(pane);
         eventHandler = new EventHandler(gameGrid);
-        players.add(player1 = new Player(PLAYER_1_STARTDIRECTION, PLAYER_1_COLOR, gameGrid, eventHandler));
-        //players.add(player2 = new Player(PLAYER_2_STARTDIRECTION, PLAYER_2_COLOR, gameGrid, eventHandler));
-        //players.add(player3 = new Player(PLAYER_3_STARTDIRECTION, PLAYER_3_COLOR, gameGrid, eventHandler));
-        //players.add(player4 = new Player(PLAYER_4_STARTDIRECTION, PLAYER_4_COLOR, gameGrid, eventHandler));
+        activatePlayers(numberOfPlayers);
         
         
         BattleStage.setScene(mainScene);
@@ -76,9 +75,10 @@ public class MainSnakeBoard extends Application {
                 while (isRunning) {
                     for(Player player: players) {
                         player.movePlayer();
-                        playerKiller(gameGrid.deathBuilder());
+                        playerKiller(gameGrid.deathBuilder(numberOfPlayers));
                     }
                     eventHandler.eventRound();
+                    getPlayerScores();
 
                     Thread.sleep(gameSpeed);
                 }    
@@ -89,6 +89,7 @@ public class MainSnakeBoard extends Application {
 
         });
         thread.start();
+        
         
                
         
@@ -116,6 +117,10 @@ public class MainSnakeBoard extends Application {
             }
         });
     }
+    public void createScene() {
+            
+    }
+    
     public void begin() {
         for(Player player: players) {
             player.setAlive();
@@ -137,6 +142,28 @@ public class MainSnakeBoard extends Application {
             if(player.containsBlock(deathBlock)) {
                 player.killPlayer();
             }
+        }
+    }
+    public void activatePlayers (int numberOfPlayers) {
+        switch(numberOfPlayers) {
+        case 4: players.add(player4 = new Player(PLAYER_4_STARTDIRECTION, PLAYER_4_COLOR, gameGrid, eventHandler));
+        case 3: players.add(player3 = new Player(PLAYER_3_STARTDIRECTION, PLAYER_3_COLOR, gameGrid, eventHandler));
+        case 2: players.add(player2 = new Player(PLAYER_2_STARTDIRECTION, PLAYER_2_COLOR, gameGrid, eventHandler));
+        case 1: players.add(player1 = new Player(PLAYER_1_STARTDIRECTION, PLAYER_1_COLOR, gameGrid, eventHandler));
+    }
+    }
+    public void setNumberOfPlayers(int players) {
+        numberOfPlayers = players;
+    }
+    public int getNumberOfPlayers() {
+        return numberOfPlayers;
+    }
+    public void getPlayerScores() {
+        int n = 1;
+        for(Player player: players) {
+            int score = player.getScore();
+            System.out.println(" player:" + n + " score:" + score);
+            n++;            
         }
     }
 }
