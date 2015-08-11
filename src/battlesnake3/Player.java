@@ -33,6 +33,7 @@ public class Player {
     private EventHandler events;
     private boolean mayChangeDirection = true;
     private int startDirection;
+    private int score = 0;
     
     
     public Player(int startDirection, Color playerColor, GameGrid gameGrid, EventHandler events) {
@@ -47,7 +48,10 @@ public class Player {
         makeSlow();
         BuildingBlock startSnake = gameGrid.getBlock(GameGrid.PLAYER_STARTPOINT + (startDirection));
         startSnake.revertDeathBlock(true);
+        startSnake.setIsDeathBlock();
         startSnake.setBlockColor(playerColor);
+        
+        
         body.add(0, startSnake);    
         
         gameGrid.getBlock(GameGrid.PLAYER_STARTPOINT + (startDirection * 2)).revertDeathBlock(true);
@@ -88,8 +92,9 @@ public class Player {
     public void handleEvents(int eventHappening) {
         
         switch(eventHappening) {
-        case EventHandler.REGULAR_EVENT_HAPPENING: makeLonger(); makeFaster(); break;
-        case EventHandler.MAKE_SHORT__EVENT_HAPPENING: makeShort();   
+            case EventHandler.REGULAR_EVENT_HAPPENING: makeLonger(); makeFaster(); score++; break;
+            case EventHandler.MAKE_SHORT__EVENT_HAPPENING: makeShort(); score++; break;
+            case EventHandler.ADD_DEATH_BLOCK_EVENT_HAPPENING: score++; break;
         }
     }
     public void setAlive() {
@@ -105,6 +110,9 @@ public class Player {
             }
                         
         }
+        while(body.size() > 0) {
+            body.pop().setBlockColor(EventHandler.DETHBLOCK_COLOR);
+        }
     }
     public int jumpToOtherSide(BuildingBlock block) {
 
@@ -113,9 +121,7 @@ public class Player {
     public void killPlayer() {
         isAlive = false;
         erasePlayer();
-        while(body.size() > 0) {
-            body.pop().setBlockColor(EventHandler.DETHBLOCK_COLOR);
-        }
+        addToScore(-5);
         createPlayer();
         turn = -500;
         isAlive = true;
@@ -149,6 +155,9 @@ public class Player {
     public int getLength() {
         return currentLength;
     }
+    public int getScore() {
+        return score;
+    }
     public boolean containsBlock(int blockId) {
         boolean isFound = false;
         for(BuildingBlock block: body) {
@@ -174,5 +183,11 @@ public class Player {
             currentDirection = direction;
             mayChangeDirection = false;
         }
+    }
+    public void setScore() {
+        score ++;
+    }
+    public void addToScore(int addToScore) {
+        score += addToScore;
     }
 }

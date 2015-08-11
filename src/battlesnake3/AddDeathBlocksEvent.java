@@ -19,8 +19,7 @@ public class AddDeathBlocksEvent extends Event{
     @Override
     public void executeEvent(GameGrid gameGrid) {
         BuildingBlock deathBlock = gameGrid.getRandomBlock();
-        deathBlock.setIsDeathBlock();
-        deathBlock.setBlockColor(Color.BLACK);
+        deathBlock.setIsDeathBlockIrreveritble();
     }
     
 }
