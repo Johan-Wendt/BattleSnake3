@@ -10,7 +10,7 @@ import javafx.scene.paint.Color;
  *
  * @author johanwendt
  */
-public abstract class Event {
+public abstract class Bonus {
     private double longevity;
     private int eventHappening;
     private double startTime;
@@ -18,7 +18,7 @@ public abstract class Event {
     private boolean isTaken = false;
     private BuildingBlock eventBlock;
     
-    public Event(BuildingBlock eventBlock, Color eventColor, int longevity, int eventHappening) {
+    public Bonus(BuildingBlock eventBlock, Color eventColor, int longevity, int eventHappening) {
         this.longevity = longevity;
         this.eventBlock = eventBlock;
         this.eventHappening = eventHappening;
@@ -34,7 +34,7 @@ public abstract class Event {
     public boolean isToRemove() {
         if(System.currentTimeMillis() - startTime > longevity) {
             isToRemove = true;
-            if(!isTaken) eventBlock.setBlockColor(GameGrid.GAMEGRID_COLOR);
+            if(!isTaken) eventBlock.revertDeathBlock(false);
         }
         return isToRemove;
     }

@@ -25,18 +25,21 @@ public class Player {
     public static final int PLAYER_START_LENGTH = 8;
     private int currentLength = PLAYER_START_LENGTH;
     public static final int PLAYER_START_SLOWNESS = 30;
+    public static final int PLAYER_DEATH_PENALTY = -5;
     private int playerSlownes = PLAYER_START_SLOWNESS;
-    private boolean isAlive;
+    private boolean isAlive = true;
     private Color playerColor;
     private GameGrid gameGrid;
     private Stack<BuildingBlock> body = new Stack<>();
-    private EventHandler events;
+    private BonusHandler events;
     private boolean mayChangeDirection = true;
     private int startDirection;
     private int score = 0;
+    private String name;
     
     
-    public Player(int startDirection, Color playerColor, GameGrid gameGrid, EventHandler events) {
+    public Player(String name, int startDirection, Color playerColor, GameGrid gameGrid, BonusHandler events) {
+        this.name = name;
         this.startDirection = startDirection;
         this.playerColor = playerColor;
         this.gameGrid = gameGrid;
@@ -92,13 +95,13 @@ public class Player {
     public void handleEvents(int eventHappening) {
         
         switch(eventHappening) {
-            case EventHandler.REGULAR_EVENT_HAPPENING: makeLonger(); makeFaster(); score++; break;
-            case EventHandler.MAKE_SHORT__EVENT_HAPPENING: makeShort(); score++; break;
-            case EventHandler.ADD_DEATH_BLOCK_EVENT_HAPPENING: score++; break;
+            case BonusHandler.REGULAR_EVENT_HAPPENING: makeLonger(); makeFaster(); score++; break;
+            case BonusHandler.MAKE_SHORT__EVENT_HAPPENING: makeShort(); score++; break;
+            case BonusHandler.ADD_DEATH_BLOCK_EVENT_HAPPENING: score++; break;
         }
     }
-    public void setAlive() {
-        isAlive = true;
+    public void setIsAlive(boolean alive) {
+        isAlive = alive;
     }
     public void erasePlayer() {
         Iterator<BuildingBlock> itr = body.iterator();
@@ -111,7 +114,7 @@ public class Player {
                         
         }
         while(body.size() > 0) {
-            body.pop().setBlockColor(EventHandler.DETHBLOCK_COLOR);
+            body.pop().setBlockColor(BonusHandler.DETHBLOCK_COLOR);
         }
     }
     public int jumpToOtherSide(BuildingBlock block) {
@@ -119,12 +122,15 @@ public class Player {
             return block.getBlockId() - (currentDirection * ((GameGrid.GRID_SIZE / GameGrid.BLOCK_SIZE) - 1));
     }
     public void killPlayer() {
-        isAlive = false;
         erasePlayer();
-        addToScore(-5);
-        createPlayer();
-        turn = -500;
-        isAlive = true;
+        addToScore(PLAYER_DEATH_PENALTY);
+        if(score  < 0 && !gameGrid.isDeathRunning()) {
+            setIsAlive(false);
+        }
+        else {
+            createPlayer();
+            turn = -500;
+        }
     }
     public void makeFaster() {
         if(playerSlownes > 3) {
@@ -157,6 +163,17 @@ public class Player {
     }
     public int getScore() {
         return score;
+    }
+    public String getName() {
+        return name;
+    }
+    public Color getPlayerColor() {
+        return playerColor;
+    }
+    @Override
+    public String toString() {
+        String scoreString = name + ": " + score;
+        return scoreString;
     }
     public boolean containsBlock(int blockId) {
         boolean isFound = false;

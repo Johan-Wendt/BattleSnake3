@@ -14,8 +14,8 @@ import java.util.Iterator;
  *
  * @author johanwendt
  */
-public class EventHandler {
-    private ArrayList <Event> eventList = new ArrayList<>();
+public class BonusHandler {
+    private ArrayList <Bonus> eventList = new ArrayList<>();
     private static int LONGEVITY_MIN = 2000;
     private static int LONGEVITY_MAX = 10000;
     private static double EVENT_PROBABILITY = 0.003;
@@ -33,13 +33,13 @@ public class EventHandler {
     public static final Color ADD_DEATH_BLOCK_EVENT_COLOR = Color.PURPLE;
     public static final int ADD_DEATH_BLOCK_EVENT_PROBABILTY_FACTOR = 2;
     
-    public EventHandler(GameGrid gameGrid) {
+    public BonusHandler(GameGrid gameGrid) {
         this.gameGrid = gameGrid;
         
     }
     //Getters
     public int getEvent(int blockId) {
-        for(Event event: eventList) {
+        for(Bonus event: eventList) {
             if(event.getEventId() == blockId) {
                 event.isTaken();
                 event.executeEvent(gameGrid);
@@ -67,23 +67,23 @@ public class EventHandler {
     }
     public void createRegularBonusEvent() {
         BuildingBlock eventBlock = gameGrid.getRandomBlock();
-        Event event = new RegularBonusEvent(eventBlock,REGULAR_EVENT_COLOR, LONGEVITY_MIN + new Random().nextInt(LONGEVITY_MAX), REGULAR_EVENT_HAPPENING);
+        Bonus event = new RegularBonus(eventBlock,REGULAR_EVENT_COLOR, LONGEVITY_MIN + new Random().nextInt(LONGEVITY_MAX), REGULAR_EVENT_HAPPENING);
         eventList.add(event);
     }
     public void createMakeShortEvent() {
         BuildingBlock eventBlock = gameGrid.getRandomBlock();
-        Event event = new MakeShortEvent(eventBlock,MAKE_SHORT_EVENT_COLOR, LONGEVITY_MIN + new Random().nextInt(LONGEVITY_MAX), MAKE_SHORT__EVENT_HAPPENING);
+        Bonus event = new MakeShortBonus(eventBlock,MAKE_SHORT_EVENT_COLOR, LONGEVITY_MIN + new Random().nextInt(LONGEVITY_MAX), MAKE_SHORT__EVENT_HAPPENING);
         eventList.add(event);
     }
     public void createAddDeathBlocksEvent() {
         BuildingBlock eventBlock = gameGrid.getRandomBlock();
-        Event event = new AddDeathBlocksEvent (eventBlock,ADD_DEATH_BLOCK_EVENT_COLOR, LONGEVITY_MIN + new Random().nextInt(LONGEVITY_MAX), ADD_DEATH_BLOCK_EVENT_HAPPENING);
+        Bonus event = new AddDeathBlocksBonus (eventBlock,ADD_DEATH_BLOCK_EVENT_COLOR, LONGEVITY_MIN + new Random().nextInt(LONGEVITY_MAX), ADD_DEATH_BLOCK_EVENT_HAPPENING);
         eventList.add(event);
     }
     public void destroyEvents() {
         Iterator itr = eventList.iterator();
         while(itr.hasNext()) {
-            Event event = (Event)itr.next();
+            Bonus event = (Bonus)itr.next();
             if(event.isToRemove()) {
                 itr.remove();
             }

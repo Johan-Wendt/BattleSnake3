@@ -11,15 +11,17 @@ import javafx.scene.paint.Color;
  *
  * @author johanwendt
  */
-public class AddDeathBlocksEvent extends Event{
+public class AddDeathBlocksBonus extends Bonus{
 
-    public AddDeathBlocksEvent(BuildingBlock eventBlock, Color eventColor, int longevity, int eventHappening) {
+    public AddDeathBlocksBonus(BuildingBlock eventBlock, Color eventColor, int longevity, int eventHappening) {
         super(eventBlock, eventColor, longevity, eventHappening);
     }
     @Override
     public void executeEvent(GameGrid gameGrid) {
-        BuildingBlock deathBlock = gameGrid.getRandomBlock();
-        deathBlock.setIsDeathBlockIrreveritble();
+        for(int i = 0; i < 3; i++) {
+            BuildingBlock deathBlock = gameGrid.getRandomBlock();
+            deathBlock.setIsDeathBlockIrreveritble();
+        }
     }
     
 }
