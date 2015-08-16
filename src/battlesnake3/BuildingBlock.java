@@ -76,7 +76,7 @@ public class BuildingBlock {
     }
     public void setIsDeathBlockIrreveritble() {
         isDeathBlock = true;
-        setBlockColor(EventHandler.DETHBLOCK_COLOR);
+        setBlockColor(BonusHandler.DETHBLOCK_COLOR);
         isDeathBlockIrrevertible = true;
 
     }
@@ -84,12 +84,14 @@ public class BuildingBlock {
         isDeathBlock = false;
     }
     public void revertDeathBlock(boolean isInSafeZone) {
-        isDeathBlock = false;
-        if(isInSafeZone) {
-            rectangle.setFill(GameGrid.SAFE_ZONE_COLOR);
-        }
-        else {
-            rectangle.setFill(GameGrid.GAMEGRID_COLOR);         
+        if(!isDeathBlockIrrevertible) {
+            isDeathBlock = false;
+            if(isInSafeZone) {
+                rectangle.setFill(GameGrid.SAFE_ZONE_COLOR);
+            }
+            else {
+                rectangle.setFill(GameGrid.GAMEGRID_COLOR);         
+            }
         }
     }
 }

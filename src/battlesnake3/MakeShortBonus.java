@@ -11,10 +11,9 @@ import javafx.scene.paint.Color;
  *
  * @author johanwendt
  */
-public class RegularBonusEvent extends Event {
-    public RegularBonusEvent(BuildingBlock eventBlock, Color eventColor, int longevity, int eventHappening) {
+public class MakeShortBonus extends Bonus {
+
+    public MakeShortBonus(BuildingBlock eventBlock, Color eventColor, int longevity, int eventHappening) {
         super(eventBlock, eventColor, longevity, eventHappening);
     }
 }
-
-

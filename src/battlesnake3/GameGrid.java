@@ -49,16 +49,16 @@ public class GameGrid {
 
             }
         }
-        getBlock(PLAYER_STARTPOINT).setBlockColor(EventHandler.DETHBLOCK_COLOR);
+        getBlock(PLAYER_STARTPOINT).setBlockColor(BonusHandler.DETHBLOCK_COLOR);
         outsideBlock = new BuildingBlock(-1);   
     }
-    public int deathBuilder(int numberOfPlayers) {
+    public int deathBuilder() {
         int deathReturn = -1;
         if(isInSafeZone(deathLocation) == true) {
             isDeathRunning = false;
         }
         if(isDeathRunning) {
-            if(deathPause % (DEATH_SLOWNESS * numberOfPlayers) == 0) {
+            if(deathPause % (DEATH_SLOWNESS) == 0) {
 
                 if(deathCounter < currentGridSize -1) {
                     getBlock(deathLocation).setIsDeathBlockIrreveritble();
@@ -67,7 +67,7 @@ public class GameGrid {
                     deathLocation += deathDirection;
                 }
                 else {
-                    changeDeathDirection(numberOfPlayers);
+                    changeDeathDirection();
                 }
             }
             deathPause ++;
@@ -75,9 +75,9 @@ public class GameGrid {
         }
         return deathReturn;
     }
-    public void changeDeathDirection(int numberOfPlayers) {
+    public void changeDeathDirection() {
         switch(deathDirection) {
-            case GameEngine.RIGHT: deathDirection = GameEngine.DOWN; deathCounter = 0; if(deathPause / (DEATH_SLOWNESS * numberOfPlayers)> GRID_SIZE / BLOCK_SIZE) currentGridSize --; break;
+            case GameEngine.RIGHT: deathDirection = GameEngine.DOWN; deathCounter = 0; if(deathPause / (DEATH_SLOWNESS)> GRID_SIZE / BLOCK_SIZE) currentGridSize --; break;
             case GameEngine.DOWN: deathDirection = GameEngine.LEFT; deathCounter = 0; break;
             case GameEngine.LEFT: deathDirection = GameEngine.UP; deathCounter = 0; currentGridSize --; break;          
             case GameEngine.UP: deathDirection = GameEngine.RIGHT; deathCounter = 0; break;
@@ -90,6 +90,9 @@ public class GameGrid {
      * @param blockId The ID of the BuildingBlock.
      * @return BuildingBlock with requested ID or first block added.
      */
+    public boolean isDeathRunning() {
+        return isDeathRunning;
+    }
     public boolean isInSafeZone(int blockId) {
         if(blockId == PLAYER_STARTPOINT) {
             BuildingBlock block = getBlock(blockId);
@@ -116,12 +119,9 @@ public class GameGrid {
     }
     public BuildingBlock getRandomBlock() {
         int adjustToMiddle = ((GRID_SIZE / BLOCK_SIZE) - currentGridSize)/2;
-        System.out.println(adjustToMiddle);
         Random random = new Random();
         int randomY = random.nextInt(currentGridSize - 2) + adjustToMiddle + 1;
         int randomX = (random.nextInt(currentGridSize -2) + adjustToMiddle + 1) * GameEngine.MULIPLIER_X;
-        System.out.println(randomY);
-        System.out.println(randomX);
         return getBlock(randomY + randomX);
     }
 }
