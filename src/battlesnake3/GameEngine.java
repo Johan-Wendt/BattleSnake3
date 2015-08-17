@@ -23,25 +23,24 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.SingleSelectionModel;
-import javafx.scene.control.TextArea;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import javafx.stage.StageStyle;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
-import javafx.event.EventHandler;
-import javafx.event.EventType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCombination;
+import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.ColumnConstraints;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.RowConstraints;
+import javafx.scene.shape.Rectangle;
 
 
 
@@ -53,8 +52,8 @@ import javafx.scene.input.KeyCombination;
  */
 public class GameEngine extends Application {
     
-    private BorderPane mainPane = new BorderPane();
-    private Pane pane = new Pane();
+    private final BorderPane mainPane = new BorderPane();
+    private final Pane pane = new Pane();
     public static final int MULIPLIER_X = 1000;
     public static final int RIGHT = MULIPLIER_X;
     public static final int LEFT = -MULIPLIER_X;
@@ -68,14 +67,11 @@ public class GameEngine extends Application {
     public static final int PLAYER_2_STARTDIRECTION = LEFT;
     public static final int PLAYER_3_STARTDIRECTION = UP;
     public static final int PLAYER_4_STARTDIRECTION = DOWN;
+    public static final int PLAYER_SCORE_SIZE = 40;
     private long gameSpeed = 3;
-    private boolean isRunning = true;
+    private final boolean isRunning = true;
     private GameGrid gameGrid;
-    private ArrayList<Player> players = new ArrayList<>();
-    private Player player1;
-    private Player player2;
-    private Player player3;
-    private Player player4;
+    private final ArrayList<Player> players = new ArrayList<>();
     private Thread thread;
     private BonusHandler bonusHandler;
     private int numberOfPlayers = 1;
@@ -84,35 +80,37 @@ public class GameEngine extends Application {
     private Text playerTwoScore;
     private Text playerThreeScore;
     private Text playerFourScore;
-    private VBox scorePane;
-    public static final int PLAYER_SCORE_SIZE = 20;
+    private VBox scorePane = new VBox();
     private Scene firstScene;
     private Stage firstStage;
-    private Stage battleStage = new Stage();
-    private VBox firstPane;
+    private final Stage battleStage = new Stage();
+    private VBox firstPane = new VBox();
     private ChoiceBox chooseNumberOfPlayers;
     private boolean isPaused = true;
     private Button startButton;
     private Button cancelButton;
-    private Text winnerInfo = new Text("");
+    private final Text winnerInfo = new Text("");
+    private GridPane rightPane = new GridPane();
     
     public GameEngine () {
         
     }
     
     @Override
-    public void start(Stage battleStage) throws InterruptedException {  
+    public void start(Stage battleStage) throws InterruptedException {
+        //Set up everything all the screens and activate the players.
         setUpMainScreen();
         gameGrid = new GameGrid(pane);
         bonusHandler = new BonusHandler(gameGrid);
         activatePlayers();
+        setUpControllers(); 
         setUpFirstScreen();
         setUpScoreBoard();
+        setUpRightPane();
         initiateScoreBoard();
-      
-        thread = new Thread(new Runnable()  {
-        @Override
-        public void run() {
+        
+        //Get the thread that is running movoment of the players and creations of bonuses started.
+        thread = new Thread(() -> {
             try {
                 while (isRunning) {
                     if(!isPaused) {
@@ -124,11 +122,8 @@ public class GameEngine extends Application {
                         showScores();   
                     }
                     if((gameGrid.isDeathRunning() == false && getNumberOfAlivePlayers() < 2 && !isPaused) || getNumberOfAlivePlayers() < 1 && !isPaused) {
-                        Platform.runLater(new Runnable() {
-                            @Override 
-                            public void run() {
-                                gameOver();
-                            }
+                        Platform.runLater(() -> {
+                            gameOver();
                         });
                         
                     }
@@ -137,48 +132,72 @@ public class GameEngine extends Application {
             }
             catch (InterruptedException ex) {
             }
-        }
-
         });
         thread.start();
-        
-        
-               
+    }
+    /**
+     * Set up the controllers for the players. This should be made 
+     * dependant on the chosen amount of players.
+     */
+    public void setUpControllers() {
         
         mainScene.setOnKeyPressed(e -> {
             switch (e.getCode()) {
-                
-                case RIGHT: player1.setCurrentDirection(RIGHT); break;
-                case LEFT: player1.setCurrentDirection(LEFT); break;
-                case UP: player1.setCurrentDirection(UP); break;
-                case DOWN: player1.setCurrentDirection(DOWN); break;
-                case D: player2.setCurrentDirection(RIGHT); break;
-                case A: player2.setCurrentDirection(LEFT); break;
-                case W: player2.setCurrentDirection(UP); break;
-                case S: player2.setCurrentDirection(DOWN); break;
-                case H: player3.setCurrentDirection(RIGHT); break;
-                case F: player3.setCurrentDirection(LEFT); break;
-                case T: player3.setCurrentDirection(UP); break;
-                case G: player3.setCurrentDirection(DOWN); break;
-                case L: player4.setCurrentDirection(RIGHT); break;
-                case J: player4.setCurrentDirection(LEFT); break;
-                case I: player4.setCurrentDirection(UP); break;
-                case K: player4.setCurrentDirection(DOWN); break;
-                case ENTER: begin();break;   
-                case P: firstStage.show(); break;
 
+                case RIGHT:
+                    players.get(0).setCurrentDirection(RIGHT);
+                    break;
+                case LEFT:
+                    players.get(0).setCurrentDirection(LEFT);
+                    break;
+                case UP:
+                    players.get(0).setCurrentDirection(UP);
+                    break;
+                case DOWN:
+                    players.get(0).setCurrentDirection(DOWN);
+                    break;
+                case D:
+                    players.get(1).setCurrentDirection(RIGHT);
+                    break;
+                case A:
+                    players.get(1).setCurrentDirection(LEFT);
+                    break;
+                case W:
+                    players.get(1).setCurrentDirection(UP);
+                    break;
+                case S:
+                    players.get(1).setCurrentDirection(DOWN);
+                    break;
+                case H:
+                    players.get(2).setCurrentDirection(RIGHT);
+                    break;
+                case F:
+                    players.get(2).setCurrentDirection(LEFT);
+                    break;
+                case T:
+                    players.get(2).setCurrentDirection(UP);
+                    break;
+                case G:
+                    players.get(2).setCurrentDirection(DOWN);
+                    break;
+                case L:
+                    players.get(3).setCurrentDirection(RIGHT);
+                    break;
+                case J:
+                    players.get(3).setCurrentDirection(LEFT);
+                    break;
+                case I:
+                    players.get(3).setCurrentDirection(UP);
+                    break;
+                case K:
+                    players.get(3).setCurrentDirection(DOWN);
+                    break;
             }
         });
     }
-    public void test() {
-
-    }
-    public void pause() {
-        isPaused = true;
-    }
-    public void unPause() {
-        isPaused = false;
-    }
+/**
+ * Brings up the initial screen and displays the winner of the game.
+ */
     public void gameOver() {
         Player winner = null;
         int highest = -10;
@@ -191,16 +210,22 @@ public class GameEngine extends Application {
         winnerInfo.setText("The winner is " + winner.getName());
         winnerInfo.setFill(winner.getPlayerColor());
         winnerInfo.setFont(Font.font(30));
-        pause();
+        setIspaused(true);
         cancelButton.setDisable(true);
         firstStage.show();
     }
+    /**
+     * Unpauses the game and sets all players in status alive so they start moving.
+     */
     public void begin() {
         isPaused = false;
         for(Player player: players) {
             player.setIsAlive(true);
         }
     }
+    /**
+     * Restart the game from the begining. Everything is reset.
+     */
     public void restart() {
         winnerInfo.setText("");
         gameGrid = new GameGrid(pane);
@@ -209,6 +234,11 @@ public class GameEngine extends Application {
         begin();
         
     }
+    /**
+     * Turns upp the game speed for all the players. It does this by making
+     * the pause in the gameloop-thread shorter. This is not yet implemented 
+     * anywhere in the game.
+     */
     public void turnUpGameSpeed() {
         if(gameSpeed > 1) {
             gameSpeed --;
@@ -218,6 +248,9 @@ public class GameEngine extends Application {
         if(gameSpeed < 10) {
             gameSpeed ++;
         }
+    }
+    private void setIspaused(boolean pause) {
+        isPaused = pause;
     }
     public void erasePlayers() {
         for(Player player: players) {
@@ -233,10 +266,10 @@ public class GameEngine extends Application {
     }
     public void activatePlayers () {
         switch(numberOfPlayers) {
-            case 4: players.add(0, player4 = new Player("Player 4", PLAYER_4_STARTDIRECTION, PLAYER_4_COLOR, gameGrid, bonusHandler));
-            case 3: players.add(0, player3 = new Player("Player 3", PLAYER_3_STARTDIRECTION, PLAYER_3_COLOR, gameGrid, bonusHandler));
-            case 2: players.add(0, player2 = new Player("Player 2", PLAYER_2_STARTDIRECTION, PLAYER_2_COLOR, gameGrid, bonusHandler));
-            case 1: players.add(0, player1 = new Player("Player 1", PLAYER_1_STARTDIRECTION, PLAYER_1_COLOR, gameGrid, bonusHandler));
+            case 4: players.add(0, new Player("Player 4", PLAYER_4_STARTDIRECTION, PLAYER_4_COLOR, gameGrid, bonusHandler));
+            case 3: players.add(0, new Player("Player 3", PLAYER_3_STARTDIRECTION, PLAYER_3_COLOR, gameGrid, bonusHandler));
+            case 2: players.add(0, new Player("Player 2", PLAYER_2_STARTDIRECTION, PLAYER_2_COLOR, gameGrid, bonusHandler));
+            case 1: players.add(0, new Player("Player 1", PLAYER_1_STARTDIRECTION, PLAYER_1_COLOR, gameGrid, bonusHandler));
     } 
     }
     public void setNumberOfPlayers(int toPlay) {
@@ -255,7 +288,7 @@ public class GameEngine extends Application {
         
     }
     public void setUpMainScreen() {
-        mainScene = new Scene(mainPane, GameGrid.GRID_SIZE + 200, GameGrid.GRID_SIZE + 20);
+        mainScene = new Scene(mainPane, GameGrid.GRID_SIZE + 400, GameGrid.GRID_SIZE + 20);
         
         final Menu menu = new Menu("Battle Snake");
         MenuItem underMenu1 = new MenuItem("Set up game");
@@ -270,7 +303,7 @@ public class GameEngine extends Application {
         underMenu1.setAccelerator(KeyCombination.keyCombination("META + S"));
         
         underMenu1.setOnAction(e -> {
-            pause();
+            setIspaused(true);
             firstStage.show();
         });
         
@@ -280,9 +313,11 @@ public class GameEngine extends Application {
             Platform.exit();
         });
         
+        mainPane.setCenter(rightPane);
         mainPane.setLeft(pane);
         mainPane.setPadding(new Insets(10, 20, 10, 20));
         mainPane.getChildren().add(menuBar);
+        
  
         battleStage.setScene(mainScene);
         battleStage.setTitle("Battle Snake");
@@ -319,13 +354,13 @@ public class GameEngine extends Application {
         cancelButton = new Button("Cancel");
         cancelButton.setDisable(true);
         cancelButton.setOnAction(e -> {
-            unPause();
+            setIspaused(false);
             firstStage.hide();
         });
 
         
         
-        firstPane = new VBox(40);
+        firstPane.setSpacing(40);
         firstPane.setAlignment(Pos.CENTER);
         firstPane.setPadding(new Insets(40, 40, 40, 40));
         firstPane.getChildren().addAll(winnerInfo, chooseNumberOfPlayers, startButton, cancelButton);
@@ -334,9 +369,39 @@ public class GameEngine extends Application {
         firstStage.setTitle("Set up game");
         firstStage.show();
     }
+    public void setUpRightPane() {
+        int fontSize = 17;
+        rightPane.getChildren().add(scorePane);
+        rightPane.setConstraints(scorePane, 1, 1);
+        rightPane.getColumnConstraints().addAll(new ColumnConstraints(30), new ColumnConstraints(10), new ColumnConstraints(30));
+        rightPane.getRowConstraints().addAll(new RowConstraints(10), new RowConstraints(500), new RowConstraints(30), new RowConstraints(30), new RowConstraints(30), new RowConstraints(30), new RowConstraints(30));
+
+        
+        Text regularBonusText = new Text(BonusHandler.REGULAR_BONUS_DESCRIPTION);
+        regularBonusText.setFont(new Font(fontSize));
+        Text makeShortBonusText = new Text(BonusHandler.MAKE_SHORT_BONUS_DESCRIPTION);
+        makeShortBonusText.setFont(new Font(fontSize));
+        Text addDeathBlockBonusText = new Text(BonusHandler.ADD_DEATH_BLOCK_BONUS_DESCRIPTION);
+        addDeathBlockBonusText.setFont(new Font(fontSize));
+        
+        
+        Rectangle regularBonusColor = new Rectangle(fontSize, fontSize, BonusHandler.REGULAR_BONUS_COLOR);
+        Rectangle makeShortBonusColor = new Rectangle(fontSize, fontSize, BonusHandler.MAKE_SHORT_BONUS_COLOR);
+        Rectangle addDeathBlockBonusColor = new Rectangle(fontSize, fontSize, BonusHandler.ADD_DEATH_BLOCK_BONUS_COLOR);
+        
+        rightPane.getChildren().addAll(regularBonusText, makeShortBonusText, addDeathBlockBonusText, makeShortBonusColor, regularBonusColor, addDeathBlockBonusColor);
+        
+        rightPane.setConstraints(regularBonusText, 3, 4);
+        rightPane.setConstraints(makeShortBonusText, 3, 5);
+        rightPane.setConstraints(addDeathBlockBonusText, 3, 6);
+        
+        rightPane.setConstraints(regularBonusColor, 1, 4);
+        rightPane.setConstraints(makeShortBonusColor, 1, 5);
+        rightPane.setConstraints(addDeathBlockBonusColor, 1, 6);
+
+    }
     public void setUpScoreBoard() {
-        scorePane = new VBox();
-        mainPane.setCenter(scorePane);
+        scorePane.getChildren().clear();
         scorePane.setAlignment(Pos.TOP_LEFT);
         scorePane.setPadding(new Insets(5, 5, 10, 30));
         Text scoreHeader = new Text("Scores");

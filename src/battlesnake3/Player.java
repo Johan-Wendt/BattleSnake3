@@ -1,8 +1,4 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package battlesnake3;
 
 /**
@@ -95,9 +91,9 @@ public class Player {
     public void handleEvents(int eventHappening) {
         
         switch(eventHappening) {
-            case BonusHandler.REGULAR_EVENT_HAPPENING: makeLonger(); makeFaster(); score++; break;
-            case BonusHandler.MAKE_SHORT__EVENT_HAPPENING: makeShort(); score++; break;
-            case BonusHandler.ADD_DEATH_BLOCK_EVENT_HAPPENING: score++; break;
+            case BonusHandler.REGULAR_BONUS_HAPPENING: makeLonger(); makeFaster(); score++; break;
+            case BonusHandler.MAKE_SHORT_BONUS_HAPPENING: makeShort(); score++; break;
+            case BonusHandler.ADD_DEATH_BLOCK_BONUS_HAPPENING: score++; break;
         }
     }
     public void setIsAlive(boolean alive) {
