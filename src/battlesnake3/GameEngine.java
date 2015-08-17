@@ -24,9 +24,6 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.FlowPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
@@ -36,8 +33,14 @@ import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCombination;
-import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.Border;
+import javafx.scene.layout.BorderStroke;
+import javafx.scene.layout.BorderStrokeStyle;
+import javafx.scene.layout.BorderWidths;
 import javafx.scene.layout.ColumnConstraints;
+import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.RowConstraints;
 import javafx.scene.shape.Rectangle;
@@ -67,7 +70,7 @@ public class GameEngine extends Application {
     public static final int PLAYER_2_STARTDIRECTION = LEFT;
     public static final int PLAYER_3_STARTDIRECTION = UP;
     public static final int PLAYER_4_STARTDIRECTION = DOWN;
-    public static final int PLAYER_SCORE_SIZE = 40;
+    public static final int PLAYER_SCORE_SIZE = 30;
     private long gameSpeed = 3;
     private final boolean isRunning = true;
     private GameGrid gameGrid;
@@ -80,17 +83,18 @@ public class GameEngine extends Application {
     private Text playerTwoScore;
     private Text playerThreeScore;
     private Text playerFourScore;
-    private VBox scorePane = new VBox();
+    private final VBox scorePane = new VBox();
     private Scene firstScene;
     private Stage firstStage;
     private final Stage battleStage = new Stage();
-    private VBox firstPane = new VBox();
+    private final GridPane firstPane = new GridPane();
     private ChoiceBox chooseNumberOfPlayers;
     private boolean isPaused = true;
     private Button startButton;
     private Button cancelButton;
-    private final Text winnerInfo = new Text("");
+    private Text gameInfo = new Text();
     private GridPane rightPane = new GridPane();
+
     
     public GameEngine () {
         
@@ -103,7 +107,8 @@ public class GameEngine extends Application {
         gameGrid = new GameGrid(pane);
         bonusHandler = new BonusHandler(gameGrid);
         activatePlayers();
-        setUpControllers(); 
+        setUpControllers();
+        setUpGameInfo(null);
         setUpFirstScreen();
         setUpScoreBoard();
         setUpRightPane();
@@ -207,9 +212,7 @@ public class GameEngine extends Application {
                 winner = player;
             }
         }
-        winnerInfo.setText("The winner is " + winner.getName());
-        winnerInfo.setFill(winner.getPlayerColor());
-        winnerInfo.setFont(Font.font(30));
+        setUpGameInfo(winner);
         setIspaused(true);
         cancelButton.setDisable(true);
         firstStage.show();
@@ -227,7 +230,7 @@ public class GameEngine extends Application {
      * Restart the game from the begining. Everything is reset.
      */
     public void restart() {
-        winnerInfo.setText("");
+        setUpGameInfo(null);
         gameGrid = new GameGrid(pane);
         bonusHandler = new BonusHandler(gameGrid);
         setNumberOfPlayers(numberOfPlayers);
@@ -288,7 +291,7 @@ public class GameEngine extends Application {
         
     }
     public void setUpMainScreen() {
-        mainScene = new Scene(mainPane, GameGrid.GRID_SIZE + 400, GameGrid.GRID_SIZE + 20);
+        mainScene = new Scene(mainPane, GameGrid.GRID_SIZE + 450, GameGrid.GRID_SIZE + 20);
         
         final Menu menu = new Menu("Battle Snake");
         MenuItem underMenu1 = new MenuItem("Set up game");
@@ -313,6 +316,7 @@ public class GameEngine extends Application {
             Platform.exit();
         });
         
+        mainPane.setBackground(new Background(new BackgroundFill(Color.WHITESMOKE, CornerRadii.EMPTY, Insets.EMPTY)));
         mainPane.setCenter(rightPane);
         mainPane.setLeft(pane);
         mainPane.setPadding(new Insets(10, 20, 10, 20));
@@ -327,25 +331,51 @@ public class GameEngine extends Application {
     public void setUpFirstScreen() {
         firstStage = new Stage();
         firstStage.setAlwaysOnTop(true);
-        firstStage.setMaxWidth(400);
+        firstStage.setMaxWidth(500);
         firstStage.setMaxHeight(400);
+        
+        firstPane.getColumnConstraints().addAll(new ColumnConstraints(20), new ColumnConstraints(230), new ColumnConstraints(150));
+        firstPane.getRowConstraints().addAll(new RowConstraints(10), new RowConstraints(70), new RowConstraints(190), new RowConstraints(5));
+        
+        Text controlInfo = new Text("Player 1: up, right, down left \n"
+        + "Player 2: w, d, s, a \n" 
+        + "Player 3: t, h, g, f \n" 
+        + "Player 4: i, l, k, j ");
+        
+        controlInfo.setFont(Font.font(15));
+        
+        firstPane.add(gameInfo, 1, 1);
+        firstPane.add(controlInfo, 1, 2);
+ 
+        
         ComboBox<String> chooseNumberOfPlayers = new ComboBox<>();
         ObservableList<String> options = FXCollections.observableArrayList("1 player", "2 players","3 players","4 players");
         chooseNumberOfPlayers.getItems().addAll(options);
-        chooseNumberOfPlayers.setValue("Select number of players"); 
+        chooseNumberOfPlayers.setValue("Select number of players");
+        chooseNumberOfPlayers.setPrefWidth(220);
+        chooseNumberOfPlayers.setStyle("-fx-font: 15 arial; -fx-base: #FF00FF;");
+        
         chooseNumberOfPlayers.setOnAction(e -> {
             numberOfPlayers = (options.indexOf(chooseNumberOfPlayers.getValue()) + 1);
             startButton.setDisable(false);
         });
+        
         chooseNumberOfPlayers.setOnKeyPressed(e -> {
             if(e.getCode().equals(KeyCode.ENTER) && !chooseNumberOfPlayers.getValue().equals("Select number of players")) {
-            restart();
-            firstStage.hide();
-            cancelButton.setDisable(false);    
+                restart();
+                firstStage.hide();
+                cancelButton.setDisable(false);    
+            }
+            if(e.getCode().equals(KeyCode.ESCAPE) && cancelButton.isDisable() == false) {
+                setIspaused(false);
+                firstStage.hide();
             }
         });
-        startButton = new Button("Start Game");
+        
+        startButton = new Button("LET'S DO THIS!");
         startButton.setDisable(true);
+        startButton.setPrefWidth(140);
+        startButton.setStyle("-fx-font: 15 arial; -fx-base: #009933;");
         startButton.setOnAction(e -> {
             restart();
             firstStage.hide();
@@ -353,17 +383,15 @@ public class GameEngine extends Application {
         });
         cancelButton = new Button("Cancel");
         cancelButton.setDisable(true);
+        cancelButton.setStyle("-fx-font: 15 arial; -fx-base: #FF3300;");
         cancelButton.setOnAction(e -> {
             setIspaused(false);
             firstStage.hide();
         });
-
         
-        
-        firstPane.setSpacing(40);
-        firstPane.setAlignment(Pos.CENTER);
-        firstPane.setPadding(new Insets(40, 40, 40, 40));
-        firstPane.getChildren().addAll(winnerInfo, chooseNumberOfPlayers, startButton, cancelButton);
+        firstPane.add(chooseNumberOfPlayers, 1, 3);
+        firstPane.add(startButton, 2, 3);
+        firstPane.add(cancelButton, 3, 3);
         firstScene = new Scene(firstPane, 600, 300);
         firstStage.setScene(firstScene);
         firstStage.setTitle("Set up game");
@@ -371,6 +399,8 @@ public class GameEngine extends Application {
     }
     public void setUpRightPane() {
         int fontSize = 17;
+        rightPane.setBackground(new Background(new BackgroundFill(GameGrid.SAFE_ZONE_COLOR, CornerRadii.EMPTY, Insets.EMPTY)));
+        rightPane.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.DASHED, CornerRadii.EMPTY, BorderWidths.FULL)));
         rightPane.getChildren().add(scorePane);
         rightPane.setConstraints(scorePane, 1, 1);
         rightPane.getColumnConstraints().addAll(new ColumnConstraints(30), new ColumnConstraints(10), new ColumnConstraints(30));
@@ -459,5 +489,21 @@ public class GameEngine extends Application {
             }
         }
         return result;
+    }
+
+    public void setUpGameInfo(Player winner) {
+        if(winner == null) {
+            gameInfo.setText("Battle against your friends. Collect bounses for points, and loose \n"
+            + "them when you die. When the field is reduced to the core, the \n"
+            + "elimination begins as snakes with negative scores are terminated. \n" 
+            + "Last snake standing wins!");
+            gameInfo.setFill(Color.BLACK);
+            gameInfo.setFont(Font.font(15));
+        }
+        else {
+            gameInfo.setText("The winner is " + winner.getName());
+            gameInfo.setFill(winner.getPlayerColor());
+            gameInfo.setFont(Font.font(30));
+        }
     }
 }
