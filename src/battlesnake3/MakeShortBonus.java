@@ -13,7 +13,7 @@ import javafx.scene.paint.Color;
  */
 public class MakeShortBonus extends Bonus {
 
-    public MakeShortBonus(BuildingBlock eventBlock, Color eventColor, int longevity, int eventHappening) {
-        super(eventBlock, eventColor, longevity, eventHappening);
+    public MakeShortBonus(BuildingBlock bonusBlock, Color eventColor, int longevity, int eventHappening) {
+        super(bonusBlock, eventColor, longevity, eventHappening);
     }
 }
