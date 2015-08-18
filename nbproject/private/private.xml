@@ -3,13 +3,8 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group name="Group 20150714-04:43:36">
-            <file>file:/Users/johanwendt/NetBeansProjects/BattleSnake3/src/battlesnake3/MainSnakeBoard.java</file>
-            <file>file:/Users/johanwendt/NetBeansProjects/BattleSnake3/src/battlesnake3/RegularBonus.java</file>
-            <file>file:/Users/johanwendt/NetBeansProjects/BattleSnake3/src/battlesnake3/BattleSnake3.java</file>
-            <file>file:/Users/johanwendt/NetBeansProjects/BattleSnake3/src/battlesnake3/EventHandler.java</file>
-            <file>file:/Users/johanwendt/NetBeansProjects/BattleSnake3/src/battlesnake3/BuildingBlock.java</file>
-            <file>file:/Users/johanwendt/NetBeansProjects/BattleSnake3/src/battlesnake3/Event.java</file>
-            <file>file:/Users/johanwendt/NetBeansProjects/BattleSnake3/src/battlesnake3/Player.java</file>
+            <file>file:/Users/johanwendt/NetBeansProjects/BattleSnake3/src/battlesnake3/GameEngine.java</file>
+            <file>file:/Users/johanwendt/NetBeansProjects/BattleSnake3/src/battlesnake3/BonusHandler.java</file>
             <file>file:/Users/johanwendt/NetBeansProjects/BattleSnake3/src/battlesnake3/GameGrid.java</file>
         </group>
     </open-files>
