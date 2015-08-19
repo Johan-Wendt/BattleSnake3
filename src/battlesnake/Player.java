@@ -1,5 +1,5 @@
 
-package battlesnake3;
+package battlesnake;
 
 /**
  *
@@ -7,8 +7,10 @@ package battlesnake3;
  */
 import javafx.scene.paint.Color;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Stack;
 import java.util.Iterator;
+import javafx.scene.input.KeyCode;
 
 /**
  *
@@ -32,14 +34,16 @@ public class Player {
     private int startDirection;
     private int score = 0;
     private String name;
+    private HashMap<KeyCode, Integer> controls = new HashMap<>();
     
     
-    public Player(String name, int startDirection, Color playerColor, GameGrid gameGrid, BonusHandler events) {
+    public Player(String name, int startDirection, Color playerColor, GameGrid gameGrid, BonusHandler events, HashMap controls) {
         this.name = name;
         this.startDirection = startDirection;
         this.playerColor = playerColor;
         this.gameGrid = gameGrid;
         this.events = events;
+        this.controls = controls;
         createPlayer(); 
     }
     public void createPlayer() {
@@ -191,15 +195,24 @@ public class Player {
     public void setCurrentLocation(int newLocation) {
         currentLocation = newLocation;
     }
-    public void setCurrentDirection(int direction) {
-        if(direction != -currentDirection && mayChangeDirection) {
-            currentDirection = direction;
+    public void setCurrentDirection(KeyCode pressedKey) {
+        int newDirection = keyCodeToDirection(pressedKey);
+        if(newDirection != -currentDirection && newDirection != currentDirection && mayChangeDirection) {
+            currentDirection = newDirection;
             mayChangeDirection = false;
         }
+    }
+    public int keyCodeToDirection(KeyCode pressedKey) {
+        int newDirection = currentDirection;
+        if(controls.containsKey(pressedKey)) {
+            newDirection = controls.get(pressedKey);
+        }
+        return newDirection;
     }
     public void setScore() {
         score ++;
     }
+
     public void addToScore(int addToScore) {
         score += addToScore;
     }
