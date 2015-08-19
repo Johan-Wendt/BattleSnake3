@@ -1,5 +1,5 @@
 
-package battlesnake3;
+package battlesnake;
 
 import javafx.scene.paint.Color;
 
