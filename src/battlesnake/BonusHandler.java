@@ -42,7 +42,7 @@ public class BonusHandler {
         
     }
     //Getters
-    public int getEvent(int blockId) {
+    public int getBonus(int blockId) {
         for(Bonus event: eventList) {
             if(event.getEventId() == blockId) {
                 event.isTaken();
