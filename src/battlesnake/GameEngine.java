@@ -13,9 +13,7 @@ import java.util.HashMap;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.EventType;
 import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.layout.BorderPane;
@@ -40,6 +38,7 @@ import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.RowConstraints;
 import javafx.scene.shape.Rectangle;
+import javafx.stage.StageStyle;
 
 
 /**
@@ -48,7 +47,7 @@ import javafx.scene.shape.Rectangle;
  * @author johanwendt
  */
 public class GameEngine extends Application {
-    
+    //Fields
     //Panes, scenes and stages.
     private final BorderPane mainPane = new BorderPane();
     private final Pane pane = new Pane();
@@ -95,11 +94,15 @@ public class GameEngine extends Application {
     
     
     //Static finals
+    //To be able to give every block in the field grid a unique id every 
+    //block in y-direction adds 1 to the id while every block in 
+    //x-direction adds 1000 (MULIPLIER_X).
     public static final int MULIPLIER_X = 1000;
     public static final int RIGHT = MULIPLIER_X;
     public static final int LEFT = -MULIPLIER_X;
     public static final int DOWN = 1;
     public static final int UP = -1;
+    
     public static final Color PLAYER_1_COLOR = Color.RED;
     public static final Color PLAYER_2_COLOR = Color.GREEN;
     public static final Color PLAYER_3_COLOR = Color.BLUE;
@@ -154,9 +157,7 @@ public class GameEngine extends Application {
             try {
                 while (isRunning) {
                     if(!isPaused) {
-                        for(Player player: players) {
-                            player.movePlayer();                      
-                        }
+                        players.stream().forEach(Player::movePlayer);
                         bonusHandler.eventRound();
                         playerKiller(gameGrid.deathBuilder());
                         showScores();   
@@ -180,7 +181,7 @@ public class GameEngine extends Application {
  */
     public void gameOver() {
         Player winner = null;
-        int highest = -10;
+        int highest = -10000;
         for(Player player: players) {
             if(player.getScore() > highest) {
                 highest = player.getScore();
@@ -440,8 +441,11 @@ public class GameEngine extends Application {
      * This sets upp the main game screen.
      */
     private void setUpMainScreen() {
+        //Exit the game on closing this window.
+        battleStage.setOnCloseRequest(c -> {
+            Platform.exit();
+        });
         mainScene = new Scene(mainPane, GameGrid.GRID_SIZE + 450, GameGrid.GRID_SIZE + 20);
-        
         
         //Takes input from the keybord and lets the active player-instances decide
         //to do with the information.
@@ -456,33 +460,46 @@ public class GameEngine extends Application {
         MenuItem underMenu1 = new MenuItem("Set up game");
         MenuItem underMenu2 = new MenuItem("About");
         MenuItem underMenu3 = new MenuItem("Controls");
-        MenuItem underMenu4 = new MenuItem("Quit");
-        menu.getItems().addAll(underMenu1, underMenu2, underMenu3, underMenu4);
+        MenuItem underMenu4 = new MenuItem("Pause");
+        MenuItem underMenu5 = new MenuItem("Quit");
+        menu.getItems().addAll(underMenu1, underMenu2, underMenu3, underMenu4, underMenu5);
         MenuBar menuBar = new MenuBar();
         menuBar.getMenus().add(menu);
         menuBar.setUseSystemMenuBar(true);
         
         //Set Shortcuts for menus.
         underMenu1.setAccelerator(KeyCombination.keyCombination("META + S"));
-        underMenu1.setOnAction(e -> {
+        underMenu1.setOnAction(a -> {
             setIspaused(true);
             firstStage.show();
         });
         
         underMenu2.setAccelerator(KeyCombination.keyCombination("META + A"));
-        underMenu2.setOnAction(e -> {
+        underMenu2.setOnAction(a -> {
             setIspaused(true);
             aboutStage.show();
         });
         
         underMenu3.setAccelerator(KeyCombination.keyCombination("META + C"));
-        underMenu3.setOnAction(e -> {
+        underMenu3.setOnAction(a -> {
             setIspaused(true);
             controlsStage.show();
         });
         
-        underMenu4.setAccelerator(KeyCombination.keyCombination("META + Q"));
-        underMenu4.setOnAction(e -> {
+        underMenu4.setAccelerator(KeyCombination.keyCombination("META + P"));
+        underMenu4.setOnAction(a -> {
+            if(!isPaused) {
+                setIspaused(true);
+                underMenu4.setText("Unpause");
+            }
+            else {
+                setIspaused(false);
+                underMenu4.setText("Pause");
+            }
+        });
+        
+        underMenu5.setAccelerator(KeyCombination.keyCombination("META + Q"));
+        underMenu5.setOnAction(a -> {
             Platform.exit();
         });
         
@@ -514,7 +531,7 @@ public class GameEngine extends Application {
         firstPane.getRowConstraints().addAll(new RowConstraints(10), new RowConstraints(70), new RowConstraints(190), new RowConstraints(5));
         
         //Create info about how to play the game.
-        gameInfo.setText("Battle against your friends. Collect bonuses for points, and loose \n"
+        gameInfo.setText("Battle against your friends. Collect bonuses for points, and lose \n"
         + "them when you die. When the field is reduced to the core, the \n"
         + "elimination begins as snakes with negative scores are terminated. \n" 
         + "Last snake standing wins!");
@@ -576,10 +593,16 @@ public class GameEngine extends Application {
         firstPane.add(startButton, 2, 3);
         firstPane.add(cancelButton, 3, 3);
         
-        //Make the stage show at startup.
+        //Make the stage show at startup and disable closing the screen.
         firstScene = new Scene(firstPane, 600, 300);
         firstStage.setScene(firstScene);
         firstStage.setTitle("Set up game");
+        firstStage.setOnCloseRequest(c -> {
+            //This throws an exception but seems to work as intended anyway.
+            firstStage = (Stage) c.clone();
+            firstStage.show();
+        });
+        firstStage.setResizable(false);
         firstStage.show();
     }
     /**
@@ -743,7 +766,7 @@ public class GameEngine extends Application {
         });
         
         //Setup button for using default keys.
-        Button deafultButton = new Button("Use default keys'");
+        Button deafultButton = new Button("Use default keys");
         deafultButton.setPrefWidth(200);
         deafultButton.setStyle("-fx-font: 15 arial; -fx-base: #FF00FF;");
         deafultButton.setOnAction(e -> {
@@ -837,7 +860,7 @@ public class GameEngine extends Application {
      */
     public void setUpRightPane() {
         
-        //Set color, add the scoreboard and set some space to the part that is to contain the bonus info.
+        //Set color, add the scoreboard and set some space to the part that is to contain the tostring info.
         int fontSize = 17;
         rightPane.setBackground(new Background(new BackgroundFill(GameGrid.SAFE_ZONE_COLOR, CornerRadii.EMPTY, Insets.EMPTY)));
         rightPane.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(3))));
@@ -893,25 +916,25 @@ public class GameEngine extends Application {
         switch(numberOfPlayers) {
             case 4: 
                 playerFourScore = new Text();
-                playerFourScore.setText(players.get(3).toString());
+                playerFourScore.setText(players.get(3).scoreToString());
                 scorePane.getChildren().add(1, playerFourScore);
                 playerFourScore.setFont(Font.font(PLAYER_SCORE_SIZE));
                 playerFourScore.setFill(PLAYER_4_COLOR);
             case 3: 
                 playerThreeScore = new Text();
-                playerThreeScore.setText(players.get(2).toString());
+                playerThreeScore.setText(players.get(2).scoreToString());
                 scorePane.getChildren().add(1, playerThreeScore);
                 playerThreeScore.setFont(Font.font(PLAYER_SCORE_SIZE));
                 playerThreeScore.setFill(PLAYER_3_COLOR);
             case 2: 
                 playerTwoScore = new Text();
-                playerTwoScore.setText(players.get(1).toString());
+                playerTwoScore.setText(players.get(1).scoreToString());
                 scorePane.getChildren().add(1, playerTwoScore);
                 playerTwoScore.setFont(Font.font(PLAYER_SCORE_SIZE));
                 playerTwoScore.setFill(PLAYER_2_COLOR);
             case 1: 
                 playerOneScore = new Text();
-                playerOneScore.setText(players.get(0).toString());
+                playerOneScore.setText(players.get(0).scoreToString());
                 scorePane.getChildren().add(1, playerOneScore);
                 playerOneScore.setFont(Font.font(PLAYER_SCORE_SIZE));
                 playerOneScore.setFill(PLAYER_1_COLOR);
@@ -924,13 +947,13 @@ public class GameEngine extends Application {
     public void showScores() {
         switch(numberOfPlayers) {
             case 4: 
-                playerFourScore.setText(players.get(3).toString());
+                playerFourScore.setText(players.get(3).scoreToString());
             case 3: 
-                playerThreeScore.setText(players.get(2).toString());
+                playerThreeScore.setText(players.get(2).scoreToString());
             case 2: 
-                playerTwoScore.setText(players.get(1).toString());
+                playerTwoScore.setText(players.get(1).scoreToString());
             case 1: 
-                playerOneScore.setText(players.get(0).toString());
+                playerOneScore.setText(players.get(0).scoreToString());
         }
     }
     /**
