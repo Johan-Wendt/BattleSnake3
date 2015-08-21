@@ -445,7 +445,8 @@ public class GameEngine extends Application {
         battleStage.setOnCloseRequest(c -> {
             Platform.exit();
         });
-        mainScene = new Scene(mainPane, GameGrid.GRID_SIZE + 450, GameGrid.GRID_SIZE + 20);
+        mainScene = new Scene(mainPane, GameGrid.GRID_SIZE + 450, GameGrid.GRID_SIZE + 50);
+        
         
         //Takes input from the keybord and lets the active player-instances decide
         //to do with the information.
@@ -465,7 +466,8 @@ public class GameEngine extends Application {
         menu.getItems().addAll(underMenu1, underMenu2, underMenu3, underMenu4, underMenu5);
         MenuBar menuBar = new MenuBar();
         menuBar.getMenus().add(menu);
-        menuBar.setUseSystemMenuBar(true);
+        mainPane.setTop(menuBar);
+        
         
         //Set Shortcuts for menus.
         underMenu1.setAccelerator(KeyCombination.keyCombination("META + S"));
@@ -508,8 +510,8 @@ public class GameEngine extends Application {
         mainPane.setCenter(rightPane);
         mainPane.setLeft(pane);
         mainPane.setPadding(new Insets(10, 20, 10, 20));
-        mainPane.getChildren().add(menuBar);
         
+
         //Activate the stage
         battleStage.setScene(mainScene);
         battleStage.setTitle("Battle Snake");
