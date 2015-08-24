@@ -18,14 +18,14 @@ public class BonusHandler {
     public static final Color DETHBLOCK_COLOR = Color.BLACK;
     private static final int LIFESPAN_MIN = 2000;
     private static final int LIFESPAN_MAX = 10000;
-    private static final double BONUS_PROBABILITY = 0.003;
+    private static final double BONUS_PROBABILITY = 0.002;
     public static final int REGULAR_BONUS_HAPPENING = 0;
     public static final Color REGULAR_BONUS_COLOR = Color.ORANGE;
     public static final int REGULAR_BONUS_PROBABILTY_FACTOR = 10;
     public static final String REGULAR_BONUS_DESCRIPTION = "Makes the player longer and faster.";
     public static final int MAKE_SHORT_BONUS_HAPPENING = 1;
     public static final Color MAKE_SHORT_BONUS_COLOR = Color.PINK;
-    public static final int MAKE_SHORT_BONUS_PROBABILTY_FACTOR = 1;
+    public static final int MAKE_SHORT_BONUS_PROBABILTY_FACTOR = 3;
     public static final String MAKE_SHORT_BONUS_DESCRIPTION = "Makes the player short.";
     public static final int ADD_DEATH_BLOCK_BONUS_HAPPENING = 4;
     public static final Color ADD_DEATH_BLOCK_BONUS_COLOR = Color.PURPLE;
@@ -37,14 +37,16 @@ public class BonusHandler {
     private final GameGrid gameGrid;
     
     //Regular fields
+    private double numberOfPlayers;
     private Random random;
     
     /**
      * Creates a BonusHandler. 
      * @param gameGrid The gameGrid that the bonuses should be placed on.
      */
-    public BonusHandler(GameGrid gameGrid) {
+    public BonusHandler(GameGrid gameGrid, double numberOfPlayers) {
         this.gameGrid = gameGrid;    
+        this.numberOfPlayers = numberOfPlayers;
     }
     /**
      * Method called every round by the players to see if a bonus has been taken.
@@ -68,7 +70,7 @@ public class BonusHandler {
      * also destroys bonuses that are to be removed.
      */
     public void bonusRound() {
-        if(BONUS_PROBABILITY > Math.random()) createRandomBonus();
+        if(BONUS_PROBABILITY * Math.sqrt(numberOfPlayers) > Math.random()) createRandomBonus();
         destroyBonuses();
     }
     /**

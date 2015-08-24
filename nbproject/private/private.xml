@@ -3,9 +3,11 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group name="Group 20150714-04:43:36">
-            <file>file:/Users/johanwendt/NetBeansProjects/BattleSnake3/src/battlesnake3/GameEngine.java</file>
-            <file>file:/Users/johanwendt/NetBeansProjects/BattleSnake3/src/battlesnake3/BonusHandler.java</file>
-            <file>file:/Users/johanwendt/NetBeansProjects/BattleSnake3/src/battlesnake3/GameGrid.java</file>
+            <file>file:/Users/johanwendt/NetBeansProjects/BattleSnake3/src/battlesnake/BattleSnake.css</file>
+            <file>file:/Users/johanwendt/NetBeansProjects/BattleSnake3/src/battlesnake/BonusHandler.java</file>
+            <file>file:/Users/johanwendt/NetBeansProjects/BattleSnake3/src/battlesnake/GameGrid.java</file>
+            <file>file:/Users/johanwendt/NetBeansProjects/BattleSnake3/src/battlesnake/GameEngine.java</file>
+            <file>file:/Users/johanwendt/NetBeansProjects/BattleSnake3/src/battlesnake/Player.java</file>
         </group>
     </open-files>
 </project-private>

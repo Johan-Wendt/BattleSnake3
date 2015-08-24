@@ -19,7 +19,7 @@ public class Player {
     //Fields
     //Final static fields
     public static final int PLAYER_START_SLOWNESS = 25;
-    public static final int PLAYER_DEATH_PENALTY = -5;
+    public static final int PLAYER_DEATH_PENALTY = -3;
     public static final int PLAYER_START_LENGTH = 20;
     
     //Final fields
