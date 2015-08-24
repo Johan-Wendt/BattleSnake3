@@ -16,6 +16,7 @@ import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.layout.BorderPane;
@@ -92,6 +93,9 @@ public class GameEngine extends Application {
     private TextField player4Right = new TextField();
     private TextField player4Down = new TextField();
     private TextField player4Left = new TextField();
+    Text regularBonusText = new Text();
+    Text makeShortBonusText = new Text();
+    Text addDeathBlockBonusText = new Text();
     
     
     //Static finals
@@ -112,7 +116,7 @@ public class GameEngine extends Application {
     public static final int PLAYER_2_STARTDIRECTION = LEFT;
     public static final int PLAYER_3_STARTDIRECTION = UP;
     public static final int PLAYER_4_STARTDIRECTION = DOWN;
-    public static final int PLAYER_SCORE_SIZE = 30;
+    public static final int PLAYER_SCORE_SIZE = 60;
     
     //Player fields
     private final ArrayList<Player> players = new ArrayList<>();
@@ -139,7 +143,7 @@ public class GameEngine extends Application {
         //Set up the screens and activate the players.
         setUpMainScreen();
         gameGrid = new GameGrid(pane);
-        bonusHandler = new BonusHandler(gameGrid);
+        bonusHandler = new BonusHandler(gameGrid, numberOfPlayers);
         setUpDefaultControlKeys();
         createPlayers();
         setUpWinnerInfo(null);
@@ -207,7 +211,7 @@ public class GameEngine extends Application {
     public void restart() {
         setUpWinnerInfo(null);
         gameGrid = new GameGrid(pane);
-        bonusHandler = new BonusHandler(gameGrid);
+        bonusHandler = new BonusHandler(gameGrid, numberOfPlayers);
         erasePlayers();
         players.clear();
         createPlayers ();
@@ -449,7 +453,7 @@ public class GameEngine extends Application {
         battleStage.setOnCloseRequest(c -> {
             System.exit(0);
         });
-        mainScene = new Scene(mainPane, GameGrid.GRID_SIZE + 450, GameGrid.GRID_SIZE + 60);
+        mainScene = new Scene(mainPane, GameGrid.GRID_SIZE + 550, GameGrid.GRID_SIZE + 60);
         mainScene.getStylesheets().add(BattleSnake.class.getResource("BattleSnake.css").toExternalForm());
         
         
@@ -463,7 +467,7 @@ public class GameEngine extends Application {
         
         //Create Menusbar-system
         Menu menu = new Menu("Battle Snake");
-        menu.setStyle("-fx-text-fill: rgb(49, 89, 23); -fx-base: #009933;");
+        menu.setId("menu");
         MenuItem underMenu1 = new MenuItem("Set up game");
         MenuItem underMenu2 = new MenuItem("About");
         MenuItem underMenu3 = new MenuItem("Controls");
@@ -475,7 +479,7 @@ public class GameEngine extends Application {
         menuBar.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.DOTTED, CornerRadii.EMPTY, new BorderWidths(3))));
         menuBar.getMenus().add(menu);
         mainPane.setTop(menuBar);
-        
+
         menuBar.setId("MBar");
 
         
@@ -537,17 +541,17 @@ public class GameEngine extends Application {
     public void setUpFirstScreen() {
         firstStage = new Stage();
         firstStage.setAlwaysOnTop(true);
-        firstStage.setMaxWidth(515);
-        firstStage.setMaxHeight(400);
+        firstStage.setMaxWidth(510);
+        firstStage.setMaxHeight(600);
         
         //Adjust the spacing between the different parts of the screen.
         firstPane.getColumnConstraints().addAll(new ColumnConstraints(20), new ColumnConstraints(250), new ColumnConstraints(150));
-        firstPane.getRowConstraints().addAll(new RowConstraints(10), new RowConstraints(70), new RowConstraints(190), new RowConstraints(5));
+        firstPane.getRowConstraints().addAll(new RowConstraints(10), new RowConstraints(170), new RowConstraints(90), new RowConstraints(5));
         
         //Create info about how to play the game.
-        gameInfo.setText("Battle against your friends. Collect bonuses for points, and lose \n"
-        + "them when you die. When the field is reduced to the core, the \n"
-        + "elimination begins as snakes with negative scores are terminated. \n" 
+        gameInfo.setText("Battle against your friends. Collect \nbonuses for points, and lose "
+        + "them when\nyou die. When the field is reduced to the\ncore, "
+        + "the eliminationbegins as snakes\nwith negative scores are terminated.\n" 
         + "Last snake standing wins!");
         gameInfo.setId("info-text");
         
@@ -560,10 +564,10 @@ public class GameEngine extends Application {
         //Create combo-box woth enables to choose number of players in the game.
         ComboBox<String> chooseNumberOfPlayers = new ComboBox<>();
         ObservableList<String> options = FXCollections.observableArrayList("1 player", "2 players","3 players","4 players");
+        
         chooseNumberOfPlayers.getItems().addAll(options);
         chooseNumberOfPlayers.setValue("Select number of players");
         chooseNumberOfPlayers.setPrefWidth(240);
-        chooseNumberOfPlayers.setStyle("-fx-base: #FF00FF;");
         
         chooseNumberOfPlayers.setOnAction(e -> {
             numberOfPlayers = (options.indexOf(chooseNumberOfPlayers.getValue()) + 1);
@@ -842,6 +846,7 @@ public class GameEngine extends Application {
      * Sets up the stage with information about the game.
      */
     public void setUpAboutScreen() {
+
         aboutStage = new Stage();
         aboutStage.setAlwaysOnTop(true);
         aboutStage.setMaxWidth(260);
@@ -906,14 +911,18 @@ public class GameEngine extends Application {
         rightPane.setConstraints(scorePane, 1, 1);
         rightPane.getColumnConstraints().addAll(new ColumnConstraints(30), new ColumnConstraints(10), new ColumnConstraints(30));
         rightPane.getRowConstraints().addAll(new RowConstraints(10), new RowConstraints(500), new RowConstraints(30), new RowConstraints(30), new RowConstraints(30), new RowConstraints(30), new RowConstraints(30));
+        BorderPane.setMargin(rightPane, new Insets(12, 5, 1, 5));
 
         //Create bonus info.
         Text regularBonusText = new Text(BonusHandler.REGULAR_BONUS_DESCRIPTION);
-        regularBonusText.setFont(new Font(fontSize));
+        regularBonusText.setId("RBonus");
+       // regularBonusText.setFont(new Font(fontSize));
         Text makeShortBonusText = new Text(BonusHandler.MAKE_SHORT_BONUS_DESCRIPTION);
-        makeShortBonusText.setFont(new Font(fontSize));
+        makeShortBonusText.setId("MBonus");
+        //makeShortBonusText.setFont(new Font(fontSize));
         Text addDeathBlockBonusText = new Text(BonusHandler.ADD_DEATH_BLOCK_BONUS_DESCRIPTION);
-        addDeathBlockBonusText.setFont(new Font(fontSize));
+        addDeathBlockBonusText.setId("ABonus");
+        //addDeathBlockBonusText.setFont(new Font(fontSize));
         
         
         //Create the rectangles that show what type of bonus the description is about.
