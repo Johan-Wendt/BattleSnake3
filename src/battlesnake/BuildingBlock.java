@@ -31,7 +31,8 @@ public class BuildingBlock {
         this.blockId = blockId;
     }
     /**
-     * The commonly used constructor.
+     * The commonly used constructor. The X and Y is adjusted for 
+     * GUI-purposes.
      * @param setX The x-position of the upper left part of the building block.
      * @param setY The y-position of the upper left part of the building block.
      * @param size size of the building block in pixels.
@@ -40,7 +41,7 @@ public class BuildingBlock {
     public BuildingBlock(int setX, int setY, int size, int blockId) {
         this.blockId = blockId;
         color = GameGrid.GAMEGRID_COLOR;
-        createRectangle(setX, setY, size, color);
+        createRectangle(setX, setY +6 , size, color);
     }
     private void createRectangle(int X, int Y, int size, Color color) {
         rectangle = new Rectangle(size, size, color);
@@ -87,14 +88,14 @@ public class BuildingBlock {
     /**
      * Sets this building block to a deathblock.
      */
-    public void setIsDeathBlock() {
+    public void setDeathBlock() {
         isDeathBlock = true;
     }
     /**
      * Sets this building block to a death block and also makes it impossible to
      * remove the death block property.
      */
-    public void setIsDeathBlockIrreveritble() {
+    public void setDeathBlockIrreveritble() {
         isDeathBlock = true;
         setBlockColor(BonusHandler.DETHBLOCK_COLOR);
         isDeathBlockIrrevertible = true;

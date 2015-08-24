@@ -2,7 +2,6 @@
 package battlesnake;
 
 /**
- *
  * @author johanwendt
  */
 import javafx.scene.layout.Pane;
@@ -13,13 +12,12 @@ import java.util.Random;
 /**
  *This class the grid where the players move around. It also creates the block that
  * make the field smaller and smaller.
- * @author johanwendt
  */
 public class GameGrid {
     //Fields
     //Static finals
     public static final int BLOCK_SIZE = 16;
-    public static final int GRID_SIZE = 2* (BLOCK_SIZE * 22) + BLOCK_SIZE;
+    public static final int GRID_SIZE = 2* (BLOCK_SIZE * 21) + BLOCK_SIZE;
     public static final int PLAYER_STARTPOINT = (((GRID_SIZE - BLOCK_SIZE) * GameEngine.MULIPLIER_X) / BLOCK_SIZE) / 2 + (((GRID_SIZE - BLOCK_SIZE) / BLOCK_SIZE) / 2);
     public static final int SAFE_ZONE_DIAMETER = 8;
     public static final Color GAMEGRID_COLOR = Color.AQUA;
@@ -83,7 +81,7 @@ public class GameGrid {
             if(deathPause % (DEATH_SLOWNESS) == 0) {
 
                 if(deathCounter < currentGridSize -1) {
-                    getBlock(deathLocation).setIsDeathBlockIrreveritble();
+                    getBlock(deathLocation).setDeathBlockIrreveritble();
                     deathReturn = deathLocation;
                     deathCounter ++;
                     deathLocation += deathDirection;

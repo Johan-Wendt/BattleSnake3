@@ -1,7 +1,5 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+/**
+ * @author johanwendt
  */
 package battlesnake;
 
@@ -11,19 +9,16 @@ import javafx.scene.paint.Color;
 import java.util.Iterator;
 
 /**
- *
- * @author johanwendt
+ *The BonusHandler creates bonuses randomly in the game field and destroys them
+ * after a random period of time. 
  */
 public class BonusHandler {
-    private ArrayList <Bonus> eventList = new ArrayList<>();
-    private static int LONGEVITY_MIN = 2000;
-    private static int LONGEVITY_MAX = 10000;
-    private static double BONUS_PROBABILITY = 0.003;
-    private GameGrid gameGrid;
-    private Random random;
     
+    //Static final fields
     public static final Color DETHBLOCK_COLOR = Color.BLACK;
-    
+    private static final int LIFESPAN_MIN = 2000;
+    private static final int LIFESPAN_MAX = 10000;
+    private static final double BONUS_PROBABILITY = 0.003;
     public static final int REGULAR_BONUS_HAPPENING = 0;
     public static final Color REGULAR_BONUS_COLOR = Color.ORANGE;
     public static final int REGULAR_BONUS_PROBABILTY_FACTOR = 10;
@@ -34,29 +29,51 @@ public class BonusHandler {
     public static final String MAKE_SHORT_BONUS_DESCRIPTION = "Makes the player short.";
     public static final int ADD_DEATH_BLOCK_BONUS_HAPPENING = 4;
     public static final Color ADD_DEATH_BLOCK_BONUS_COLOR = Color.PURPLE;
-    public static final int ADD_DEATH_BLOCK_BONUS_PROBABILTY_FACTOR = 2;
+    public static final int ADD_DEATH_BLOCK_BONUS_PROBABILTY_FACTOR = 4;
     public static final String ADD_DEATH_BLOCK_BONUS_DESCRIPTION = "Adds random deathblocks to the field.";
     
+    //final fields 
+    private final ArrayList <Bonus> eventList = new ArrayList<>();
+    private final GameGrid gameGrid;
+    
+    //Regular fields
+    private Random random;
+    
+    /**
+     * Creates a BonusHandler. 
+     * @param gameGrid The gameGrid that the bonuses should be placed on.
+     */
     public BonusHandler(GameGrid gameGrid) {
-        this.gameGrid = gameGrid;
-        
+        this.gameGrid = gameGrid;    
     }
-    //Getters
+    /**
+     * Method called every round by the players to see if a bonus has been taken.
+     * If taken the bonus is removed, the gamegrid is notified to see if it should
+     * act, and the bonus happening is returned to the player.
+     * @param blockId The block id for the BuildingBlock to be checked.
+     * @return int representing bonus happening or -1 if no bonus is present.
+     */
     public int getBonus(int blockId) {
         for(Bonus event: eventList) {
-            if(event.getEventId() == blockId) {
-                event.isTaken();
+            if(event.getBonusId() == blockId) {
+                event.setTaken();
                 event.executeBonus(gameGrid);
-                return event.getEventHappening();
+                return event.getBonusHappening();
             }
         }
         return -1;
     }
-    //Mutators
-    public void eventRound() {
+    /**
+     * Method that randomly creates bonuses and places them in the GameGrid, and
+     * also destroys bonuses that are to be removed.
+     */
+    public void bonusRound() {
         if(BONUS_PROBABILITY > Math.random()) createRandomBonus();
         destroyBonuses();
     }
+    /**
+     * Method that randomly, but wieghted, creates one of the bonusetypes.
+     */
     public void createRandomBonus() { 
         int chance = new Random().nextInt(REGULAR_BONUS_PROBABILTY_FACTOR + MAKE_SHORT_BONUS_PROBABILTY_FACTOR + ADD_DEATH_BLOCK_BONUS_PROBABILTY_FACTOR);
         if(chance < MAKE_SHORT_BONUS_PROBABILTY_FACTOR) {
@@ -69,26 +86,38 @@ public class BonusHandler {
             createRegularBonus();
         }
     }
+    /**
+     * Creates one Regular bonus and places it on the GameGrid.
+     */
     public void createRegularBonus() {
         BuildingBlock bonusBlock = gameGrid.getRandomBlock();
-        Bonus bonus = new RegularBonus(bonusBlock,REGULAR_BONUS_COLOR, LONGEVITY_MIN + new Random().nextInt(LONGEVITY_MAX), REGULAR_BONUS_HAPPENING);
+        Bonus bonus = new RegularBonus(bonusBlock,REGULAR_BONUS_COLOR, LIFESPAN_MIN + new Random().nextInt(LIFESPAN_MAX), REGULAR_BONUS_HAPPENING);
         eventList.add(bonus);
     }
+    /**
+     * Creates one Make short bonus and places it on the GameGrid.
+     */
     public void createMakeShortBonus() {
         BuildingBlock bonusBlock = gameGrid.getRandomBlock();
-        Bonus bonus = new MakeShortBonus(bonusBlock,MAKE_SHORT_BONUS_COLOR, LONGEVITY_MIN + new Random().nextInt(LONGEVITY_MAX), MAKE_SHORT_BONUS_HAPPENING);
+        Bonus bonus = new MakeShortBonus(bonusBlock,MAKE_SHORT_BONUS_COLOR, LIFESPAN_MIN + new Random().nextInt(LIFESPAN_MAX), MAKE_SHORT_BONUS_HAPPENING);
         eventList.add(bonus);
     }
+    /**
+     * Creates one Add death block bonus and places it on the GameGrid.
+     */
     public void createAddDeathBlocksBonus() {
         BuildingBlock bonusBlock = gameGrid.getRandomBlock();
-        Bonus bonus = new AddDeathBlocksBonus (bonusBlock,ADD_DEATH_BLOCK_BONUS_COLOR, LONGEVITY_MIN + new Random().nextInt(LONGEVITY_MAX), ADD_DEATH_BLOCK_BONUS_HAPPENING);
+        Bonus bonus = new AddDeathBlocksBonus (bonusBlock,ADD_DEATH_BLOCK_BONUS_COLOR, LIFESPAN_MIN + new Random().nextInt(LIFESPAN_MAX), ADD_DEATH_BLOCK_BONUS_HAPPENING);
         eventList.add(bonus);
     }
+    /**
+     * Removes all bonuses on the GameGrid that are taken or have outlived their lifespan.
+     */
     public void destroyBonuses() {
         Iterator itr = eventList.iterator();
         while(itr.hasNext()) {
             Bonus bonus = (Bonus)itr.next();
-            if(bonus.isToRemove()) {
+            if(bonus.checkRemove()) {
                 itr.remove();
             }
         }

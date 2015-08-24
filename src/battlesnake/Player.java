@@ -2,7 +2,6 @@
 package battlesnake;
 
 /**
- *
  * @author johanwendt
  */
 import javafx.scene.paint.Color;
@@ -13,8 +12,8 @@ import java.util.Iterator;
 import javafx.scene.input.KeyCode;
 
 /**
- *Every player in the game is an instance of this class. 
- * @author johanwendt
+ *Every player in the game is an instance of this class. This class hold information
+ * about player direction, speed, length, score and so on.
  */
 public class Player {
     //Fields
@@ -61,6 +60,7 @@ public class Player {
         this.events = bonusHandler;
         this.controls = controls;
         body = new Stack<>();
+        turn = -200;
         createPlayer(); 
     }
     /**
@@ -71,9 +71,10 @@ public class Player {
     public void createPlayer() {
         makeShort();
         makeSlow();
+        body = new Stack<>();
         BuildingBlock startSnake = gameGrid.getBlock(GameGrid.PLAYER_STARTPOINT + (startDirection));
         startSnake.revertDeathBlock(true);
-        startSnake.setIsDeathBlock();
+        startSnake.setDeathBlock();
         startSnake.setBlockColor(playerColor);
         
         //Only first block in the stack is added. This makes the snake start 
@@ -81,7 +82,7 @@ public class Player {
         body.add(0, startSnake);    
         
         //If deathblocks are blocking the the newly created player, get rid of them.
-        gameGrid.getBlock(GameGrid.PLAYER_STARTPOINT + (startDirection * 2)).revertDeathBlock(true);
+       // gameGrid.getBlock(GameGrid.PLAYER_STARTPOINT + (startDirection * 2)).revertDeathBlock(true);
         
         
         currentDirection = startDirection;
@@ -111,7 +112,7 @@ public class Player {
             //Move the player, see if a bonus was taken and handle bonus happenings.
             BuildingBlock moveTo = gameGrid.getBlock(destination);
             moveTo.setBlockColor(playerColor);
-            moveTo.setIsDeathBlock();
+            moveTo.setDeathBlock();
             handleBonuses(events.getBonus(destination));
             currentLocation = moveTo.getBlockId();
             body.add(0, moveTo);
@@ -137,8 +138,8 @@ public class Player {
     public void handleBonuses(int bonusHappening) {
         
         switch(bonusHappening) {
-            case BonusHandler.REGULAR_BONUS_HAPPENING: makeLonger(3); makeFaster(); score++; break;
-            case BonusHandler.MAKE_SHORT_BONUS_HAPPENING: makeShort(); score++; break;
+            case BonusHandler.REGULAR_BONUS_HAPPENING: makeLonger(4); makeFaster(); score++; break;
+            case BonusHandler.MAKE_SHORT_BONUS_HAPPENING: setLength(8); score++; break;
             case BonusHandler.ADD_DEATH_BLOCK_BONUS_HAPPENING: score++; break;
         }
     }
@@ -146,26 +147,22 @@ public class Player {
      * Kill or revive the player. Only alive players move.
      * @param alive set true for alive.
      */
-    public void setIsAlive(boolean alive) {
+    public void setAlive(boolean alive) {
         isAlive = alive;
     }
     /**
      * Empties the stack that holds the player. On screen the body turns black.
-     * If the player is in the safe zone, it removes the body and reverts to the correct collor.
+     * If the player is in the safe zone, it reverts to the correct color.
      */
     public void erasePlayer() {
-        Iterator<BuildingBlock> itr = body.iterator();
-        while(itr.hasNext()) {
-            BuildingBlock block = itr.next();
+        body.stream().forEach(block -> {
             if(gameGrid.isInSafeZone(block.getBlockId())) {
                 block.revertDeathBlock(true);
-                itr.remove();
             }
-                        
-        }
-        while(body.size() > 0) {
-            body.pop().setBlockColor(BonusHandler.DETHBLOCK_COLOR);
-        }
+            else {
+                block.setBlockColor(BonusHandler.DETHBLOCK_COLOR);
+            }
+        });
     }
     /**
      * Method that helps teleporting the player from one side of the screen, if no death blocks are in the way
@@ -186,7 +183,7 @@ public class Player {
         erasePlayer();
         addToScore(PLAYER_DEATH_PENALTY);
         if(score  < 0 && !gameGrid.isDeathRunning()) {
-            setIsAlive(false);
+            setAlive(false);
         }
         else {
             createPlayer();
@@ -199,6 +196,7 @@ public class Player {
     public void makeFaster() {
         if(playerSlownes > 3) {
             playerSlownes--;
+            turn = 1;
         }
     }    
     /**
@@ -210,11 +208,17 @@ public class Player {
         currentLength += addLength;
     }
     /**
-     * The player is shortened to the start length. Used for the bonus that makes the player short
-     * and after death.
+     * The player is shortened to the start length. Used after death.
      */
     public void makeShort() {
         currentLength = PLAYER_START_LENGTH;
+    }
+    /**
+     * The player length is changed.
+     * @param length new length for the player.
+     */
+    public void setLength(int length) {
+        currentLength = length;
     }
     /**
      * Slows the player to startspeed. Used after death.
