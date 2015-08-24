@@ -10,6 +10,8 @@ import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -38,13 +40,11 @@ import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.RowConstraints;
 import javafx.scene.shape.Rectangle;
-import javafx.stage.StageStyle;
 
 
 /**
  *This class is the core game engine. It creates the players, the gamefield and the bonus handler.
  * It takes input from the user and it holds all the GUI-stuff.
- * @author johanwendt
  */
 public class GameEngine extends Application {
     //Fields
@@ -66,6 +66,7 @@ public class GameEngine extends Application {
     private final Stage battleStage = new Stage();
     
     //Nodes 
+    private MenuItem underMenu4 = new MenuItem("Pause");
     private ChoiceBox chooseNumberOfPlayers;
     private Button startButton;
     private Button cancelButton;
@@ -129,9 +130,6 @@ public class GameEngine extends Application {
     private BonusHandler bonusHandler;
     private GameGrid gameGrid;
 
-
-
-    
     public GameEngine () {
         
     }
@@ -158,7 +156,7 @@ public class GameEngine extends Application {
                 while (isRunning) {
                     if(!isPaused) {
                         players.stream().forEach(Player::movePlayer);
-                        bonusHandler.eventRound();
+                        bonusHandler.bonusRound();
                         playerKiller(gameGrid.deathBuilder());
                         showScores();   
                     }
@@ -189,7 +187,7 @@ public class GameEngine extends Application {
             }
         }
         setUpWinnerInfo(winner);
-        setIspaused(true);
+        setPaused(true);
         cancelButton.setDisable(true);
         firstStage.show();
     }
@@ -197,9 +195,9 @@ public class GameEngine extends Application {
      * Unpauses the game and sets all players in status alive so they start moving.
      */
     public void begin() {
-        isPaused = false;
+        setPaused(false);
         for(Player player: players) {
-            player.setIsAlive(true);
+            player.setAlive(true);
         }
     }
     /**
@@ -242,8 +240,14 @@ public class GameEngine extends Application {
      * Pauses the game. Used for when menus are up.
      * @param pause
      */
-    private void setIspaused(boolean pause) {
+    private void setPaused(boolean pause) {
         isPaused = pause;
+        if(pause) {
+            underMenu4.setText("Unpause");
+        }
+        else {
+            underMenu4.setText("Pause");
+        }
     }
     /**
      * Erases all the players in the current game.
@@ -265,7 +269,7 @@ public class GameEngine extends Application {
                 player.killPlayer();
             }
         }
-    }
+    }   
     /**
      * Number of players that are still alive. Currently only used for determening 
      * wheter the game is over or not.
@@ -443,9 +447,10 @@ public class GameEngine extends Application {
     private void setUpMainScreen() {
         //Exit the game on closing this window.
         battleStage.setOnCloseRequest(c -> {
-            Platform.exit();
+            System.exit(0);
         });
-        mainScene = new Scene(mainPane, GameGrid.GRID_SIZE + 450, GameGrid.GRID_SIZE + 50);
+        mainScene = new Scene(mainPane, GameGrid.GRID_SIZE + 450, GameGrid.GRID_SIZE + 60);
+        mainScene.getStylesheets().add(BattleSnake.class.getResource("BattleSnake.css").toExternalForm());
         
         
         //Takes input from the keybord and lets the active player-instances decide
@@ -458,62 +463,69 @@ public class GameEngine extends Application {
         
         //Create Menusbar-system
         Menu menu = new Menu("Battle Snake");
+        menu.setStyle("-fx-text-fill: rgb(49, 89, 23); -fx-base: #009933;");
         MenuItem underMenu1 = new MenuItem("Set up game");
         MenuItem underMenu2 = new MenuItem("About");
         MenuItem underMenu3 = new MenuItem("Controls");
-        MenuItem underMenu4 = new MenuItem("Pause");
         MenuItem underMenu5 = new MenuItem("Quit");
         menu.getItems().addAll(underMenu1, underMenu2, underMenu3, underMenu4, underMenu5);
         MenuBar menuBar = new MenuBar();
+        menuBar.setMaxHeight(10);
+        menuBar.setBackground(new Background(new BackgroundFill(GameGrid.SAFE_ZONE_COLOR, new CornerRadii(5), Insets.EMPTY)));
+        menuBar.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.DOTTED, CornerRadii.EMPTY, new BorderWidths(3))));
         menuBar.getMenus().add(menu);
         mainPane.setTop(menuBar);
         
+        menuBar.setId("MBar");
+
+        
         
         //Set Shortcuts for menus.
-        underMenu1.setAccelerator(KeyCombination.keyCombination("META + S"));
+        underMenu1.setAccelerator(KeyCombination.keyCombination("CTRL + S"));
         underMenu1.setOnAction(a -> {
-            setIspaused(true);
+            setPaused(true);
             firstStage.show();
         });
         
-        underMenu2.setAccelerator(KeyCombination.keyCombination("META + A"));
+        underMenu2.setAccelerator(KeyCombination.keyCombination("CTRL + A"));
         underMenu2.setOnAction(a -> {
-            setIspaused(true);
+            setPaused(true);
             aboutStage.show();
         });
         
-        underMenu3.setAccelerator(KeyCombination.keyCombination("META + C"));
+        underMenu3.setAccelerator(KeyCombination.keyCombination("CTRL + C"));
         underMenu3.setOnAction(a -> {
-            setIspaused(true);
+            setPaused(true);
             controlsStage.show();
         });
         
-        underMenu4.setAccelerator(KeyCombination.keyCombination("META + P"));
+        underMenu4.setAccelerator(KeyCombination.keyCombination("CTRL + P"));
         underMenu4.setOnAction(a -> {
             if(!isPaused) {
-                setIspaused(true);
-                underMenu4.setText("Unpause");
+                setPaused(true);
             }
             else {
-                setIspaused(false);
-                underMenu4.setText("Pause");
+                setPaused(false);
             }
         });
         
-        underMenu5.setAccelerator(KeyCombination.keyCombination("META + Q"));
+        underMenu5.setAccelerator(KeyCombination.keyCombination("CTRL + Q"));
         underMenu5.setOnAction(a -> {
-            Platform.exit();
+            System.exit(0);
         });
         
         //Adjust the GUI.
-        mainPane.setBackground(new Background(new BackgroundFill(Color.WHITESMOKE, CornerRadii.EMPTY, Insets.EMPTY)));
+
         mainPane.setCenter(rightPane);
         mainPane.setLeft(pane);
-        mainPane.setPadding(new Insets(10, 20, 10, 20));
+        mainPane.setPadding(new Insets(5, 20, 5, 20));
         
-
+        
+        BorderPane.setMargin(pane, new Insets(5, 5, 5, 5));
+        
         //Activate the stage
         battleStage.setScene(mainScene);
+        battleStage.setResizable(false);
         battleStage.setTitle("Battle Snake");
         battleStage.show();   
     }
@@ -525,11 +537,11 @@ public class GameEngine extends Application {
     public void setUpFirstScreen() {
         firstStage = new Stage();
         firstStage.setAlwaysOnTop(true);
-        firstStage.setMaxWidth(500);
+        firstStage.setMaxWidth(515);
         firstStage.setMaxHeight(400);
         
         //Adjust the spacing between the different parts of the screen.
-        firstPane.getColumnConstraints().addAll(new ColumnConstraints(20), new ColumnConstraints(230), new ColumnConstraints(150));
+        firstPane.getColumnConstraints().addAll(new ColumnConstraints(20), new ColumnConstraints(250), new ColumnConstraints(150));
         firstPane.getRowConstraints().addAll(new RowConstraints(10), new RowConstraints(70), new RowConstraints(190), new RowConstraints(5));
         
         //Create info about how to play the game.
@@ -537,7 +549,7 @@ public class GameEngine extends Application {
         + "them when you die. When the field is reduced to the core, the \n"
         + "elimination begins as snakes with negative scores are terminated. \n" 
         + "Last snake standing wins!");
-        gameInfo.setFont(Font.font(15));
+        gameInfo.setId("info-text");
         
         //Add info about the objective of the game and info about the winner. 
         //Winner info is empty untill a player has won the game and is
@@ -550,8 +562,8 @@ public class GameEngine extends Application {
         ObservableList<String> options = FXCollections.observableArrayList("1 player", "2 players","3 players","4 players");
         chooseNumberOfPlayers.getItems().addAll(options);
         chooseNumberOfPlayers.setValue("Select number of players");
-        chooseNumberOfPlayers.setPrefWidth(220);
-        chooseNumberOfPlayers.setStyle("-fx-font: 15 arial; -fx-base: #FF00FF;");
+        chooseNumberOfPlayers.setPrefWidth(240);
+        chooseNumberOfPlayers.setStyle("-fx-base: #FF00FF;");
         
         chooseNumberOfPlayers.setOnAction(e -> {
             numberOfPlayers = (options.indexOf(chooseNumberOfPlayers.getValue()) + 1);
@@ -563,11 +575,16 @@ public class GameEngine extends Application {
         chooseNumberOfPlayers.setOnKeyPressed(e -> {
             if(e.getCode().equals(KeyCode.ENTER) && !chooseNumberOfPlayers.getValue().equals("Select number of players")) {
                 restart();
+                try {
+                    thread.sleep(600);
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(GameEngine.class.getName()).log(Level.SEVERE, null, ex);
+                }
                 firstStage.hide();
                 cancelButton.setDisable(false);    
             }
             if(e.getCode().equals(KeyCode.ESCAPE) && cancelButton.isDisable() == false) {
-                setIspaused(false);
+                setPaused(false);
                 firstStage.hide();
             }
         });
@@ -576,17 +593,34 @@ public class GameEngine extends Application {
         startButton = new Button("LET'S DO THIS!");
         startButton.setDisable(true);
         startButton.setPrefWidth(140);
-        startButton.setStyle("-fx-font: 15 arial; -fx-base: #009933;");
+        startButton.setStyle("-fx-base: #009933;");
         startButton.setOnAction(e -> {
             restart();
+            try {
+                thread.sleep(600);
+            } catch (InterruptedException ex) {
+                Logger.getLogger(GameEngine.class.getName()).log(Level.SEVERE, null, ex);
+            }
             firstStage.hide();
             cancelButton.setDisable(false);
         });
+        startButton.setOnKeyPressed(k -> {
+            restart();
+            try {
+                thread.sleep(600);
+            } catch (InterruptedException ex) {
+                Logger.getLogger(GameEngine.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            firstStage.hide();
+            cancelButton.setDisable(false);
+        });
+        
         cancelButton = new Button("Cancel");
+        cancelButton.setCancelButton(true);
         cancelButton.setDisable(true);
-        cancelButton.setStyle("-fx-font: 15 arial; -fx-base: #FF3300;");
+        cancelButton.setStyle("-fx-base: #FF3300;");
         cancelButton.setOnAction(e -> {
-            setIspaused(false);
+            setPaused(false);
             firstStage.hide();
         });   
         
@@ -597,6 +631,7 @@ public class GameEngine extends Application {
         
         //Make the stage show at startup and disable closing the screen.
         firstScene = new Scene(firstPane, 600, 300);
+        firstScene.getStylesheets().add(BattleSnake.class.getResource("BattleSnake.css").toExternalForm());
         firstStage.setScene(firstScene);
         firstStage.setTitle("Set up game");
         firstStage.setOnCloseRequest(c -> {
@@ -616,9 +651,9 @@ public class GameEngine extends Application {
         controlsStage.setAlwaysOnTop(true);
         controlsStage.setMaxWidth(500);
         controlsStage.setMaxHeight(230);
+        controlsStage.setResizable(false);
         
         //Set up info texts
-        
         Text player1 = new Text("Player 1 ");
         Text player2 = new Text("Player 2 ");
         Text player3 = new Text("Player 3 ");
@@ -763,7 +798,7 @@ public class GameEngine extends Application {
         backButton.setPrefWidth(200);
         backButton.setStyle("-fx-font: 15 arial; -fx-base: #009933;");
         backButton.setOnAction(e -> {
-            setIspaused(false);
+            setPaused(false);
             controlsStage.hide();
         });
         
@@ -786,11 +821,11 @@ public class GameEngine extends Application {
         //does not reset keys to the state before the stage was brought up..
         controlsPane.setOnKeyPressed(e -> {
             if(e.getCode().equals(KeyCode.ENTER)) {
-                setIspaused(false);
+                setPaused(false);
                 controlsStage.hide();    
             }
             if(e.getCode().equals(KeyCode.ESCAPE)) {
-                setIspaused(false);
+                setPaused(false);
                 controlsStage.hide();
             }
         });
@@ -811,6 +846,7 @@ public class GameEngine extends Application {
         aboutStage.setAlwaysOnTop(true);
         aboutStage.setMaxWidth(260);
         aboutStage.setMaxHeight(250);
+        aboutStage.setResizable(false);
               
         //Set about info
         Text aboutInfo = new Text("Version 1.0. \n"
@@ -827,7 +863,7 @@ public class GameEngine extends Application {
         Button okButton = new Button("I get it, let's play some more.");
         okButton.setStyle("-fx-font: 15 arial; -fx-base: #009933;");
         okButton.setOnAction(e -> {
-            setIspaused(false);
+            setPaused(false);
             aboutStage.hide();
         });
         
@@ -843,11 +879,11 @@ public class GameEngine extends Application {
         //Make enter and escape take the user back to the game.
         aboutPane.setOnKeyPressed(e -> {
             if(e.getCode().equals(KeyCode.ENTER)) {
-                setIspaused(false);
+                setPaused(false);
                 aboutStage.hide();    
             }
             if(e.getCode().equals(KeyCode.ESCAPE)) {
-                setIspaused(false);
+                setPaused(false);
                 aboutStage.hide();
             }
         });
@@ -865,7 +901,7 @@ public class GameEngine extends Application {
         //Set color, add the scoreboard and set some space to the part that is to contain the tostring info.
         int fontSize = 17;
         rightPane.setBackground(new Background(new BackgroundFill(GameGrid.SAFE_ZONE_COLOR, CornerRadii.EMPTY, Insets.EMPTY)));
-        rightPane.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(3))));
+        rightPane.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, new CornerRadii(5), new BorderWidths(3))));
         rightPane.getChildren().add(scorePane);
         rightPane.setConstraints(scorePane, 1, 1);
         rightPane.getColumnConstraints().addAll(new ColumnConstraints(30), new ColumnConstraints(10), new ColumnConstraints(30));
@@ -879,10 +915,14 @@ public class GameEngine extends Application {
         Text addDeathBlockBonusText = new Text(BonusHandler.ADD_DEATH_BLOCK_BONUS_DESCRIPTION);
         addDeathBlockBonusText.setFont(new Font(fontSize));
         
+        
         //Create the rectangles that show what type of bonus the description is about.
         Rectangle regularBonusColor = new Rectangle(fontSize, fontSize, BonusHandler.REGULAR_BONUS_COLOR);
+        regularBonusColor.setStroke(Color.BLACK);
         Rectangle makeShortBonusColor = new Rectangle(fontSize, fontSize, BonusHandler.MAKE_SHORT_BONUS_COLOR);
+        makeShortBonusColor.setStroke(Color.BLACK);
         Rectangle addDeathBlockBonusColor = new Rectangle(fontSize, fontSize, BonusHandler.ADD_DEATH_BLOCK_BONUS_COLOR);
+        addDeathBlockBonusColor.setStroke(Color.BLACK);
         
         //Add the bonus information to the pane.
         rightPane.add(regularBonusText, 3, 4);
@@ -892,6 +932,8 @@ public class GameEngine extends Application {
         rightPane.add(regularBonusColor, 1, 4);
         rightPane.add(makeShortBonusColor, 1, 5);
         rightPane.add(addDeathBlockBonusColor, 1, 6);
+        
+        rightPane.setId("RPane");
 
     }
     /**

@@ -1,15 +1,12 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+/**
+ * @author johanwendt
  */
 package battlesnake;
 
 import javafx.scene.paint.Color;
 
 /**
- *
- * @author johanwendt
+ * Creates a bonus that makes the player short.
  */
 public class MakeShortBonus extends Bonus {
 

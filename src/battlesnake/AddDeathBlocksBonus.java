@@ -1,26 +1,31 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+/**
+ *
+ * @author johanwendt
  */
 package battlesnake;
 
 import javafx.scene.paint.Color;
 
 /**
- *
- * @author johanwendt
+ *Creates a death block bonus that randomly creates three death blocks on the 
+ * game grid when taken.
  */
 public class AddDeathBlocksBonus extends Bonus{
 
     public AddDeathBlocksBonus(BuildingBlock bonusBlock, Color eventColor, int longevity, int eventHappening) {
         super(bonusBlock, eventColor, longevity, eventHappening);
     }
+    /**
+     * Creates three death blocks and places them randomly on the GameGrid. 
+     * The death blocks are set to irrevertible with the consequence that they can populate 
+     * the safe zone.
+     * @param gameGrid 
+     */
     @Override
     public void executeBonus(GameGrid gameGrid) {
         for(int i = 0; i < 3; i++) {
             BuildingBlock deathBlock = gameGrid.getRandomBlock();
-            deathBlock.setIsDeathBlockIrreveritble();
+            deathBlock.setDeathBlockIrreveritble();
         }
     }
     
