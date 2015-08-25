@@ -5,22 +5,16 @@ package battlesnake;
  * @author johanwendt
  */
 import javafx.scene.paint.Color;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Stack;
-import java.util.Iterator;
 import javafx.scene.input.KeyCode;
 
 /**
  *Every player in the game is an instance of this class. This class hold information
  * about player direction, speed, length, score and so on.
  */
-public class Player {
+public final class Player {
     //Fields
-    //Final static fields
-    public static final int PLAYER_START_SLOWNESS = 25;
-    public static final int PLAYER_DEATH_PENALTY = -2;
-    public static final int PLAYER_START_LENGTH = 20;
     
     //Final fields
     private final Color playerColor;
@@ -34,8 +28,8 @@ public class Player {
     private int turn;
     private int currentLocation;
     private int currentDirection;
-    private int currentLength = PLAYER_START_LENGTH;
-    private int playerSlownes = PLAYER_START_SLOWNESS;
+    private int currentLength = GameEngine.PLAYER_START_LENGTH;
+    private int playerSlownes = GameEngine.PLAYER_START_SLOWNESS;
     private boolean isAlive = true;
     private boolean mayChangeDirection = true;
     private int score = 0;
@@ -74,8 +68,7 @@ public class Player {
         body = new Stack<>();
         BuildingBlock startSnake = gameGrid.getBlock(GameGrid.PLAYER_STARTPOINT + (startDirection));
         startSnake.revertDeathBlock(true);
-        startSnake.setDeathBlock();
-        startSnake.setBlockColor(playerColor);
+        startSnake.setPlayerBlock(playerColor);
         
         //Only first block in the stack is added. This makes the snake start 
         //being only one block in size. The rest is added by mevement.
@@ -114,8 +107,7 @@ public class Player {
             }
             //Move the player, see if a bonus was taken and handle bonus happenings.
             BuildingBlock moveTo = gameGrid.getBlock(destination);
-            moveTo.setBlockColor(playerColor);
-            moveTo.setDeathBlock();
+            moveTo.setPlayerBlock(playerColor);
             handleBonuses(events.getBonus(destination));
             currentLocation = moveTo.getBlockId();
             body.add(0, moveTo);
@@ -185,7 +177,7 @@ public class Player {
      */
     public void killPlayer() {
         erasePlayer();
-        addToScore(PLAYER_DEATH_PENALTY);
+        addToScore(GameEngine.PLAYER_DEATH_PENALTY);
         if(score  < 0 && !gameGrid.isDeathRunning()) {
             setAlive(false);
         }
@@ -215,7 +207,7 @@ public class Player {
      * The player is shortened to the start length. Used after death.
      */
     public void makeShort() {
-        currentLength = PLAYER_START_LENGTH;
+        currentLength = GameEngine.PLAYER_START_LENGTH;
     }
     /**
      * The player length is changed.
@@ -228,7 +220,7 @@ public class Player {
      * Slows the player to startspeed. Used after death.
      */
     public void makeSlow() {
-        playerSlownes = PLAYER_START_SLOWNESS;
+        playerSlownes = GameEngine.PLAYER_START_SLOWNESS;
     }
     /**
      * Returns the player score, as an int for comparability.

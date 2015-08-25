@@ -28,12 +28,16 @@ public class GameEngine extends Application {
     public static final int PLAYER_3_STARTDIRECTION = UP;
     public static final int PLAYER_4_STARTDIRECTION = DOWN;
     
+    public static final int PLAYER_START_SLOWNESS = 25;
+    public static final int PLAYER_DEATH_PENALTY = -2;
+    public static final int PLAYER_START_LENGTH = 20;
+    
     //Player fields
     private final ArrayList<Player> players = new ArrayList<>();
-    private HashMap<KeyCode, Integer> player1Controls = new HashMap<>();
-    private HashMap<KeyCode, Integer> player2Controls = new HashMap<>();
-    private HashMap<KeyCode, Integer> player3Controls = new HashMap<>();
-    private HashMap<KeyCode, Integer> player4Controls = new HashMap<>();
+    private final HashMap<KeyCode, Integer> player1Controls = new HashMap<>();
+    private final HashMap<KeyCode, Integer> player2Controls = new HashMap<>();
+    private final HashMap<KeyCode, Integer> player3Controls = new HashMap<>();
+    private final HashMap<KeyCode, Integer> player4Controls = new HashMap<>();
     
     //Game fields
     private long gameSpeed = 3;
@@ -209,7 +213,7 @@ public class GameEngine extends Application {
     /**
      * Creates the chosen number of players.
      */
-    public void createPlayers () {
+    private void createPlayers () {
         switch(numberOfPlayers) {
             case 4: players.add(0, new Player("Player 4", PLAYER_4_STARTDIRECTION, UserInterface.PLAYER_4_COLOR, gameGrid, bonusHandler, player4Controls));
             case 3: players.add(0, new Player("Player 3", PLAYER_3_STARTDIRECTION, UserInterface.PLAYER_3_COLOR, gameGrid, bonusHandler, player3Controls));
@@ -226,100 +230,24 @@ public class GameEngine extends Application {
      */
     public void setControlKey(String playerName, int direction, KeyCode newKey) {
         if(playerName.equals("Player 1")) {
-            switch(direction) {
-                case UP:
-                    removeDuplicateKeys(player1Controls, direction);
-                    player1Controls.put(newKey, direction);
-                    GUI.player1Up.setText(newKey.toString());
-                    break;
-                case RIGHT:
-                    removeDuplicateKeys(player1Controls, direction);
-                    player1Controls.put(newKey, direction);
-                    GUI.player1Right.setText(newKey.toString());
-                    break;
-                case DOWN: 
-                    removeDuplicateKeys(player1Controls, direction);
-                    player1Controls.put(newKey, direction);
-                    GUI.player1Down.setText(newKey.toString());
-                    break;
-                case LEFT: 
-                    removeDuplicateKeys(player1Controls, direction);
-                    player1Controls.put(newKey, direction);
-                    GUI.player1Left.setText(newKey.toString());
-                    break;              
-            }
+            removeDuplicateKeys(player1Controls, direction);
+            player1Controls.put(newKey, direction);
+            GUI.updateControlText(playerName, direction, newKey.toString());
         }
         if(playerName.equals("Player 2")) {
-            switch(direction) {
-                case UP: 
-                    removeDuplicateKeys(player2Controls, UP);
-                    player2Controls.put(newKey, UP);
-                    GUI.player2Up.setText(newKey.toString());
-                    break;
-                case RIGHT: 
-                    removeDuplicateKeys(player2Controls, RIGHT);
-                    player2Controls.put(newKey, RIGHT);
-                    GUI.player2Right.setText(newKey.toString());
-                    break;
-                case DOWN: 
-                    removeDuplicateKeys(player2Controls, DOWN);
-                    player2Controls.put(newKey, DOWN);
-                    GUI.player2Down.setText(newKey.toString());
-                    break;
-                case LEFT: 
-                    removeDuplicateKeys(player2Controls, LEFT);
-                    player2Controls.put(newKey, LEFT);
-                    GUI.player2Left.setText(newKey.toString());
-                    break;
-            }
+            removeDuplicateKeys(player2Controls, direction);
+            player2Controls.put(newKey, direction);
+            GUI.updateControlText(playerName, direction, newKey.toString());
         }
         if(playerName.equals("Player 3")) {
-            switch(direction) {
-                case UP:
-                    removeDuplicateKeys(player3Controls, UP);
-                    player3Controls.put(newKey, UP);
-                    GUI.player3Up.setText(newKey.toString());
-                    break;
-                case RIGHT: 
-                    removeDuplicateKeys(player3Controls, RIGHT);
-                    player3Controls.put(newKey, RIGHT);
-                    GUI.player3Right.setText(newKey.toString());
-                    break;
-                case DOWN: 
-                    removeDuplicateKeys(player3Controls, DOWN);
-                    player3Controls.put(newKey, DOWN);
-                    GUI.player3Down.setText(newKey.toString());
-                    break;
-                case LEFT: 
-                    removeDuplicateKeys(player3Controls, LEFT);
-                    player3Controls.put(newKey, LEFT);
-                    GUI.player3Left.setText(newKey.toString());
-                    break;
-            }
+            removeDuplicateKeys(player3Controls, direction);
+            player3Controls.put(newKey, direction);
+            GUI.updateControlText(playerName, direction, newKey.toString());
         }
         if(playerName.equals("Player 4")) {
-            switch(direction) {
-                case UP: 
-                    removeDuplicateKeys(player4Controls, UP);
-                    player4Controls.put(newKey, UP);
-                    GUI.player4Up.setText(newKey.toString());
-                    break;
-                case RIGHT: 
-                    removeDuplicateKeys(player4Controls, RIGHT);
-                    player4Controls.put(newKey, RIGHT);
-                    GUI.player4Right.setText(newKey.toString());
-                    break;
-                case DOWN: 
-                    removeDuplicateKeys(player4Controls, DOWN);
-                    player4Controls.put(newKey, DOWN);
-                    GUI.player4Down.setText(newKey.toString());
-                    break;
-                case LEFT: 
-                    removeDuplicateKeys(player4Controls, LEFT);
-                    player4Controls.put(newKey, LEFT);
-                    GUI.player4Left.setText(newKey.toString());
-                    break;
-            }
+            removeDuplicateKeys(player4Controls, direction);
+            player4Controls.put(newKey, direction);
+            GUI.updateControlText(playerName, direction, newKey.toString());
         }
     }
     /**

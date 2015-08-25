@@ -3,6 +3,7 @@ package battlesnake;
 /**
  * @author johanwendt
  */
+import java.util.HashMap;
 import javafx.stage.Stage;
 import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
@@ -47,7 +48,6 @@ public class UserInterface {
     //Fields
     //Panes, scenes and stages.
     private final BorderPane mainPane = new BorderPane();
-    public static final Pane PANE = new Pane();
     private final GridPane firstPane = new GridPane();
     private final GridPane rightPane = new GridPane();
     private final VBox scorePane = new VBox();
@@ -74,25 +74,9 @@ public class UserInterface {
     private Text playerTwoScore;
     private Text playerThreeScore;
     private Text playerFourScore;
-    public TextField player1Up = new TextField();
-    public TextField player1Right = new TextField();
-    public TextField player1Down = new TextField();
-    public TextField player1Left = new TextField();
-    public TextField player2Up = new TextField();
-    public TextField player2Right = new TextField();
-    public TextField player2Down = new TextField();
-    public TextField player2Left = new TextField();
-    public TextField player3Up = new TextField();
-    public TextField player3Right = new TextField();
-    public TextField player3Down = new TextField();
-    public TextField player3Left = new TextField();
-    public TextField player4Up = new TextField();
-    public TextField player4Right = new TextField();
-    public TextField player4Down = new TextField();
-    public TextField player4Left = new TextField();
     private final Text regularBonusText = new Text();
     private final Text makeShortBonusText = new Text();
-    private Text addDeathBlockBonusText = new Text();
+    private final Text addDeathBlockBonusText = new Text();
     
     
     //Static finals
@@ -100,6 +84,7 @@ public class UserInterface {
     //block in y-direction adds 1 to the id while every block in 
     //x-direction adds 1000 (MULIPLIER_X).
     
+    public static final Pane PANE = new Pane();
     public static final Color PLAYER_1_COLOR = Color.web("#B200B2");
     public static final Color PLAYER_2_COLOR = Color.web("#66FF33");
     public static final Color PLAYER_3_COLOR = Color.web("#E68A00");
@@ -108,8 +93,12 @@ public class UserInterface {
     
     
     //Regular fields
-    private ScoreEffect scoreEffect = new ScoreEffect();
-    private GameEngine gameEngine;
+    private final HashMap<Integer, TextField> playerOneControls = new HashMap<>();
+    private final HashMap<Integer, TextField> playerTwoControls = new HashMap<>();
+    private final HashMap<Integer, TextField> playerThreeControls = new HashMap<>();
+    private final HashMap<Integer, TextField> playerFourControls = new HashMap<>();
+    private final ScoreEffect scoreEffect = new ScoreEffect();
+    private final GameEngine gameEngine;
 
     /**
      * Creates the grafical interface.
@@ -154,9 +143,44 @@ public class UserInterface {
         }
     }
     /**
+     * Updates the information about the current controls for the players.
+     * @param playerName name of the player
+     * @param direction direction to be controlled by the key
+     * @param key key used to turn in the given direction
+     */
+    public void updateControlText(String playerName, Integer direction, String key) {
+        if(playerName.equals("Player 1")) {
+            playerOneControls.get(direction).setText(key);
+        }
+        if(playerName.equals("Player 2")) {
+            playerTwoControls.get(direction).setText(key);
+        }
+        if(playerName.equals("Player 3")) {
+            playerThreeControls.get(direction).setText(key);
+        }
+        if(playerName.equals("Player 4")) {
+            playerFourControls.get(direction).setText(key);
+        }
+    }
+        /**
+     * Recieves the correct score from the player instances.
+     */
+    public void showScores() {
+        switch(gameEngine.getNumberOfPlayers()) {
+            case 4: 
+                playerFourScore.setText(gameEngine.getPlayer(3).scoreToString());
+            case 3: 
+                playerThreeScore.setText(gameEngine.getPlayer(2).scoreToString());
+            case 2: 
+                playerTwoScore.setText(gameEngine.getPlayer(1).scoreToString());
+            case 1: 
+                playerOneScore.setText(gameEngine.getPlayer(0).scoreToString());
+        }
+    }
+    /**
      * This sets upp the main game screen.
      */
-    public void setUpMainScreen() {
+    private void setUpMainScreen() {
         //Exit the game on closing this window.
         battleStage.setOnCloseRequest(c -> {
             System.exit(0);
@@ -244,7 +268,7 @@ public class UserInterface {
      * players and start the game. The same stage is used for restarting game
      * in mid game and after game over.
      */
-    public void setUpFirstScreen() {
+    private void setUpFirstScreen() {
         firstStage = new Stage();
         firstStage.setAlwaysOnTop(true);
         firstStage.setMaxWidth(510);
@@ -349,7 +373,7 @@ public class UserInterface {
      * Sets up the stage where the user can set the player controls. 
      * This is reached via the menus in the main game stage.
      */
-    public void setUpControlsScreen() {
+    private void setUpControlsScreen() {
         controlsStage = new Stage();
         controlsStage.setAlwaysOnTop(true);
         controlsStage.setMaxWidth(500);
@@ -363,6 +387,27 @@ public class UserInterface {
         controlsStage.setOnHiding(e -> {
             underMenu4.setDisable(false);
         });
+        
+        playerOneControls.put(gameEngine.UP, new TextField());
+        playerOneControls.put(gameEngine.RIGHT, new TextField());
+        playerOneControls.put(gameEngine.DOWN, new TextField());
+        playerOneControls.put(gameEngine.LEFT, new TextField());
+        
+        playerTwoControls.put(gameEngine.UP, new TextField());
+        playerTwoControls.put(gameEngine.RIGHT, new TextField());
+        playerTwoControls.put(gameEngine.DOWN, new TextField());
+        playerTwoControls.put(gameEngine.LEFT, new TextField());
+        
+        playerThreeControls.put(gameEngine.UP, new TextField());
+        playerThreeControls.put(gameEngine.RIGHT, new TextField());
+        playerThreeControls.put(gameEngine.DOWN, new TextField());
+        playerThreeControls.put(gameEngine.LEFT, new TextField());
+        
+        playerFourControls.put(gameEngine.UP, new TextField());
+        playerFourControls.put(gameEngine.RIGHT, new TextField());
+        playerFourControls.put(gameEngine.DOWN, new TextField());
+        playerFourControls.put(gameEngine.LEFT, new TextField());
+ 
         
         //Set up info texts
         Text player1 = new Text("Player 1 ");
@@ -395,112 +440,104 @@ public class UserInterface {
         controlsPane.add(player3, 0, 3);
         controlsPane.add(player4, 0, 4);
         
-        controlsPane.add(player1Up, 1, 1);
-        controlsPane.add(player1Right, 2, 1);
-        controlsPane.add(player1Down, 3, 1);
-        controlsPane.add(player1Left, 4, 1);
+        controlsPane.add(playerOneControls.get(gameEngine.UP), 1, 1);
+        controlsPane.add(playerOneControls.get(gameEngine.RIGHT), 2, 1);
+        controlsPane.add(playerOneControls.get(gameEngine.DOWN), 3, 1);
+        controlsPane.add(playerOneControls.get(gameEngine.LEFT), 4, 1);
         
-        controlsPane.add(player2Up, 1, 2);
-        controlsPane.add(player2Right, 2, 2);
-        controlsPane.add(player2Down, 3, 2);
-        controlsPane.add(player2Left, 4, 2);
+        controlsPane.add(playerTwoControls.get(gameEngine.UP), 1, 2);
+        controlsPane.add(playerTwoControls.get(gameEngine.RIGHT), 2, 2);
+        controlsPane.add(playerTwoControls.get(gameEngine.DOWN), 3, 2);
+        controlsPane.add(playerTwoControls.get(gameEngine.LEFT), 4, 2);
         
-        controlsPane.add(player3Up, 1, 3);
-        controlsPane.add(player3Right, 2, 3);
-        controlsPane.add(player3Down, 3, 3);
-        controlsPane.add(player3Left, 4, 3);
+        controlsPane.add(playerThreeControls.get(gameEngine.UP), 1, 3);
+        controlsPane.add(playerThreeControls.get(gameEngine.RIGHT), 2, 3);
+        controlsPane.add(playerThreeControls.get(gameEngine.DOWN), 3, 3);
+        controlsPane.add(playerThreeControls.get(gameEngine.LEFT), 4, 3);
         
-        controlsPane.add(player4Up, 1, 4);
-        controlsPane.add(player4Right, 2, 4);
-        controlsPane.add(player4Down, 3, 4);
-        controlsPane.add(player4Left, 4, 4);
+        controlsPane.add(playerFourControls.get(gameEngine.UP), 1, 4);
+        controlsPane.add(playerFourControls.get(gameEngine.RIGHT), 2, 4);
+        controlsPane.add(playerFourControls.get(gameEngine.DOWN), 3, 4);
+        controlsPane.add(playerFourControls.get(gameEngine.LEFT), 4, 4);
         
         //Make inputfields only show values that are set.
-        player1Up.setEditable(false);
-        player1Right.setEditable(false);
-        player1Down.setEditable(false);
-        player1Left.setEditable(false);
-        
-        player2Up.setEditable(false);
-        player2Right.setEditable(false);
-        player2Down.setEditable(false);
-        player2Left.setEditable(false);
-        
-        player3Up.setEditable(false);
-        player3Right.setEditable(false);
-        player3Down.setEditable(false);
-        player3Left.setEditable(false);
-        
-        player4Up.setEditable(false);
-        player4Right.setEditable(false);
-        player4Down.setEditable(false);
-        player4Left.setEditable(false);
-        
+        playerOneControls.forEach((key, value) -> {
+            value.setEditable(false);
+        });
+        playerTwoControls.forEach((key, value) -> {
+            value.setEditable(false);
+        });
+        playerThreeControls.forEach((key, value) -> {
+            value.setEditable(false);
+        });
+        playerFourControls.forEach((key, value) -> {
+            value.setEditable(false);
+        });      
         //Update player controls when pressing a button in the grid.
-        player1Up.setOnKeyPressed(e ->  {
+        playerOneControls.get(gameEngine.UP).setOnKeyPressed(e ->  {
             gameEngine.setControlKey("Player 1", GameEngine.UP, e.getCode());
-            player1Right.requestFocus();
+            playerOneControls.get(gameEngine.RIGHT).requestFocus();
     });
-        player1Right.setOnKeyPressed(e ->  {
+        playerOneControls.get(gameEngine.RIGHT).setOnKeyPressed(e ->  {
             gameEngine.setControlKey("Player 1", GameEngine.RIGHT, e.getCode());
-            player1Down.requestFocus();
+            playerOneControls.get(gameEngine.DOWN).requestFocus();
     });
-        player1Down.setOnKeyPressed(e ->  {
+        playerOneControls.get(gameEngine.DOWN).setOnKeyPressed(e ->  {
             gameEngine.setControlKey("Player 1", GameEngine.DOWN, e.getCode());
-            player1Left.requestFocus();
+            playerOneControls.get(gameEngine.LEFT).requestFocus();
     });
-        player1Left.setOnKeyPressed(e ->  {
+        playerOneControls.get(gameEngine.LEFT).setOnKeyPressed(e ->  {
             gameEngine.setControlKey("Player 1", GameEngine.LEFT, e.getCode());
-            player2Up.requestFocus();
+            playerTwoControls.get(gameEngine.UP).requestFocus();
     });
         
-        player2Up.setOnKeyPressed(e ->  {
+        playerTwoControls.get(gameEngine.UP).setOnKeyPressed(e ->  {
             gameEngine.setControlKey("Player 2", GameEngine.UP, e.getCode());
-            player2Right.requestFocus();
+            playerTwoControls.get(gameEngine.RIGHT).requestFocus();
     });
-        player2Right.setOnKeyPressed(e ->  {
+        playerTwoControls.get(gameEngine.RIGHT).setOnKeyPressed(e ->  {
             gameEngine.setControlKey("Player 2", GameEngine.RIGHT, e.getCode());
-            player2Down.requestFocus();
+            playerTwoControls.get(gameEngine.DOWN).requestFocus();
     });
-        player2Down.setOnKeyPressed(e ->  {
+        playerTwoControls.get(gameEngine.DOWN).setOnKeyPressed(e ->  {
             gameEngine.setControlKey("Player 2", GameEngine.DOWN, e.getCode());
-            player2Left.requestFocus();
+            playerTwoControls.get(gameEngine.LEFT).requestFocus();
     });
-        player2Left.setOnKeyPressed(e ->  {
+        playerTwoControls.get(gameEngine.LEFT).setOnKeyPressed(e ->  {
             gameEngine.setControlKey("Player 2", GameEngine.LEFT, e.getCode());
-            player3Up.requestFocus();
+            playerThreeControls.get(gameEngine.UP).requestFocus();
     });
         
-        player3Up.setOnKeyPressed(e ->  {
+        playerThreeControls.get(gameEngine.UP).setOnKeyPressed(e ->  {
             gameEngine.setControlKey("Player 3", GameEngine.UP, e.getCode());
-            player3Right.requestFocus();
+            playerThreeControls.get(gameEngine.RIGHT).requestFocus();
     });
-        player3Right.setOnKeyPressed(e ->  {
+        playerThreeControls.get(gameEngine.RIGHT).setOnKeyPressed(e ->  {
             gameEngine.setControlKey("Player 3", GameEngine.RIGHT, e.getCode());
-            player3Down.requestFocus();
+            playerThreeControls.get(gameEngine.DOWN).requestFocus();
     });
-        player3Down.setOnKeyPressed(e ->  {
+        playerThreeControls.get(gameEngine.DOWN).setOnKeyPressed(e ->  {
             gameEngine.setControlKey("Player 3", GameEngine.DOWN, e.getCode());
-            player3Left.requestFocus();
+            playerThreeControls.get(gameEngine.LEFT).requestFocus();
     });
-        player3Left.setOnKeyPressed(e ->  {
+        playerThreeControls.get(gameEngine.LEFT).setOnKeyPressed(e ->  {
             gameEngine.setControlKey("Player 3", GameEngine.LEFT, e.getCode());
-            player4Up.requestFocus();
+            playerFourControls.get(gameEngine.UP).requestFocus();
     });
         
-        player4Up.setOnKeyPressed(e ->  {
+        playerFourControls.get(gameEngine.UP).setOnKeyPressed(e ->  {
             gameEngine.setControlKey("Player 4", GameEngine.UP, e.getCode());
-            player4Right.requestFocus();
+            playerFourControls.get(gameEngine.RIGHT).requestFocus();
     });
-        player4Right.setOnKeyPressed(e ->  {
+        playerFourControls.get(gameEngine.RIGHT).setOnKeyPressed(e ->  {
             gameEngine.setControlKey("Player 4", GameEngine.RIGHT, e.getCode());
-            player4Down.requestFocus();
+            playerFourControls.get(gameEngine.DOWN).requestFocus();
     });
-        player4Down.setOnKeyPressed(e ->  {
+        playerFourControls.get(gameEngine.DOWN).setOnKeyPressed(e ->  {
             gameEngine.setControlKey("Player 4", GameEngine.DOWN, e.getCode());
-            player4Left.requestFocus();
+            playerFourControls.get(gameEngine.LEFT).requestFocus();
     });
-        player4Left.setOnKeyPressed(e ->  {
+        playerFourControls.get(gameEngine.LEFT).setOnKeyPressed(e ->  {
             gameEngine.setControlKey("Player 4", GameEngine.LEFT, e.getCode());
     });
 
@@ -552,7 +589,7 @@ public class UserInterface {
     /**
      * Sets up the stage with information about the game.
      */
-    public void setUpAboutScreen() {
+    private void setUpAboutScreen() {
 
         aboutStage = new Stage();
         aboutStage.setAlwaysOnTop(true);
@@ -616,7 +653,7 @@ public class UserInterface {
     /**
      * Sets up the right pane that holds the score info.
      */
-    public void setUpRightPane() {
+    private void setUpRightPane() {
         
         //Set color, add the scoreboard and set some space to the part that is to contain the tostring info.
         int fontSize = 17;
@@ -626,7 +663,7 @@ public class UserInterface {
         rightPane.setConstraints(scorePane, 1, 1);
         rightPane.getColumnConstraints().addAll(new ColumnConstraints(30), new ColumnConstraints(10), new ColumnConstraints(30));
         rightPane.getRowConstraints().addAll(new RowConstraints(10), new RowConstraints(500), new RowConstraints(30), new RowConstraints(30), new RowConstraints(30), new RowConstraints(30), new RowConstraints(30));
-        BorderPane.setMargin(rightPane, new Insets(12, 5, 1, 5));
+        BorderPane.setMargin(rightPane, new Insets(10, 5, 9, 5));
 
         //Create bonus info and set id for css.
         Text regularBonusText = new Text(BonusHandler.REGULAR_BONUS_DESCRIPTION);
@@ -666,7 +703,7 @@ public class UserInterface {
     /**
      * Sets upp the score board for the right pane.
      */
-    public void setUpScoreBoard() {
+    private void setUpScoreBoard() {
         //Clear the scores for every new game.
         scorePane.getChildren().clear();
         
@@ -684,7 +721,7 @@ public class UserInterface {
     /**
      * Makes the score board only show scores for relevant players.
      */
-    public void initiateScoreBoard() {
+    private void initiateScoreBoard() {
         switch(gameEngine.getNumberOfPlayers()) {
             case 4: 
                 playerFourScore = new Text();
@@ -714,26 +751,11 @@ public class UserInterface {
  
     }
     /**
-     * Recieves the correct score from the player instances.
-     */
-    public void showScores() {
-        switch(gameEngine.getNumberOfPlayers()) {
-            case 4: 
-                playerFourScore.setText(gameEngine.getPlayer(3).scoreToString());
-            case 3: 
-                playerThreeScore.setText(gameEngine.getPlayer(2).scoreToString());
-            case 2: 
-                playerTwoScore.setText(gameEngine.getPlayer(1).scoreToString());
-            case 1: 
-                playerOneScore.setText(gameEngine.getPlayer(0).scoreToString());
-        }
-    }
-    /**
      * Makes the setup stage display either "Good Luck!" or the name
      * of the winner of the game.
      * @param winner 
      */
-    public void setUpWinnerInfo(Player winner) {
+    private void setUpWinnerInfo(Player winner) {
         if(winner == null) {
             winnerInfo.setText("Good Luck!");
             winnerInfo.setFill(Color.BLACK);

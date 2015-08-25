@@ -24,7 +24,7 @@ public class GameGrid {
     public static final Color SAFE_ZONE_COLOR = Color.web("#4D4DFF");
     
     //Final fields
-    private final int DEATH_SLOWNESS = Player.PLAYER_START_SLOWNESS;
+    private final int DEATH_SLOWNESS = GameEngine.PLAYER_START_SLOWNESS;
     private final ArrayList<BuildingBlock> gridList = new ArrayList<>();
     private final BuildingBlock outsideBlock;
     

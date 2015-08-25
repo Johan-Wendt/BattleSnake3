@@ -7,13 +7,14 @@ import javafx.scene.paint.Color;
  * @author johanwendt
  */
 public abstract class Bonus {
+    //Final fields.
+    private final double longevity;
+    private final int bonusHappening;
+    private final BuildingBlock bonusBlock;
     //Regular fields.
-    private double longevity;
-    private int bonusHappening;
     private double startTime;
     private boolean isToRemove = false;
     private boolean isTaken = false;
-    private BuildingBlock bonusBlock;
     
     /**
      * Creates a bonus and places it in the field.
