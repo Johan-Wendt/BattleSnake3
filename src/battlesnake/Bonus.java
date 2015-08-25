@@ -29,6 +29,7 @@ public abstract class Bonus {
         this.bonusHappening = bonusHappening;
         if(this.bonusBlock.getBlockColor().equals(GameGrid.GAMEGRID_COLOR)) {
             this.bonusBlock.setBlockColor(bonusColor);
+            this.bonusBlock.setLightingEffect();
             startTime = System.currentTimeMillis();
         }
         else {
@@ -45,6 +46,7 @@ public abstract class Bonus {
     public boolean checkRemove() {
         if(System.currentTimeMillis() - startTime > longevity) {
             isToRemove = true;
+            bonusBlock.removeEffect();
             if(!isTaken) bonusBlock.revertDeathBlock(false);
         }
         return isToRemove;
@@ -67,6 +69,7 @@ public abstract class Bonus {
      * Sets the isTaken property to true and also sets the isToRemove property to true.
      */
     public void setTaken() {
+        bonusBlock.removeEffect();
         isTaken = true;
         isToRemove = true;
     }

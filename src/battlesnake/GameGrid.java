@@ -20,8 +20,8 @@ public class GameGrid {
     public static final int GRID_SIZE = 2* (BLOCK_SIZE * 21) + BLOCK_SIZE;
     public static final int PLAYER_STARTPOINT = (((GRID_SIZE - BLOCK_SIZE) * GameEngine.MULIPLIER_X) / BLOCK_SIZE) / 2 + (((GRID_SIZE - BLOCK_SIZE) / BLOCK_SIZE) / 2);
     public static final int SAFE_ZONE_DIAMETER = 8;
-    public static final Color GAMEGRID_COLOR = Color.AQUA;
-    public static final Color SAFE_ZONE_COLOR = Color.LIGHTBLUE;
+    public static final Color GAMEGRID_COLOR = Color.web("#0000FF");
+    public static final Color SAFE_ZONE_COLOR = Color.web("#4D4DFF");
     
     //Final fields
     private final int DEATH_SLOWNESS = Player.PLAYER_START_SLOWNESS;
@@ -36,7 +36,7 @@ public class GameGrid {
     private int deathCounter = 0;
     private int deathLocation = 0;
     private int deathDirection = GameEngine.RIGHT;
-    private int deathPause = 0;
+    private int deathPause = 1;
     private boolean isDeathRunning = true;
 
     /**

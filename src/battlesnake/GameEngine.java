@@ -28,6 +28,8 @@ import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextField;
+import javafx.scene.effect.Light;
+import javafx.scene.effect.Lighting;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.Background;
@@ -67,7 +69,8 @@ public class GameEngine extends Application {
     private final Stage battleStage = new Stage();
     
     //Nodes 
-    private MenuItem underMenu4 = new MenuItem("Pause");
+    private MenuBar menuBar = new MenuBar();
+    private MenuItem underMenu4 = new MenuItem("Unpause");
     private ChoiceBox chooseNumberOfPlayers;
     private Button startButton;
     private Button cancelButton;
@@ -93,9 +96,9 @@ public class GameEngine extends Application {
     private TextField player4Right = new TextField();
     private TextField player4Down = new TextField();
     private TextField player4Left = new TextField();
-    Text regularBonusText = new Text();
-    Text makeShortBonusText = new Text();
-    Text addDeathBlockBonusText = new Text();
+    private Text regularBonusText = new Text();
+    private Text makeShortBonusText = new Text();
+    private Text addDeathBlockBonusText = new Text();
     
     
     //Static finals
@@ -108,9 +111,9 @@ public class GameEngine extends Application {
     public static final int DOWN = 1;
     public static final int UP = -1;
     
-    public static final Color PLAYER_1_COLOR = Color.RED;
-    public static final Color PLAYER_2_COLOR = Color.GREEN;
-    public static final Color PLAYER_3_COLOR = Color.BLUE;
+    public static final Color PLAYER_1_COLOR = Color.web("#B200B2");
+    public static final Color PLAYER_2_COLOR = Color.web("#66FF33");
+    public static final Color PLAYER_3_COLOR = Color.web("#E68A00");
     public static final Color PLAYER_4_COLOR = Color.YELLOW;
     public static final int PLAYER_1_STARTDIRECTION = RIGHT;
     public static final int PLAYER_2_STARTDIRECTION = LEFT;
@@ -145,24 +148,26 @@ public class GameEngine extends Application {
         gameGrid = new GameGrid(pane);
         bonusHandler = new BonusHandler(gameGrid, numberOfPlayers);
         setUpDefaultControlKeys();
-        createPlayers();
-        setUpWinnerInfo(null);
+        setUpControlsScreen();
         setUpFirstScreen();
-        setUpScoreBoard();
         setUpAboutScreen();
         setUpRightPane();
-        initiateScoreBoard();
-        setUpControlsScreen();
+
         
         //Get the thread that is running movoment of the players and creations of bonuses started.
         thread = new Thread(() -> {
             try {
                 while (isRunning) {
                     if(!isPaused) {
-                        players.stream().forEach(Player::movePlayer);
-                        bonusHandler.bonusRound();
+                        int moved = 0;
+                        for(Player player: players) {
+                            moved += player.movePlayer();
+                        }
                         playerKiller(gameGrid.deathBuilder());
-                        showScores();   
+                        if(moved > 0) {
+                            bonusHandler.bonusRound();
+                            showScores();
+                        }
                     }
                     if((gameGrid.isDeathRunning() == false && getNumberOfAlivePlayers() < 2 && !isPaused) || getNumberOfAlivePlayers() < 1 && !isPaused) {
                         Platform.runLater(() -> {
@@ -271,6 +276,7 @@ public class GameEngine extends Application {
         for(Player player: players) {
             if(player.containsBlock(deathBlock)) {
                 player.killPlayer();
+                showScores();
             }
         }
     }   
@@ -465,7 +471,7 @@ public class GameEngine extends Application {
             }
         });
         
-        //Create Menusbar-system
+        //Create Menubar-system
         Menu menu = new Menu("Battle Snake");
         menu.setId("menu");
         MenuItem underMenu1 = new MenuItem("Set up game");
@@ -473,12 +479,12 @@ public class GameEngine extends Application {
         MenuItem underMenu3 = new MenuItem("Controls");
         MenuItem underMenu5 = new MenuItem("Quit");
         menu.getItems().addAll(underMenu1, underMenu2, underMenu3, underMenu4, underMenu5);
-        MenuBar menuBar = new MenuBar();
         menuBar.setMaxHeight(10);
         menuBar.setBackground(new Background(new BackgroundFill(GameGrid.SAFE_ZONE_COLOR, new CornerRadii(5), Insets.EMPTY)));
         menuBar.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.DOTTED, CornerRadii.EMPTY, new BorderWidths(3))));
         menuBar.getMenus().add(menu);
         mainPane.setTop(menuBar);
+        menuBar.setEffect(new Lighting(new Light.Distant()));
 
         menuBar.setId("MBar");
 
@@ -585,7 +591,7 @@ public class GameEngine extends Application {
                     Logger.getLogger(GameEngine.class.getName()).log(Level.SEVERE, null, ex);
                 }
                 firstStage.hide();
-                cancelButton.setDisable(false);    
+                cancelButton.setDisable(false); 
             }
             if(e.getCode().equals(KeyCode.ESCAPE) && cancelButton.isDisable() == false) {
                 setPaused(false);
@@ -600,6 +606,7 @@ public class GameEngine extends Application {
         startButton.setStyle("-fx-base: #009933;");
         startButton.setOnAction(e -> {
             restart();
+            menuBar.setDisable(false);
             try {
                 thread.sleep(600);
             } catch (InterruptedException ex) {
@@ -905,7 +912,7 @@ public class GameEngine extends Application {
         
         //Set color, add the scoreboard and set some space to the part that is to contain the tostring info.
         int fontSize = 17;
-        rightPane.setBackground(new Background(new BackgroundFill(GameGrid.SAFE_ZONE_COLOR, CornerRadii.EMPTY, Insets.EMPTY)));
+
         rightPane.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, new CornerRadii(5), new BorderWidths(3))));
         rightPane.getChildren().add(scorePane);
         rightPane.setConstraints(scorePane, 1, 1);
@@ -913,25 +920,25 @@ public class GameEngine extends Application {
         rightPane.getRowConstraints().addAll(new RowConstraints(10), new RowConstraints(500), new RowConstraints(30), new RowConstraints(30), new RowConstraints(30), new RowConstraints(30), new RowConstraints(30));
         BorderPane.setMargin(rightPane, new Insets(12, 5, 1, 5));
 
-        //Create bonus info.
+        //Create bonus info and set id for css.
         Text regularBonusText = new Text(BonusHandler.REGULAR_BONUS_DESCRIPTION);
         regularBonusText.setId("RBonus");
-       // regularBonusText.setFont(new Font(fontSize));
         Text makeShortBonusText = new Text(BonusHandler.MAKE_SHORT_BONUS_DESCRIPTION);
         makeShortBonusText.setId("MBonus");
-        //makeShortBonusText.setFont(new Font(fontSize));
         Text addDeathBlockBonusText = new Text(BonusHandler.ADD_DEATH_BLOCK_BONUS_DESCRIPTION);
         addDeathBlockBonusText.setId("ABonus");
-        //addDeathBlockBonusText.setFont(new Font(fontSize));
         
         
         //Create the rectangles that show what type of bonus the description is about.
         Rectangle regularBonusColor = new Rectangle(fontSize, fontSize, BonusHandler.REGULAR_BONUS_COLOR);
         regularBonusColor.setStroke(Color.BLACK);
+        regularBonusColor.setEffect(new Lighting());
         Rectangle makeShortBonusColor = new Rectangle(fontSize, fontSize, BonusHandler.MAKE_SHORT_BONUS_COLOR);
         makeShortBonusColor.setStroke(Color.BLACK);
+        makeShortBonusColor.setEffect(new Lighting());
         Rectangle addDeathBlockBonusColor = new Rectangle(fontSize, fontSize, BonusHandler.ADD_DEATH_BLOCK_BONUS_COLOR);
         addDeathBlockBonusColor.setStroke(Color.BLACK);
+        addDeathBlockBonusColor.setEffect(new Lighting());
         
         //Add the bonus information to the pane.
         rightPane.add(regularBonusText, 3, 4);
@@ -941,7 +948,7 @@ public class GameEngine extends Application {
         rightPane.add(regularBonusColor, 1, 4);
         rightPane.add(makeShortBonusColor, 1, 5);
         rightPane.add(addDeathBlockBonusColor, 1, 6);
-        
+        rightPane.setEffect(new Lighting(new Light.Distant()));
         rightPane.setId("RPane");
 
     }
@@ -958,8 +965,8 @@ public class GameEngine extends Application {
         //Create and add the header
         Text scoreHeader = new Text("Scores");
         scorePane.getChildren().add(scoreHeader);
-        scoreHeader.setFont(Font.font(STYLESHEET_MODENA, 30));
-        scoreHeader.setFill(Color.GREY);
+        scoreHeader.setFont(Font.font(STYLESHEET_MODENA, 60));
+        scoreHeader.setFill(GameGrid.GAMEGRID_COLOR);
         scoreHeader.setUnderline(true);
     }
     /**
