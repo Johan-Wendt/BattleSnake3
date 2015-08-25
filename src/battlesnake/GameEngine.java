@@ -28,8 +28,15 @@ import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextField;
+import javafx.scene.effect.Blend;
+import javafx.scene.effect.BlendMode;
+import javafx.scene.effect.Bloom;
+import javafx.scene.effect.DropShadow;
+import javafx.scene.effect.Glow;
+import javafx.scene.effect.InnerShadow;
 import javafx.scene.effect.Light;
 import javafx.scene.effect.Lighting;
+import javafx.scene.effect.SepiaTone;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.Background;
@@ -136,6 +143,7 @@ public class GameEngine extends Application {
     private Thread thread;
     private BonusHandler bonusHandler;
     private GameGrid gameGrid;
+    private ScoreEffect scoreEffect = new ScoreEffect();
 
     public GameEngine () {
         
@@ -560,6 +568,7 @@ public class GameEngine extends Application {
         + "the eliminationbegins as snakes\nwith negative scores are terminated.\n" 
         + "Last snake standing wins!");
         gameInfo.setId("info-text");
+        gameInfo.setEffect(new Bloom());
         
         //Add info about the objective of the game and info about the winner. 
         //Winner info is empty untill a player has won the game and is
@@ -645,11 +654,7 @@ public class GameEngine extends Application {
         firstScene.getStylesheets().add(BattleSnake.class.getResource("BattleSnake.css").toExternalForm());
         firstStage.setScene(firstScene);
         firstStage.setTitle("Set up game");
-        firstStage.setOnCloseRequest(c -> {
-            //This throws an exception but seems to work as intended anyway.
-            firstStage = (Stage) c.clone();
-            firstStage.show();
-        });
+        
         firstStage.setResizable(false);
         firstStage.show();
     }
@@ -922,10 +927,13 @@ public class GameEngine extends Application {
 
         //Create bonus info and set id for css.
         Text regularBonusText = new Text(BonusHandler.REGULAR_BONUS_DESCRIPTION);
+        regularBonusText.setEffect(new Bloom());
         regularBonusText.setId("RBonus");
         Text makeShortBonusText = new Text(BonusHandler.MAKE_SHORT_BONUS_DESCRIPTION);
+        makeShortBonusText.setEffect(new Bloom());
         makeShortBonusText.setId("MBonus");
         Text addDeathBlockBonusText = new Text(BonusHandler.ADD_DEATH_BLOCK_BONUS_DESCRIPTION);
+        addDeathBlockBonusText.setEffect(new Bloom());
         addDeathBlockBonusText.setId("ABonus");
         
         
@@ -962,12 +970,13 @@ public class GameEngine extends Application {
         //Add some space
         scorePane.setPadding(new Insets(5, 5, 10, 30));
         
-        //Create and add the header
+        //Create, add the header nad apply efects.
         Text scoreHeader = new Text("Scores");
         scorePane.getChildren().add(scoreHeader);
         scoreHeader.setFont(Font.font(STYLESHEET_MODENA, 60));
         scoreHeader.setFill(GameGrid.GAMEGRID_COLOR);
         scoreHeader.setUnderline(true);
+        scoreHeader.setEffect(scoreEffect.getEffect(GameGrid.GAMEGRID_COLOR));
     }
     /**
      * Makes the score board only show scores for relevant players.
@@ -979,25 +988,25 @@ public class GameEngine extends Application {
                 playerFourScore.setText(players.get(3).scoreToString());
                 scorePane.getChildren().add(1, playerFourScore);
                 playerFourScore.setFont(Font.font(PLAYER_SCORE_SIZE));
-                playerFourScore.setFill(PLAYER_4_COLOR);
+                playerFourScore.setEffect(scoreEffect.getEffect(PLAYER_4_COLOR));
             case 3: 
                 playerThreeScore = new Text();
                 playerThreeScore.setText(players.get(2).scoreToString());
                 scorePane.getChildren().add(1, playerThreeScore);
                 playerThreeScore.setFont(Font.font(PLAYER_SCORE_SIZE));
-                playerThreeScore.setFill(PLAYER_3_COLOR);
+                playerThreeScore.setEffect(scoreEffect.getEffect(PLAYER_3_COLOR));
             case 2: 
                 playerTwoScore = new Text();
                 playerTwoScore.setText(players.get(1).scoreToString());
                 scorePane.getChildren().add(1, playerTwoScore);
                 playerTwoScore.setFont(Font.font(PLAYER_SCORE_SIZE));
-                playerTwoScore.setFill(PLAYER_2_COLOR);
+                playerTwoScore.setEffect(scoreEffect.getEffect(PLAYER_2_COLOR));
             case 1: 
                 playerOneScore = new Text();
                 playerOneScore.setText(players.get(0).scoreToString());
                 scorePane.getChildren().add(1, playerOneScore);
                 playerOneScore.setFont(Font.font(PLAYER_SCORE_SIZE));
-                playerOneScore.setFill(PLAYER_1_COLOR);
+                playerOneScore.setEffect(scoreEffect.getEffect(PLAYER_1_COLOR));
         }
  
     }
@@ -1033,4 +1042,5 @@ public class GameEngine extends Application {
             winnerInfo.setFont(Font.font(30));
         }
     }
+    
 }

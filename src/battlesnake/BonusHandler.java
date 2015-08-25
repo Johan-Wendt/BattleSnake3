@@ -81,7 +81,7 @@ public class BonusHandler {
         if(chance < MAKE_SHORT_BONUS_PROBABILTY_FACTOR) {
             createMakeShortBonus();
         }
-        else if (chance < ADD_DEATH_BLOCK_BONUS_PROBABILTY_FACTOR + MAKE_SHORT_BONUS_HAPPENING) {
+        else if (chance < ADD_DEATH_BLOCK_BONUS_PROBABILTY_FACTOR + MAKE_SHORT_BONUS_PROBABILTY_FACTOR) {
             createAddDeathBlocksBonus();
         }
         else {
