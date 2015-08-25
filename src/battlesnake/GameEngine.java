@@ -54,14 +54,9 @@ public class GameEngine extends Application {
     
         //Set up the screens and activate the players.
         GUI = new UserInterface(this);
-        GUI.setUpMainScreen();
         gameGrid = new GameGrid(UserInterface.PANE);
         bonusHandler = new BonusHandler(gameGrid, numberOfPlayers);
         setUpDefaultControlKeys();
-        GUI.setUpControlsScreen();
-        GUI.setUpFirstScreen();
-        GUI.setUpAboutScreen();
-        GUI.setUpRightPane();
 
         
         //Get the thread that is running movoment of the players and creations of bonuses started.
@@ -105,10 +100,8 @@ public class GameEngine extends Application {
                 winner = player;
             }
         }
-        GUI.setUpWinnerInfo(winner);
+        GUI.gameOver(winner);
         setPaused(true);
-        GUI.setCancelButtonDisabled(true);
-        GUI.showFirstStage(true);
     }
     public void takePressedKey(KeyCode key) {
         for(Player player: players) {
@@ -129,16 +122,13 @@ public class GameEngine extends Application {
      * to enable every game to start from scratch.
      */
     public void restart() {
-        GUI.setUpWinnerInfo(null);
         gameGrid = new GameGrid(UserInterface.PANE);
         bonusHandler = new BonusHandler(gameGrid, numberOfPlayers);
         erasePlayers();
         players.clear();
         createPlayers ();
-        GUI.setUpScoreBoard();
-        GUI.initiateScoreBoard();
-        begin();
-        
+        GUI.restart();
+        begin(); 
     }
     /**
      * Turns upp the game speed for all the players. It does this by making
@@ -166,12 +156,7 @@ public class GameEngine extends Application {
      */
     public void setPaused(boolean pause) {
         isPaused = pause;
-        if(pause) {
-            //underMenu4.setText("Unpause");
-        }
-        else {
-            //underMenu4.setText("Pause");
-        }
+        GUI.setPause(pause);    
     }
     public boolean isPaused() {
         return isPaused;
@@ -243,23 +228,23 @@ public class GameEngine extends Application {
         if(playerName.equals("Player 1")) {
             switch(direction) {
                 case UP:
-                    removeDuplicateKeys(player1Controls, UP);
-                    player1Controls.put(newKey, UP);
+                    removeDuplicateKeys(player1Controls, direction);
+                    player1Controls.put(newKey, direction);
                     GUI.player1Up.setText(newKey.toString());
                     break;
                 case RIGHT:
-                    removeDuplicateKeys(player1Controls, RIGHT);
-                    player1Controls.put(newKey, RIGHT);
+                    removeDuplicateKeys(player1Controls, direction);
+                    player1Controls.put(newKey, direction);
                     GUI.player1Right.setText(newKey.toString());
                     break;
                 case DOWN: 
-                    removeDuplicateKeys(player1Controls, DOWN);
-                    player1Controls.put(newKey, DOWN);
+                    removeDuplicateKeys(player1Controls, direction);
+                    player1Controls.put(newKey, direction);
                     GUI.player1Down.setText(newKey.toString());
                     break;
                 case LEFT: 
-                    removeDuplicateKeys(player1Controls, LEFT);
-                    player1Controls.put(newKey, LEFT);
+                    removeDuplicateKeys(player1Controls, direction);
+                    player1Controls.put(newKey, direction);
                     GUI.player1Left.setText(newKey.toString());
                     break;              
             }

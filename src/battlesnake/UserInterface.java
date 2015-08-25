@@ -3,20 +3,13 @@ package battlesnake;
 /**
  * @author johanwendt
  */
-import javafx.application.Application;
 import javafx.stage.Stage;
 import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.layout.BorderPane;
@@ -28,15 +21,9 @@ import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextField;
-import javafx.scene.effect.Blend;
-import javafx.scene.effect.BlendMode;
 import javafx.scene.effect.Bloom;
-import javafx.scene.effect.DropShadow;
-import javafx.scene.effect.Glow;
-import javafx.scene.effect.InnerShadow;
 import javafx.scene.effect.Light;
 import javafx.scene.effect.Lighting;
-import javafx.scene.effect.SepiaTone;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.Background;
@@ -76,13 +63,13 @@ public class UserInterface {
     private final Stage battleStage = new Stage();
     
     //Nodes 
-    private MenuBar menuBar = new MenuBar();
-    private MenuItem underMenu4 = new MenuItem("Unpause");
+    private final MenuBar menuBar = new MenuBar();
+    private final MenuItem underMenu4 = new MenuItem("Unpause");
     private ChoiceBox chooseNumberOfPlayers;
     private Button startButton;
     private Button cancelButton;
-    private Text gameInfo = new Text();
-    private Text winnerInfo = new Text();
+    private final Text gameInfo = new Text();
+    private final Text winnerInfo = new Text();
     private Text playerOneScore;
     private Text playerTwoScore;
     private Text playerThreeScore;
@@ -103,8 +90,8 @@ public class UserInterface {
     public TextField player4Right = new TextField();
     public TextField player4Down = new TextField();
     public TextField player4Left = new TextField();
-    private Text regularBonusText = new Text();
-    private Text makeShortBonusText = new Text();
+    private final Text regularBonusText = new Text();
+    private final Text makeShortBonusText = new Text();
     private Text addDeathBlockBonusText = new Text();
     
     
@@ -120,19 +107,23 @@ public class UserInterface {
     public static final int PLAYER_SCORE_SIZE = 60;
     
     
-    //Game fields
-    //private BonusHandler bonusHandler;
-    //private GameGrid gameGrid;
+    //Regular fields
     private ScoreEffect scoreEffect = new ScoreEffect();
-    private GameEngine newGameEngine;
+    private GameEngine gameEngine;
 
+    /**
+     * Creates the grafical interface.
+     * @param newGameEngine The GameEngine that runs the game.
+     */
     public UserInterface (GameEngine newGameEngine) {
-        this.newGameEngine = newGameEngine;
+        this.gameEngine = newGameEngine;
+        setUpMainScreen();
+        setUpControlsScreen();
+        setUpFirstScreen();
+        setUpAboutScreen();
+        setUpRightPane();
     }
-
-
-
-    //From here on the rest is GUI-stuff.
+    
     public void setCancelButtonDisabled(boolean disable) {
         cancelButton.setDisable(disable);
     }
@@ -142,6 +133,24 @@ public class UserInterface {
         }
         else {
             firstStage.hide();
+        }
+    }
+    public void gameOver(Player winner) {
+        setUpWinnerInfo(winner);
+        setCancelButtonDisabled(true);
+        showFirstStage(true);
+    }
+    public void restart() {
+        setUpWinnerInfo(null);
+        setUpScoreBoard();
+        initiateScoreBoard();
+    }
+    public void setPause(boolean pause) {
+        if(pause) {
+            underMenu4.setText("Unpause");
+        }
+        else {
+            underMenu4.setText("Pause");
         }
     }
     /**
@@ -159,7 +168,7 @@ public class UserInterface {
         //Takes input from the keybord and lets the active player-instances decide
         //to do with the information.
         mainScene.setOnKeyPressed(e -> {
-            newGameEngine.takePressedKey(e.getCode());
+            gameEngine.takePressedKey(e.getCode());
         });
         
         //Create Menubar-system
@@ -184,29 +193,29 @@ public class UserInterface {
         //Set Shortcuts for menus.
         underMenu1.setAccelerator(KeyCombination.keyCombination("CTRL + S"));
         underMenu1.setOnAction(a -> {
-            newGameEngine.setPaused(true);
+            gameEngine.setPaused(true);
             firstStage.show();
         });
         
         underMenu2.setAccelerator(KeyCombination.keyCombination("CTRL + A"));
         underMenu2.setOnAction(a -> {
-            newGameEngine.setPaused(true);
+            gameEngine.setPaused(true);
             aboutStage.show();
         });
         
         underMenu3.setAccelerator(KeyCombination.keyCombination("CTRL + C"));
         underMenu3.setOnAction(a -> {
-            newGameEngine.setPaused(true);
+            gameEngine.setPaused(true);
             controlsStage.show();
         });
         
         underMenu4.setAccelerator(KeyCombination.keyCombination("CTRL + P"));
         underMenu4.setOnAction(a -> {
-            if(!newGameEngine.isPaused()) {
-                newGameEngine.setPaused(true);
+            if(!gameEngine.isPaused()) {
+                gameEngine.setPaused(true);
             }
             else {
-                newGameEngine.setPaused(false);
+                gameEngine.setPaused(false);
             }
         });
         
@@ -241,6 +250,14 @@ public class UserInterface {
         firstStage.setMaxWidth(510);
         firstStage.setMaxHeight(600);
         
+        firstStage.setOnShowing(e -> {
+            underMenu4.setDisable(true);
+        });
+        
+        firstStage.setOnHiding(e -> {
+            underMenu4.setDisable(false);
+        });
+        
         //Adjust the spacing between the different parts of the screen.
         firstPane.getColumnConstraints().addAll(new ColumnConstraints(20), new ColumnConstraints(250), new ColumnConstraints(150));
         firstPane.getRowConstraints().addAll(new RowConstraints(10), new RowConstraints(170), new RowConstraints(90), new RowConstraints(5));
@@ -268,7 +285,7 @@ public class UserInterface {
         chooseNumberOfPlayers.setPrefWidth(240);
         
         chooseNumberOfPlayers.setOnAction(e -> {
-            newGameEngine.setNumberOfPlayers(options.indexOf(chooseNumberOfPlayers.getValue()) + 1);
+            gameEngine.setNumberOfPlayers(options.indexOf(chooseNumberOfPlayers.getValue()) + 1);
             startButton.setDisable(false);
         });
         
@@ -276,17 +293,12 @@ public class UserInterface {
         //Escape has the same effect as pressing the cancel-button.
         chooseNumberOfPlayers.setOnKeyPressed(e -> {
             if(e.getCode().equals(KeyCode.ENTER) && !chooseNumberOfPlayers.getValue().equals("Select number of players")) {
-                newGameEngine.restart();
-               // try {
-                    //thread.sleep(600);
-               // } catch (InterruptedException ex) {
-                  //  Logger.getLogger(UserInterface.class.getName()).log(Level.SEVERE, null, ex);
-               // }
+                gameEngine.restart();
                 firstStage.hide();
                 cancelButton.setDisable(false); 
             }
             if(e.getCode().equals(KeyCode.ESCAPE) && cancelButton.isDisable() == false) {
-                newGameEngine.setPaused(false);
+                gameEngine.setPaused(false);
                 firstStage.hide();
             }
         });
@@ -297,23 +309,13 @@ public class UserInterface {
         startButton.setPrefWidth(140);
         startButton.setStyle("-fx-base: #009933;");
         startButton.setOnAction(e -> {
-            newGameEngine.restart();
+            gameEngine.restart();
             menuBar.setDisable(false);
-        //    try {
-         //       thread.sleep(600);
-         //   } catch (InterruptedException ex) {
-         //       Logger.getLogger(UserInterface.class.getName()).log(Level.SEVERE, null, ex);
-         //   }
             firstStage.hide();
             cancelButton.setDisable(false);
         });
         startButton.setOnKeyPressed(k -> {
-            newGameEngine.restart();
-   //         try {
-     //           thread.sleep(600);
-       //     } catch (InterruptedException ex) {
-         //       Logger.getLogger(UserInterface.class.getName()).log(Level.SEVERE, null, ex);
-           // }
+            gameEngine.restart();
             firstStage.hide();
             cancelButton.setDisable(false);
         });
@@ -323,7 +325,7 @@ public class UserInterface {
         cancelButton.setDisable(true);
         cancelButton.setStyle("-fx-base: #FF3300;");
         cancelButton.setOnAction(e -> {
-            newGameEngine.setPaused(false);
+            gameEngine.setPaused(false);
             firstStage.hide();
         });   
         
@@ -331,6 +333,8 @@ public class UserInterface {
         firstPane.add(chooseNumberOfPlayers, 1, 3);
         firstPane.add(startButton, 2, 3);
         firstPane.add(cancelButton, 3, 3);
+        
+        
         
         //Make the stage show at startup and disable closing the screen.
         firstScene = new Scene(firstPane, 600, 300);
@@ -351,6 +355,14 @@ public class UserInterface {
         controlsStage.setMaxWidth(500);
         controlsStage.setMaxHeight(230);
         controlsStage.setResizable(false);
+        
+        controlsStage.setOnShowing(e -> {
+            underMenu4.setDisable(true);
+        });
+        
+        controlsStage.setOnHiding(e -> {
+            underMenu4.setDisable(false);
+        });
         
         //Set up info texts
         Text player1 = new Text("Player 1 ");
@@ -426,70 +438,70 @@ public class UserInterface {
         
         //Update player controls when pressing a button in the grid.
         player1Up.setOnKeyPressed(e ->  {
-            newGameEngine.setControlKey("Player 1", GameEngine.UP, e.getCode());
+            gameEngine.setControlKey("Player 1", GameEngine.UP, e.getCode());
             player1Right.requestFocus();
     });
         player1Right.setOnKeyPressed(e ->  {
-            newGameEngine.setControlKey("Player 1", GameEngine.RIGHT, e.getCode());
+            gameEngine.setControlKey("Player 1", GameEngine.RIGHT, e.getCode());
             player1Down.requestFocus();
     });
         player1Down.setOnKeyPressed(e ->  {
-            newGameEngine.setControlKey("Player 1", GameEngine.DOWN, e.getCode());
+            gameEngine.setControlKey("Player 1", GameEngine.DOWN, e.getCode());
             player1Left.requestFocus();
     });
         player1Left.setOnKeyPressed(e ->  {
-            newGameEngine.setControlKey("Player 1", GameEngine.LEFT, e.getCode());
+            gameEngine.setControlKey("Player 1", GameEngine.LEFT, e.getCode());
             player2Up.requestFocus();
     });
         
         player2Up.setOnKeyPressed(e ->  {
-            newGameEngine.setControlKey("Player 2", GameEngine.UP, e.getCode());
+            gameEngine.setControlKey("Player 2", GameEngine.UP, e.getCode());
             player2Right.requestFocus();
     });
         player2Right.setOnKeyPressed(e ->  {
-            newGameEngine.setControlKey("Player 2", GameEngine.RIGHT, e.getCode());
+            gameEngine.setControlKey("Player 2", GameEngine.RIGHT, e.getCode());
             player2Down.requestFocus();
     });
         player2Down.setOnKeyPressed(e ->  {
-            newGameEngine.setControlKey("Player 2", GameEngine.DOWN, e.getCode());
+            gameEngine.setControlKey("Player 2", GameEngine.DOWN, e.getCode());
             player2Left.requestFocus();
     });
         player2Left.setOnKeyPressed(e ->  {
-            newGameEngine.setControlKey("Player 2", GameEngine.LEFT, e.getCode());
+            gameEngine.setControlKey("Player 2", GameEngine.LEFT, e.getCode());
             player3Up.requestFocus();
     });
         
         player3Up.setOnKeyPressed(e ->  {
-            newGameEngine.setControlKey("Player 3", GameEngine.UP, e.getCode());
+            gameEngine.setControlKey("Player 3", GameEngine.UP, e.getCode());
             player3Right.requestFocus();
     });
         player3Right.setOnKeyPressed(e ->  {
-            newGameEngine.setControlKey("Player 3", GameEngine.RIGHT, e.getCode());
+            gameEngine.setControlKey("Player 3", GameEngine.RIGHT, e.getCode());
             player3Down.requestFocus();
     });
         player3Down.setOnKeyPressed(e ->  {
-            newGameEngine.setControlKey("Player 3", GameEngine.DOWN, e.getCode());
+            gameEngine.setControlKey("Player 3", GameEngine.DOWN, e.getCode());
             player3Left.requestFocus();
     });
         player3Left.setOnKeyPressed(e ->  {
-            newGameEngine.setControlKey("Player 3", GameEngine.LEFT, e.getCode());
+            gameEngine.setControlKey("Player 3", GameEngine.LEFT, e.getCode());
             player4Up.requestFocus();
     });
         
         player4Up.setOnKeyPressed(e ->  {
-            newGameEngine.setControlKey("Player 4", GameEngine.UP, e.getCode());
+            gameEngine.setControlKey("Player 4", GameEngine.UP, e.getCode());
             player4Right.requestFocus();
     });
         player4Right.setOnKeyPressed(e ->  {
-            newGameEngine.setControlKey("Player 4", GameEngine.RIGHT, e.getCode());
+            gameEngine.setControlKey("Player 4", GameEngine.RIGHT, e.getCode());
             player4Down.requestFocus();
     });
         player4Down.setOnKeyPressed(e ->  {
-            newGameEngine.setControlKey("Player 4", GameEngine.DOWN, e.getCode());
+            gameEngine.setControlKey("Player 4", GameEngine.DOWN, e.getCode());
             player4Left.requestFocus();
     });
         player4Left.setOnKeyPressed(e ->  {
-            newGameEngine.setControlKey("Player 4", GameEngine.LEFT, e.getCode());
+            gameEngine.setControlKey("Player 4", GameEngine.LEFT, e.getCode());
     });
 
         //Setup confirmation button.
@@ -497,7 +509,7 @@ public class UserInterface {
         backButton.setPrefWidth(200);
         backButton.setStyle("-fx-font: 15 arial; -fx-base: #009933;");
         backButton.setOnAction(e -> {
-            newGameEngine.setPaused(false);
+            gameEngine.setPaused(false);
             controlsStage.hide();
         });
         
@@ -506,7 +518,7 @@ public class UserInterface {
         deafultButton.setPrefWidth(200);
         deafultButton.setStyle("-fx-font: 15 arial; -fx-base: #FF00FF;");
         deafultButton.setOnAction(e -> {
-            newGameEngine.setUpDefaultControlKeys();
+            gameEngine.setUpDefaultControlKeys();
         });
         
         //Add empty row,for spacing in the grid, and button.
@@ -520,11 +532,11 @@ public class UserInterface {
         //does not reset keys to the state before the stage was brought up..
         controlsPane.setOnKeyPressed(e -> {
             if(e.getCode().equals(KeyCode.ENTER)) {
-                newGameEngine.setPaused(false);
+                gameEngine.setPaused(false);
                 controlsStage.hide();    
             }
             if(e.getCode().equals(KeyCode.ESCAPE)) {
-                newGameEngine.setPaused(false);
+                gameEngine.setPaused(false);
                 controlsStage.hide();
             }
         });
@@ -547,6 +559,14 @@ public class UserInterface {
         aboutStage.setMaxWidth(260);
         aboutStage.setMaxHeight(250);
         aboutStage.setResizable(false);
+        
+        aboutStage.setOnShowing(e -> {
+            underMenu4.setDisable(true);
+        });
+        
+        aboutStage.setOnHiding(e -> {
+            underMenu4.setDisable(false);
+        });
               
         //Set about info
         Text aboutInfo = new Text("Version 1.0. \n"
@@ -563,7 +583,7 @@ public class UserInterface {
         Button okButton = new Button("I get it, let's play some more.");
         okButton.setStyle("-fx-font: 15 arial; -fx-base: #009933;");
         okButton.setOnAction(e -> {
-            newGameEngine.setPaused(false);
+            gameEngine.setPaused(false);
             aboutStage.hide();
         });
         
@@ -579,11 +599,11 @@ public class UserInterface {
         //Make enter and escape take the user back to the game.
         aboutPane.setOnKeyPressed(e -> {
             if(e.getCode().equals(KeyCode.ENTER)) {
-                newGameEngine.setPaused(false);
+                gameEngine.setPaused(false);
                 aboutStage.hide();    
             }
             if(e.getCode().equals(KeyCode.ESCAPE)) {
-                newGameEngine.setPaused(false);
+                gameEngine.setPaused(false);
                 aboutStage.hide();
             }
         });
@@ -656,7 +676,7 @@ public class UserInterface {
         //Create, add the header nad apply efects.
         Text scoreHeader = new Text("Scores");
         scorePane.getChildren().add(scoreHeader);
-        //scoreHeader.setFont(Font.font(STYLESHEET_MODENA, 60));
+        scoreHeader.setFont(Font.font(60));
         scoreHeader.setFill(GameGrid.GAMEGRID_COLOR);
         scoreHeader.setUnderline(true);
         scoreHeader.setEffect(scoreEffect.getEffect(GameGrid.GAMEGRID_COLOR));
@@ -665,28 +685,28 @@ public class UserInterface {
      * Makes the score board only show scores for relevant players.
      */
     public void initiateScoreBoard() {
-        switch(newGameEngine.getNumberOfPlayers()) {
+        switch(gameEngine.getNumberOfPlayers()) {
             case 4: 
                 playerFourScore = new Text();
-                playerFourScore.setText(newGameEngine.getPlayer(3).scoreToString());
+                playerFourScore.setText(gameEngine.getPlayer(3).scoreToString());
                 scorePane.getChildren().add(1, playerFourScore);
                 playerFourScore.setFont(Font.font(PLAYER_SCORE_SIZE));
                 playerFourScore.setEffect(scoreEffect.getEffect(PLAYER_4_COLOR));
             case 3: 
                 playerThreeScore = new Text();
-                playerThreeScore.setText(newGameEngine.getPlayer(2).scoreToString());
+                playerThreeScore.setText(gameEngine.getPlayer(2).scoreToString());
                 scorePane.getChildren().add(1, playerThreeScore);
                 playerThreeScore.setFont(Font.font(PLAYER_SCORE_SIZE));
                 playerThreeScore.setEffect(scoreEffect.getEffect(PLAYER_3_COLOR));
             case 2: 
                 playerTwoScore = new Text();
-                playerTwoScore.setText(newGameEngine.getPlayer(1).scoreToString());
+                playerTwoScore.setText(gameEngine.getPlayer(1).scoreToString());
                 scorePane.getChildren().add(1, playerTwoScore);
                 playerTwoScore.setFont(Font.font(PLAYER_SCORE_SIZE));
                 playerTwoScore.setEffect(scoreEffect.getEffect(PLAYER_2_COLOR));
             case 1: 
                 playerOneScore = new Text();
-                playerOneScore.setText(newGameEngine.getPlayer(0).scoreToString());
+                playerOneScore.setText(gameEngine.getPlayer(0).scoreToString());
                 scorePane.getChildren().add(1, playerOneScore);
                 playerOneScore.setFont(Font.font(PLAYER_SCORE_SIZE));
                 playerOneScore.setEffect(scoreEffect.getEffect(PLAYER_1_COLOR));
@@ -697,15 +717,15 @@ public class UserInterface {
      * Recieves the correct score from the player instances.
      */
     public void showScores() {
-        switch(newGameEngine.getNumberOfPlayers()) {
+        switch(gameEngine.getNumberOfPlayers()) {
             case 4: 
-                playerFourScore.setText(newGameEngine.getPlayer(3).scoreToString());
+                playerFourScore.setText(gameEngine.getPlayer(3).scoreToString());
             case 3: 
-                playerThreeScore.setText(newGameEngine.getPlayer(2).scoreToString());
+                playerThreeScore.setText(gameEngine.getPlayer(2).scoreToString());
             case 2: 
-                playerTwoScore.setText(newGameEngine.getPlayer(1).scoreToString());
+                playerTwoScore.setText(gameEngine.getPlayer(1).scoreToString());
             case 1: 
-                playerOneScore.setText(newGameEngine.getPlayer(0).scoreToString());
+                playerOneScore.setText(gameEngine.getPlayer(0).scoreToString());
         }
     }
     /**
