@@ -19,7 +19,7 @@ public class Player {
     //Fields
     //Final static fields
     public static final int PLAYER_START_SLOWNESS = 25;
-    public static final int PLAYER_DEATH_PENALTY = -3;
+    public static final int PLAYER_DEATH_PENALTY = -2;
     public static final int PLAYER_START_LENGTH = 20;
     
     //Final fields
@@ -92,11 +92,14 @@ public class Player {
      * Makes the player move. This method is called by the game thread that controls 
      * movement and bonuscreation, once every turn. How often the method makes
      * the player move depends of the speed (or lack of slowness) of the player.
+     * @return 0 if player didnt move and one if it did. 
      */
-    public void movePlayer() {
+    public int movePlayer() {
         //Only act if player is alive, turn is set to a positive number and
         //the speed of the player allows.
+        int moved = 0;
         if(isAlive && turn > 0 && turn % playerSlownes == 0) {
+            moved = 1;
             int destination = currentLocation + currentDirection;
             
             //If the end of the grid is reached and no deathblock is in the way
@@ -107,7 +110,7 @@ public class Player {
             //If the destination block is a death block or the startpoint kill the player.
             if(gameGrid.getBlock(destination).isDeathBlock() || gameGrid.getBlock(destination).getBlockId() == GameGrid.PLAYER_STARTPOINT) {
                 killPlayer();
-                return;
+                return 1;
             }
             //Move the player, see if a bonus was taken and handle bonus happenings.
             BuildingBlock moveTo = gameGrid.getBlock(destination);
@@ -130,6 +133,7 @@ public class Player {
             }
         }
         turn ++;
+        return moved;
     }
     /**
      * Handles the part of bonuses that apply directly to the player. 
@@ -160,7 +164,7 @@ public class Player {
                 block.revertDeathBlock(true);
             }
             else {
-                block.setBlockColor(BonusHandler.DETHBLOCK_COLOR);
+                block.setDeathBlockIrreveritble();
             }
         });
     }

@@ -5,10 +5,19 @@ package battlesnake;
  *
  * @author johanwendt
  */
+import javafx.application.ConditionalFeature;
+import javafx.scene.effect.Blend;
+import javafx.scene.effect.BoxBlur;
+import javafx.scene.effect.Lighting;
+import javafx.scene.effect.Effect;
+import javafx.scene.effect.GaussianBlur;
+import javafx.scene.effect.Light;
+import javafx.scene.effect.SepiaTone;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.*;
+
 
 /**
  * This class is the foundation for the GameGrid-, the Player- and Bonus-class.
@@ -41,14 +50,32 @@ public class BuildingBlock {
     public BuildingBlock(int setX, int setY, int size, int blockId) {
         this.blockId = blockId;
         color = GameGrid.GAMEGRID_COLOR;
-        createRectangle(setX, setY +6 , size, color);
+        createSquare(setX, setY +6 , size, color);
     }
-    private void createRectangle(int X, int Y, int size, Color color) {
+    /**
+     * Creates the square that is the base for the building block.
+     * @param X x-position
+     * @param Y y-position
+     * @param size Base of the square
+     * @param color Color of the square
+     */
+    private void createSquare(int X, int Y, int size, Color color) {
         rectangle = new Rectangle(size, size, color);
         rectangle.setX(X);
         rectangle.setY(Y);
         rectangle.setStroke(Color.BLACK);
-        rectangle.setStrokeType(StrokeType.INSIDE);
+    }
+    /**
+     * Apply the lighting effect used for the bonuses
+     */
+    public void setLightingEffect() {
+        rectangle.setEffect(new Lighting());   
+    }
+    /**
+     * Removes any effect applied to the square of this BuildingBlock.
+     */
+    public void removeEffect() {
+        rectangle.setEffect(null);   
     }
     /**
      * Returns the id for this block.
