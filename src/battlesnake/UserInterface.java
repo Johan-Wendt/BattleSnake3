@@ -11,6 +11,9 @@ import javafx.scene.paint.Color;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
+import javafx.geometry.NodeOrientation;
+import javafx.geometry.Pos;
+import javafx.geometry.VPos;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.layout.BorderPane;
@@ -36,6 +39,7 @@ import javafx.scene.layout.BorderWidths;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.RowConstraints;
 import javafx.scene.shape.Rectangle;
 
@@ -49,7 +53,9 @@ public class UserInterface {
     //Panes, scenes and stages.
     private final BorderPane mainPane = new BorderPane();
     private final GridPane firstPane = new GridPane();
-    private final GridPane rightPane = new GridPane();
+    private final VBox rightPane = new VBox();
+    private final VBox outerBonusPane = new VBox();
+    private final GridPane innerBonusPane = new GridPane();
     private final VBox scorePane = new VBox();
     private final VBox aboutPane = new VBox();
     private final GridPane controlsPane = new GridPane();
@@ -74,9 +80,11 @@ public class UserInterface {
     private Text playerTwoScore;
     private Text playerThreeScore;
     private Text playerFourScore;
-    private final Text regularBonusText = new Text();
-    private final Text makeShortBonusText = new Text();
-    private final Text addDeathBlockBonusText = new Text();
+    private final Text regularBonusText = new Text(BonusHandler.REGULAR_BONUS_DESCRIPTION);  
+    private final Text makeShortBonusText = new Text(BonusHandler.MAKE_SHORT_BONUS_DESCRIPTION);  
+    private final Text addDeathBlockBonusText = new Text(BonusHandler.ADD_DEATH_BLOCK_BONUS_DESCRIPTION);
+        
+    
     
     
     //Static finals
@@ -88,8 +96,12 @@ public class UserInterface {
     public static final Color PLAYER_1_COLOR = Color.web("#B200B2");
     public static final Color PLAYER_2_COLOR = Color.web("#66FF33");
     public static final Color PLAYER_3_COLOR = Color.web("#E68A00");
-    public static final Color PLAYER_4_COLOR = Color.YELLOW;
+    public static final Color PLAYER_4_COLOR = Color.web("#00FFFF");
     public static final int PLAYER_SCORE_SIZE = 60;
+    
+    public static final int SCREENHEIGHT = 800;
+    public static final int MAIN_SCENE_HEIGHT = SCREENHEIGHT - 50;
+    public static final int MAIN_SCENE_WIDTH = SCREENHEIGHT + 450;
     
     
     //Regular fields
@@ -107,6 +119,7 @@ public class UserInterface {
     public UserInterface (GameEngine newGameEngine) {
         this.gameEngine = newGameEngine;
         setUpMainScreen();
+        setUpBonusInformation();
         setUpControlsScreen();
         setUpFirstScreen();
         setUpAboutScreen();
@@ -185,7 +198,8 @@ public class UserInterface {
         battleStage.setOnCloseRequest(c -> {
             System.exit(0);
         });
-        mainScene = new Scene(mainPane, GameGrid.GRID_SIZE + 550, GameGrid.GRID_SIZE + 60);
+        //mainScene = new Scene(mainPane, GameGrid.GRID_SIZE + 550, GameGrid.GRID_SIZE + 60);
+        mainScene = new Scene(mainPane, MAIN_SCENE_WIDTH, MAIN_SCENE_HEIGHT);
         mainScene.getStylesheets().add(BattleSnake.class.getResource("BattleSnake.css").toExternalForm());
         
         
@@ -256,6 +270,7 @@ public class UserInterface {
         
         
         BorderPane.setMargin(PANE, new Insets(5, 5, 5, 5));
+        BorderPane.setMargin(rightPane, new Insets(10, 5, 10, 5));
         
         //Activate the stage
         battleStage.setScene(mainScene);
@@ -629,7 +644,7 @@ public class UserInterface {
         //Add info add button
         aboutPane.getChildren().addAll(aboutInfo, okButton);
         
-        //Add som spacing
+        //Add some spacing
         aboutPane.setSpacing(30);
         aboutPane.setPadding(new Insets(20));
         
@@ -656,49 +671,53 @@ public class UserInterface {
     private void setUpRightPane() {
         
         //Set color, add the scoreboard and set some space to the part that is to contain the tostring info.
-        int fontSize = 17;
 
         rightPane.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, new CornerRadii(5), new BorderWidths(3))));
-        rightPane.getChildren().add(scorePane);
-        rightPane.setConstraints(scorePane, 1, 1);
-        rightPane.getColumnConstraints().addAll(new ColumnConstraints(30), new ColumnConstraints(10), new ColumnConstraints(30));
-        rightPane.getRowConstraints().addAll(new RowConstraints(10), new RowConstraints(500), new RowConstraints(30), new RowConstraints(30), new RowConstraints(30), new RowConstraints(30), new RowConstraints(30));
-        BorderPane.setMargin(rightPane, new Insets(10, 5, 9, 5));
-
-        //Create bonus info and set id for css.
-        Text regularBonusText = new Text(BonusHandler.REGULAR_BONUS_DESCRIPTION);
+        rightPane.getChildren().addAll(scorePane, outerBonusPane);
+        scorePane.setPrefHeight(2 * ((SCREENHEIGHT - 50) / 3));
+        outerBonusPane.setPrefHeight((SCREENHEIGHT - 50)/ 3);
+        
+        rightPane.setEffect(new Lighting(new Light.Distant()));
+        rightPane.setId("RPane");  
+    }
+    public void setUpBonusInformation() {
+        //Set bonus effects and id for css.
         regularBonusText.setEffect(new Bloom());
         regularBonusText.setId("RBonus");
-        Text makeShortBonusText = new Text(BonusHandler.MAKE_SHORT_BONUS_DESCRIPTION);
+
         makeShortBonusText.setEffect(new Bloom());
         makeShortBonusText.setId("MBonus");
-        Text addDeathBlockBonusText = new Text(BonusHandler.ADD_DEATH_BLOCK_BONUS_DESCRIPTION);
+
         addDeathBlockBonusText.setEffect(new Bloom());
         addDeathBlockBonusText.setId("ABonus");
         
-        
         //Create the rectangles that show what type of bonus the description is about.
-        Rectangle regularBonusColor = new Rectangle(fontSize, fontSize, BonusHandler.REGULAR_BONUS_COLOR);
+        Rectangle regularBonusColor = new Rectangle(GameGrid.BLOCK_SIZE * 2, GameGrid.BLOCK_SIZE * 2, BonusHandler.REGULAR_BONUS_COLOR);
         regularBonusColor.setStroke(Color.BLACK);
         regularBonusColor.setEffect(new Lighting());
-        Rectangle makeShortBonusColor = new Rectangle(fontSize, fontSize, BonusHandler.MAKE_SHORT_BONUS_COLOR);
+        Rectangle makeShortBonusColor = new Rectangle(GameGrid.BLOCK_SIZE * 2, GameGrid.BLOCK_SIZE * 2, BonusHandler.MAKE_SHORT_BONUS_COLOR);
         makeShortBonusColor.setStroke(Color.BLACK);
         makeShortBonusColor.setEffect(new Lighting());
-        Rectangle addDeathBlockBonusColor = new Rectangle(fontSize, fontSize, BonusHandler.ADD_DEATH_BLOCK_BONUS_COLOR);
+        Rectangle addDeathBlockBonusColor = new Rectangle(GameGrid.BLOCK_SIZE * 2, GameGrid.BLOCK_SIZE * 2, BonusHandler.ADD_DEATH_BLOCK_BONUS_COLOR);
         addDeathBlockBonusColor.setStroke(Color.BLACK);
         addDeathBlockBonusColor.setEffect(new Lighting());
         
         //Add the bonus information to the pane.
-        rightPane.add(regularBonusText, 3, 4);
-        rightPane.add(makeShortBonusText, 3, 5);
-        rightPane.add(addDeathBlockBonusText, 3, 6);
+        innerBonusPane.add(regularBonusColor, 0, 0);
+        innerBonusPane.add(makeShortBonusColor, 0, 1);
+        innerBonusPane.add(addDeathBlockBonusColor, 0, 2);
         
-        rightPane.add(regularBonusColor, 1, 4);
-        rightPane.add(makeShortBonusColor, 1, 5);
-        rightPane.add(addDeathBlockBonusColor, 1, 6);
-        rightPane.setEffect(new Lighting(new Light.Distant()));
-        rightPane.setId("RPane");
-
+        innerBonusPane.add(regularBonusText, 1, 0);
+        innerBonusPane.add(makeShortBonusText, 1, 1);
+        innerBonusPane.add(addDeathBlockBonusText, 1, 2);
+        
+        //Adjust positioning
+        innerBonusPane.setVgap(20);
+        innerBonusPane.setHgap(20);
+        innerBonusPane.setPadding(new Insets(0, 10, 0, 10));
+        
+        outerBonusPane.setAlignment(Pos.CENTER_LEFT);
+        outerBonusPane.getChildren().add(innerBonusPane);
     }
     /**
      * Sets upp the score board for the right pane.

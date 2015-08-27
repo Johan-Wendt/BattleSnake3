@@ -128,7 +128,6 @@ public class GameEngine extends Application {
     public void restart() {
         gameGrid = new GameGrid(UserInterface.PANE);
         bonusHandler = new BonusHandler(gameGrid, numberOfPlayers);
-        erasePlayers();
         players.clear();
         createPlayers ();
         GUI.restart();
@@ -173,14 +172,6 @@ public class GameEngine extends Application {
     }
     public Player getPlayer(int playerNumber) {
         return players.get(playerNumber);
-    }
-    /**
-     * Erases all the players in the current game.
-     */
-    public void erasePlayers() {
-        for(Player player: players) {
-            player.erasePlayer();
-        }
     }
     /**
      * Checks if a given deathblock is located inside a player and kills it if it does.
