@@ -37,12 +37,13 @@ public class BonusHandler {
     private final GameGrid gameGrid;
     
     //Regular fields
-    private double numberOfPlayers;
+    private final double numberOfPlayers;
     private Random random;
     
     /**
      * Creates a BonusHandler. 
      * @param gameGrid The gameGrid that the bonuses should be placed on.
+     * @param numberOfPlayers number of players in the game.
      */
     public BonusHandler(GameGrid gameGrid, double numberOfPlayers) {
         this.gameGrid = gameGrid;    
@@ -115,7 +116,7 @@ public class BonusHandler {
     /**
      * Removes all bonuses on the GameGrid that are taken or have outlived their lifespan.
      */
-    public void destroyBonuses() {
+    private void destroyBonuses() {
         Iterator itr = eventList.iterator();
         while(itr.hasNext()) {
             Bonus bonus = (Bonus)itr.next();

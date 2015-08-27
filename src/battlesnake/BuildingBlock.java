@@ -5,14 +5,7 @@ package battlesnake;
  *
  * @author johanwendt
  */
-import javafx.application.ConditionalFeature;
-import javafx.scene.effect.Blend;
-import javafx.scene.effect.BoxBlur;
 import javafx.scene.effect.Lighting;
-import javafx.scene.effect.Effect;
-import javafx.scene.effect.GaussianBlur;
-import javafx.scene.effect.Light;
-import javafx.scene.effect.SepiaTone;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
@@ -26,7 +19,7 @@ import javafx.scene.shape.*;
  */
 public class BuildingBlock {
     //Regular fields
-    private int blockId;
+    private final int blockId;
     private Rectangle rectangle;
     private Color color;
     private boolean isDeathBlock = false;
@@ -98,6 +91,10 @@ public class BuildingBlock {
     public Paint getBlockColor() {
         return rectangle.getFill();
     }
+    public void setPlayerBlock(Color playerColor) {
+        setBlockColor(playerColor);
+        setDeathBlock();
+    }
     /**
      * Returns the shape that is associated with this building block.
      * @return the shape (currently only rectangle)
@@ -124,7 +121,7 @@ public class BuildingBlock {
      */
     public void setDeathBlockIrreveritble() {
         isDeathBlock = true;
-        setBlockColor(BonusHandler.DETHBLOCK_COLOR);
+        setBlockColor(Color.BLACK);
         isDeathBlockIrrevertible = true;
     }
     /**

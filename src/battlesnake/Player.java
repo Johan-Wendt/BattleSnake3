@@ -5,27 +5,22 @@ package battlesnake;
  * @author johanwendt
  */
 import javafx.scene.paint.Color;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Stack;
-import java.util.Iterator;
 import javafx.scene.input.KeyCode;
 
 /**
  *Every player in the game is an instance of this class. This class hold information
  * about player direction, speed, length, score and so on.
  */
-public class Player {
+public final class Player {
     //Fields
-    //Final static fields
-    public static final int PLAYER_START_SLOWNESS = 25;
-    public static final int PLAYER_DEATH_PENALTY = -2;
-    public static final int PLAYER_START_LENGTH = 20;
     
     //Final fields
     private final Color playerColor;
     private final GameGrid gameGrid;
-    private Stack<BuildingBlock> body;
+    private final Stack<BuildingBlock> body = new Stack<>();
+    private Stack<BuildingBlock> eraseBody = new Stack<>();
     private final BonusHandler events;
     private final int startDirection;
     private final String name;
@@ -34,8 +29,8 @@ public class Player {
     private int turn;
     private int currentLocation;
     private int currentDirection;
-    private int currentLength = PLAYER_START_LENGTH;
-    private int playerSlownes = PLAYER_START_SLOWNESS;
+    private int currentLength = GameEngine.PLAYER_START_LENGTH;
+    private int playerSlownes = GameEngine.PLAYER_START_SLOWNESS;
     private boolean isAlive = true;
     private boolean mayChangeDirection = true;
     private int score = 0;
@@ -59,7 +54,6 @@ public class Player {
         this.gameGrid = gameGrid;
         this.events = bonusHandler;
         this.controls = controls;
-        body = new Stack<>();
         turn = -200;
         createPlayer(); 
     }
@@ -71,22 +65,21 @@ public class Player {
     public void createPlayer() {
         makeShort();
         makeSlow();
-        body = new Stack<>();
-        BuildingBlock startSnake = gameGrid.getBlock(GameGrid.PLAYER_STARTPOINT + (startDirection));
-        startSnake.revertDeathBlock(true);
-        startSnake.setDeathBlock();
-        startSnake.setBlockColor(playerColor);
-        
+        body.clear();
+        BuildingBlock startSnake = gameGrid.getBlock(GameGrid.PLAYER_STARTPOINT);
+
         //Only first block in the stack is added. This makes the snake start 
         //being only one block in size. The rest is added by mevement.
         body.add(0, startSnake);    
-        
+
         //If deathblocks are blocking the the newly created player, get rid of them.
        // gameGrid.getBlock(GameGrid.PLAYER_STARTPOINT + (startDirection * 2)).revertDeathBlock(true);
-        
-        
+
+
         currentDirection = startDirection;
-        currentLocation = GameGrid.PLAYER_STARTPOINT + startDirection;
+        //currentLocation = GameGrid.PLAYER_STARTPOINT + startDirection;
+        currentLocation = GameGrid.PLAYER_STARTPOINT;
+        mayChangeDirection = false;
     }
     /**
      * Makes the player move. This method is called by the game thread that controls 
@@ -95,6 +88,16 @@ public class Player {
      * @return 0 if player didnt move and one if it did. 
      */
     public int movePlayer() {
+        //If the player har died resently take care of the remains one step at a time.
+        //This is done here and not as a loop to avoid lag due to thread sleep in the loop.
+        if(eraseBody.size() > 0) {
+            if(gameGrid.isInSafeZone(eraseBody.peek().getBlockId())) {
+                eraseBody.pop().revertDeathBlock(true);
+            }
+            else {
+                eraseBody.pop().setDeathBlockIrreveritble();
+            }
+        }
         //Only act if player is alive, turn is set to a positive number and
         //the speed of the player allows.
         int moved = 0;
@@ -114,8 +117,7 @@ public class Player {
             }
             //Move the player, see if a bonus was taken and handle bonus happenings.
             BuildingBlock moveTo = gameGrid.getBlock(destination);
-            moveTo.setBlockColor(playerColor);
-            moveTo.setDeathBlock();
+            moveTo.setPlayerBlock(playerColor);
             handleBonuses(events.getBonus(destination));
             currentLocation = moveTo.getBlockId();
             body.add(0, moveTo);
@@ -154,20 +156,8 @@ public class Player {
     public void setAlive(boolean alive) {
         isAlive = alive;
     }
-    /**
-     * Empties the stack that holds the player. On screen the body turns black.
-     * If the player is in the safe zone, it reverts to the correct color.
-     */
-    public void erasePlayer() {
-        body.stream().forEach(block -> {
-            if(gameGrid.isInSafeZone(block.getBlockId())) {
-                block.revertDeathBlock(true);
-            }
-            else {
-                block.setDeathBlockIrreveritble();
-            }
-        });
-    }
+
+    
     /**
      * Method that helps teleporting the player from one side of the screen, if no death blocks are in the way
      * to the other.
@@ -184,8 +174,8 @@ public class Player {
      * moving again.
      */
     public void killPlayer() {
-        erasePlayer();
-        addToScore(PLAYER_DEATH_PENALTY);
+        eraseBody = (Stack<BuildingBlock>) body.clone();
+        addToScore(GameEngine.PLAYER_DEATH_PENALTY);
         if(score  < 0 && !gameGrid.isDeathRunning()) {
             setAlive(false);
         }
@@ -215,7 +205,7 @@ public class Player {
      * The player is shortened to the start length. Used after death.
      */
     public void makeShort() {
-        currentLength = PLAYER_START_LENGTH;
+        currentLength = GameEngine.PLAYER_START_LENGTH;
     }
     /**
      * The player length is changed.
@@ -228,7 +218,7 @@ public class Player {
      * Slows the player to startspeed. Used after death.
      */
     public void makeSlow() {
-        playerSlownes = PLAYER_START_SLOWNESS;
+        playerSlownes = GameEngine.PLAYER_START_SLOWNESS;
     }
     /**
      * Returns the player score, as an int for comparability.

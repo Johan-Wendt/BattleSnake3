@@ -16,15 +16,15 @@ import java.util.Random;
 public class GameGrid {
     //Fields
     //Static finals
-    public static final int BLOCK_SIZE = 16;
-    public static final int GRID_SIZE = 2* (BLOCK_SIZE * 21) + BLOCK_SIZE;
+    public static final int BLOCK_SIZE = UserInterface.SCREENHEIGHT / 60;
+    public static final int GRID_SIZE = 2* (BLOCK_SIZE * 26) + BLOCK_SIZE;
     public static final int PLAYER_STARTPOINT = (((GRID_SIZE - BLOCK_SIZE) * GameEngine.MULIPLIER_X) / BLOCK_SIZE) / 2 + (((GRID_SIZE - BLOCK_SIZE) / BLOCK_SIZE) / 2);
     public static final int SAFE_ZONE_DIAMETER = 8;
     public static final Color GAMEGRID_COLOR = Color.web("#0000FF");
     public static final Color SAFE_ZONE_COLOR = Color.web("#4D4DFF");
     
     //Final fields
-    private final int DEATH_SLOWNESS = Player.PLAYER_START_SLOWNESS;
+    private final int DEATH_SLOWNESS = GameEngine.PLAYER_START_SLOWNESS;
     private final ArrayList<BuildingBlock> gridList = new ArrayList<>();
     private final BuildingBlock outsideBlock;
     
@@ -57,7 +57,7 @@ public class GameGrid {
 
             }
         }
-        getBlock(PLAYER_STARTPOINT).setBlockColor(BonusHandler.DETHBLOCK_COLOR);
+        getBlock(PLAYER_STARTPOINT).setDeathBlockIrreveritble();
         
         //This block is returned from the grid if it gets asked about a grid id that it cannot
         //find. This is used for making the player move from one side to another on the 
