@@ -98,10 +98,12 @@ public class UserInterface {
     public static final Color PLAYER_3_COLOR = Color.web("#E68A00");
     public static final Color PLAYER_4_COLOR = Color.web("#00FFFF");
     
-    public static final int SCREENHEIGHT = 600;
-    public static final int MAIN_SCENE_WIDTH = (SCREENHEIGHT * 5) / 3;
+    private static int screenHeight;
+    private static int screenWidth;
+    private static int gridSize;
+    private static int blockSize;
     
-    public static final int PLAYER_SCORE_SIZE = 3 * SCREENHEIGHT / 40;
+    private static int playerScoreSize;
     
     
     //Regular fields
@@ -116,8 +118,13 @@ public class UserInterface {
      * Creates the grafical interface.
      * @param newGameEngine The GameEngine that runs the game.
      */
-    public UserInterface (GameEngine newGameEngine) {
+    public UserInterface (GameEngine newGameEngine, int screenHeight, int screenWidth, int gridSize, int blockSize) {
         this.gameEngine = newGameEngine;
+        this.screenHeight = screenHeight;
+        this.screenWidth = screenWidth;
+        this.gridSize = gridSize;
+        this.blockSize = blockSize;
+        playerScoreSize = 3 * screenHeight / 40;
         setUpMainScreen();
         setUpBonusInformation();
         setUpControlsScreen();
@@ -187,8 +194,7 @@ public class UserInterface {
             case 2: 
                 playerTwoScore.setText(gameEngine.getPlayer(1).scoreToString());
             case 1: 
-                playerOneScore.setText(gameEngine.getPlayer(0).scoreToString());
-        }
+                playerOneScore.setText(gameEngine.getPlayer(0).scoreToString());        }
     }
     /**
      * This sets upp the main game screen.
@@ -198,8 +204,8 @@ public class UserInterface {
         battleStage.setOnCloseRequest(c -> {
             System.exit(0);
         });
-        //mainScene = new Scene(mainPane, GameGrid.GRID_SIZE + 550, GameGrid.GRID_SIZE + 60);
-        mainScene = new Scene(mainPane, MAIN_SCENE_WIDTH, SCREENHEIGHT);
+        //mainScene = new Scene(mainPane, GameGrid.gridSize + 550, GameGrid.gridSize + 60);
+        mainScene = new Scene(mainPane, screenWidth, screenHeight);
         mainScene.getStylesheets().add(BattleSnake.class.getResource("BattleSnake.css").toExternalForm());
         
         
@@ -266,11 +272,11 @@ public class UserInterface {
 
         mainPane.setCenter(rightPane);
         mainPane.setLeft(PANE);
-        mainPane.setPadding(new Insets(SCREENHEIGHT / 160, SCREENHEIGHT / 40, SCREENHEIGHT / 40, SCREENHEIGHT / 40));
+        mainPane.setPadding(new Insets(screenHeight / 160, screenHeight / 40, screenHeight / 40, screenHeight / 40));
         
         
-        BorderPane.setMargin(PANE, new Insets(SCREENHEIGHT / 160));
-        BorderPane.setMargin(rightPane, new Insets(SCREENHEIGHT / 80, SCREENHEIGHT / 160, SCREENHEIGHT / 30, SCREENHEIGHT / 160));
+        BorderPane.setMargin(PANE, new Insets(screenHeight / 160));
+        BorderPane.setMargin(rightPane, new Insets(screenHeight / 80, screenHeight / 160, screenHeight / 30, screenHeight / 160));
         
         //Activate the stage
         battleStage.setScene(mainScene);
@@ -674,10 +680,10 @@ public class UserInterface {
 
         rightPane.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, new CornerRadii(5), new BorderWidths(3))));
         rightPane.getChildren().addAll(scorePane, outerBonusPane);
-        rightPane.setPrefHeight(GameGrid.GRID_SIZE);
+        rightPane.setPrefHeight(gridSize);
         scorePane.setPrefHeight(2 * rightPane.getPrefHeight() / 3);
         outerBonusPane.setPrefHeight(rightPane.getPrefHeight() / 3);
-        
+ 
         rightPane.setEffect(new Lighting(new Light.Distant()));
         rightPane.setId("RPane");  
     }
@@ -685,24 +691,24 @@ public class UserInterface {
         //Set bonus effects and id for css.
         regularBonusText.setEffect(new Bloom());
         regularBonusText.setId("RBonus");
-        regularBonusText.setFont(new Font(PLAYER_SCORE_SIZE * 0.4));
+        regularBonusText.setFont(new Font(playerScoreSize * 0.4));
 
         makeShortBonusText.setEffect(new Bloom());
         makeShortBonusText.setId("MBonus");
-        makeShortBonusText.setFont(new Font(PLAYER_SCORE_SIZE * 0.4));
+        makeShortBonusText.setFont(new Font(playerScoreSize * 0.4));
 
         addDeathBlockBonusText.setEffect(new Bloom());
         addDeathBlockBonusText.setId("ABonus");
-        addDeathBlockBonusText.setFont(new Font(PLAYER_SCORE_SIZE * 0.4));
+        addDeathBlockBonusText.setFont(new Font(playerScoreSize * 0.4));
         
         //Create the rectangles that show what type of bonus the description is about.
-        Rectangle regularBonusColor = new Rectangle(GameGrid.BLOCK_SIZE * 2, GameGrid.BLOCK_SIZE * 2, BonusHandler.REGULAR_BONUS_COLOR);
+        Rectangle regularBonusColor = new Rectangle(blockSize * 2, blockSize * 2, BonusHandler.REGULAR_BONUS_COLOR);
         regularBonusColor.setStroke(Color.BLACK);
         regularBonusColor.setEffect(new Lighting());
-        Rectangle makeShortBonusColor = new Rectangle(GameGrid.BLOCK_SIZE * 2, GameGrid.BLOCK_SIZE * 2, BonusHandler.MAKE_SHORT_BONUS_COLOR);
+        Rectangle makeShortBonusColor = new Rectangle(blockSize * 2, blockSize * 2, BonusHandler.MAKE_SHORT_BONUS_COLOR);
         makeShortBonusColor.setStroke(Color.BLACK);
         makeShortBonusColor.setEffect(new Lighting());
-        Rectangle addDeathBlockBonusColor = new Rectangle(GameGrid.BLOCK_SIZE * 2, GameGrid.BLOCK_SIZE * 2, BonusHandler.ADD_DEATH_BLOCK_BONUS_COLOR);
+        Rectangle addDeathBlockBonusColor = new Rectangle(blockSize * 2, blockSize * 2, BonusHandler.ADD_DEATH_BLOCK_BONUS_COLOR);
         addDeathBlockBonusColor.setStroke(Color.BLACK);
         addDeathBlockBonusColor.setEffect(new Lighting());
         
@@ -718,7 +724,7 @@ public class UserInterface {
         //Adjust positioning
         innerBonusPane.setVgap(20);
         innerBonusPane.setHgap(20);
-        innerBonusPane.setPadding(new Insets(0, SCREENHEIGHT / 80, 0, SCREENHEIGHT / 80));
+        innerBonusPane.setPadding(new Insets(0, screenHeight / 80, 0, screenHeight / 80));
         
         outerBonusPane.setAlignment(Pos.CENTER_LEFT);
         outerBonusPane.getChildren().add(innerBonusPane);
@@ -731,12 +737,12 @@ public class UserInterface {
         scorePane.getChildren().clear();
         
         //Add some space
-        scorePane.setPadding(new Insets(SCREENHEIGHT / 160, SCREENHEIGHT / 160, SCREENHEIGHT / 80, SCREENHEIGHT / 25));
+        scorePane.setPadding(new Insets(screenHeight / 160, screenHeight / 160, screenHeight / 80, screenHeight / 25));
         
         //Create, add the header nad apply efects.
         Text scoreHeader = new Text("Scores");
         scorePane.getChildren().add(scoreHeader);
-        scoreHeader.setFont(Font.font(PLAYER_SCORE_SIZE));
+        scoreHeader.setFont(Font.font(playerScoreSize));
         scoreHeader.setFill(GameGrid.GAMEGRID_COLOR);
         scoreHeader.setUnderline(true);
         scoreHeader.setEffect(scoreEffect.getEffect(GameGrid.GAMEGRID_COLOR));
@@ -750,25 +756,25 @@ public class UserInterface {
                 playerFourScore = new Text();
                 playerFourScore.setText(gameEngine.getPlayer(3).scoreToString());
                 scorePane.getChildren().add(1, playerFourScore);
-                playerFourScore.setFont(Font.font(PLAYER_SCORE_SIZE));
+                playerFourScore.setFont(Font.font(playerScoreSize));
                 playerFourScore.setEffect(scoreEffect.getEffect(PLAYER_4_COLOR));
             case 3: 
                 playerThreeScore = new Text();
                 playerThreeScore.setText(gameEngine.getPlayer(2).scoreToString());
                 scorePane.getChildren().add(1, playerThreeScore);
-                playerThreeScore.setFont(Font.font(PLAYER_SCORE_SIZE));
+                playerThreeScore.setFont(Font.font(playerScoreSize));
                 playerThreeScore.setEffect(scoreEffect.getEffect(PLAYER_3_COLOR));
             case 2: 
                 playerTwoScore = new Text();
                 playerTwoScore.setText(gameEngine.getPlayer(1).scoreToString());
                 scorePane.getChildren().add(1, playerTwoScore);
-                playerTwoScore.setFont(Font.font(PLAYER_SCORE_SIZE));
+                playerTwoScore.setFont(Font.font(playerScoreSize));
                 playerTwoScore.setEffect(scoreEffect.getEffect(PLAYER_2_COLOR));
             case 1: 
                 playerOneScore = new Text();
                 playerOneScore.setText(gameEngine.getPlayer(0).scoreToString());
                 scorePane.getChildren().add(1, playerOneScore);
-                playerOneScore.setFont(Font.font(PLAYER_SCORE_SIZE));
+                playerOneScore.setFont(Font.font(playerScoreSize));
                 playerOneScore.setEffect(scoreEffect.getEffect(PLAYER_1_COLOR));
         }
  

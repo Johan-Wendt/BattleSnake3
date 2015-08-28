@@ -66,19 +66,19 @@ public final class Player {
         makeShort();
         makeSlow();
         body.clear();
-        BuildingBlock startSnake = gameGrid.getBlock(GameGrid.PLAYER_STARTPOINT);
+        BuildingBlock startSnake = gameGrid.getBlock(gameGrid.getStartPosition());
 
         //Only first block in the stack is added. This makes the snake start 
         //being only one block in size. The rest is added by mevement.
         body.add(0, startSnake);    
 
         //If deathblocks are blocking the the newly created player, get rid of them.
-       // gameGrid.getBlock(GameGrid.PLAYER_STARTPOINT + (startDirection * 2)).revertDeathBlock(true);
+       // gameGrid.getBlock(GameGrid.playerStartpoint + (startDirection * 2)).revertDeathBlock(true);
 
 
         currentDirection = startDirection;
-        //currentLocation = GameGrid.PLAYER_STARTPOINT + startDirection;
-        currentLocation = GameGrid.PLAYER_STARTPOINT;
+        //currentLocation = GameGrid.playerStartpoint + startDirection;
+        currentLocation = gameGrid.getStartPosition();
         mayChangeDirection = false;
     }
     /**
@@ -111,7 +111,7 @@ public final class Player {
                 destination = jumpToOtherSide(gameGrid.getBlock(currentLocation));
             }
             //If the destination block is a death block or the startpoint kill the player.
-            if(gameGrid.getBlock(destination).isDeathBlock() || gameGrid.getBlock(destination).getBlockId() == GameGrid.PLAYER_STARTPOINT) {
+            if(gameGrid.getBlock(destination).isDeathBlock() || gameGrid.getBlock(destination).getBlockId() == gameGrid.getStartPosition()) {
                 killPlayer();
                 return 1;
             }
@@ -166,7 +166,7 @@ public final class Player {
      */
     public int jumpToOtherSide(BuildingBlock block) {
 
-            return block.getBlockId() - (currentDirection * ((GameGrid.GRID_SIZE / GameGrid.BLOCK_SIZE) - 1));
+            return block.getBlockId() - (currentDirection * ((gameGrid.getGridSize() / gameGrid.getBlockSize()) - 1));
     }
     /**
      * Kills the player. If the game field is still deminishing or the player is
