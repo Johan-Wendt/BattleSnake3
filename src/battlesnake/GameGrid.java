@@ -16,8 +16,8 @@ import java.util.Random;
 public class GameGrid {
     //Fields
     //Static finals
-    public static final int BLOCK_SIZE = UserInterface.SCREENHEIGHT / 60;
-    public static final int GRID_SIZE = 2* (BLOCK_SIZE * 26) + BLOCK_SIZE;
+    public static final int BLOCK_SIZE = (UserInterface.SCREENHEIGHT - (UserInterface.SCREENHEIGHT / 8)) / 47;
+    public static final int GRID_SIZE = 2* (BLOCK_SIZE * 23) + BLOCK_SIZE;
     public static final int PLAYER_STARTPOINT = (((GRID_SIZE - BLOCK_SIZE) * GameEngine.MULIPLIER_X) / BLOCK_SIZE) / 2 + (((GRID_SIZE - BLOCK_SIZE) / BLOCK_SIZE) / 2);
     public static final int SAFE_ZONE_DIAMETER = 8;
     public static final Color GAMEGRID_COLOR = Color.web("#0000FF");

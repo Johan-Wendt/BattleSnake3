@@ -64,30 +64,35 @@ public class GameEngine extends Application {
 
         
         //Get the thread that is running movoment of the players and creations of bonuses started.
-        thread = new Thread(() -> {
-            try {
-                while (isRunning) {
-                    if(!isPaused) {
-                        int moved = 0;
-                        for(Player player: players) {
-                            moved += player.movePlayer();
+        thread = new Thread(new Runnable() {
+
+            @Override
+            public void run() {
+                thread.setPriority(Thread.MAX_PRIORITY);
+                try {
+                    while (isRunning) {
+                        if(!isPaused) {
+                            int moved = 0;
+                            for(Player player: players) {
+                                moved += player.movePlayer();
+                            }
+                            playerKiller(gameGrid.deathBuilder());
+                            if(moved > 0) {
+                                bonusHandler.bonusRound();
+                                GUI.showScores();
+                            }
                         }
-                        playerKiller(gameGrid.deathBuilder());
-                        if(moved > 0) {
-                            bonusHandler.bonusRound();
-                            GUI.showScores();
+                        if((gameGrid.isDeathRunning() == false && getNumberOfAlivePlayers() < 2 && !isPaused) || getNumberOfAlivePlayers() < 1 && !isPaused) {
+                            Platform.runLater(() -> {
+                                gameOver();
+                            });
+                            
                         }
+                        Thread.sleep(gameSpeed);
                     }
-                    if((gameGrid.isDeathRunning() == false && getNumberOfAlivePlayers() < 2 && !isPaused) || getNumberOfAlivePlayers() < 1 && !isPaused) {
-                        Platform.runLater(() -> {
-                            gameOver();
-                        });
-                        
-                    }
-                    Thread.sleep(gameSpeed);
-                }    
-            }
-            catch (InterruptedException ex) {
+                }
+                catch (InterruptedException ex) {
+                }
             }
         });
         thread.start();

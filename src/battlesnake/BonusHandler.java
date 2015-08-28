@@ -25,11 +25,11 @@ public class BonusHandler {
     public static final String REGULAR_BONUS_DESCRIPTION = "Makes the player longer and faster.";
     public static final int MAKE_SHORT_BONUS_HAPPENING = 1;
     public static final Color MAKE_SHORT_BONUS_COLOR = Color.web("#009933");
-    public static final int MAKE_SHORT_BONUS_PROBABILTY_FACTOR = 3;
+    public static final int MAKE_SHORT_BONUS_PROBABILTY_FACTOR = 1;
     public static final String MAKE_SHORT_BONUS_DESCRIPTION = "Makes the player short.";
-    public static final int ADD_DEATH_BLOCK_BONUS_HAPPENING = 4;
+    public static final int ADD_DEATH_BLOCK_BONUS_HAPPENING = 2;
     public static final Color ADD_DEATH_BLOCK_BONUS_COLOR = Color.web("#FFFF00");
-    public static final int ADD_DEATH_BLOCK_BONUS_PROBABILTY_FACTOR = 4;
+    public static final int ADD_DEATH_BLOCK_BONUS_PROBABILTY_FACTOR = 8;
     public static final String ADD_DEATH_BLOCK_BONUS_DESCRIPTION = "Adds random deathblocks to the field.";
     
     //final fields 
