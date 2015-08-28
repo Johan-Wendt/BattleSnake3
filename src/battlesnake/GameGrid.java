@@ -15,11 +15,14 @@ import java.util.Random;
  */
 public class GameGrid {
     //Fields
+    
+    private static int screenHeight;
+    
     //Static finals
-    public static final int BLOCK_SIZE = (UserInterface.SCREENHEIGHT - (UserInterface.SCREENHEIGHT / 8)) / 47;
-    public static final int GRID_SIZE = 2* (BLOCK_SIZE * 23) + BLOCK_SIZE;
-    public static final int PLAYER_STARTPOINT = (((GRID_SIZE - BLOCK_SIZE) * GameEngine.MULIPLIER_X) / BLOCK_SIZE) / 2 + (((GRID_SIZE - BLOCK_SIZE) / BLOCK_SIZE) / 2);
-    public static final int SAFE_ZONE_DIAMETER = 8;
+    private static int blockSize;
+    private static int gridSize;
+    private static int playerStartpoint;
+    private static final int SAFE_ZONE_DIAMETER = 8;
     public static final Color GAMEGRID_COLOR = Color.web("#0000FF");
     public static final Color SAFE_ZONE_COLOR = Color.web("#4D4DFF");
     
@@ -30,7 +33,7 @@ public class GameGrid {
     
     //This value is used for the blocks that make tha field smaller and smaller.
     //For convinience this gridsize is normalized to number of blocks.
-    private int currentGridSize = GRID_SIZE / BLOCK_SIZE;
+    private int currentGridSize;
     
     //Regular fields
     private int deathCounter = 0;
@@ -43,11 +46,16 @@ public class GameGrid {
      * Constructor for the main game field grid. It creates the field from BuildingBlocks.
      * @param pane The pane where the field should be built.
      */
-    public GameGrid(Pane pane) {
+    public GameGrid(Pane pane, int screenHeight) {
+        this.screenHeight = screenHeight;
+        blockSize = (screenHeight - (screenHeight / 8)) / 47;
+        gridSize = 2* (blockSize * 23) + blockSize;
+        playerStartpoint = (((gridSize - blockSize) * GameEngine.MULIPLIER_X) / blockSize) / 2 + (((gridSize - blockSize) / blockSize) / 2);
+        currentGridSize = gridSize / blockSize;
 
-        for(int i = 0; i < GRID_SIZE/BLOCK_SIZE; i ++) {
-            for(int j = 0; j < GRID_SIZE/BLOCK_SIZE; j ++) {
-                BuildingBlock block = new BuildingBlock(i * BLOCK_SIZE, j * BLOCK_SIZE, BLOCK_SIZE, (j + i * GameEngine.MULIPLIER_X));
+        for(int i = 0; i < gridSize/blockSize; i ++) {
+            for(int j = 0; j < gridSize/blockSize; j ++) {
+                BuildingBlock block = new BuildingBlock(i * blockSize, j * blockSize, blockSize, (j + i * GameEngine.MULIPLIER_X));
                 pane.getChildren().add(block.getShape());
 
                 if(isInSafeZone(block.getBlockId())) {
@@ -57,7 +65,7 @@ public class GameGrid {
 
             }
         }
-        getBlock(PLAYER_STARTPOINT).setDeathBlockIrreveritble();
+        getBlock(playerStartpoint).setDeathBlockIrreveritble();
         
         //This block is returned from the grid if it gets asked about a grid id that it cannot
         //find. This is used for making the player move from one side to another on the 
@@ -97,7 +105,7 @@ public class GameGrid {
     //Checks if the end of the grid has been reached redirects the deathbuilder.
     private void changeDeathDirection() {
         switch(deathDirection) {
-            case GameEngine.RIGHT: deathDirection = GameEngine.DOWN; deathCounter = 0; if(deathPause / (DEATH_SLOWNESS)> GRID_SIZE / BLOCK_SIZE) currentGridSize --; break;
+            case GameEngine.RIGHT: deathDirection = GameEngine.DOWN; deathCounter = 0; if(deathPause / (DEATH_SLOWNESS)> gridSize / blockSize) currentGridSize --; break;
             case GameEngine.DOWN: deathDirection = GameEngine.LEFT; deathCounter = 0; break;
             case GameEngine.LEFT: deathDirection = GameEngine.UP; deathCounter = 0; currentGridSize --; break;          
             case GameEngine.UP: deathDirection = GameEngine.RIGHT; deathCounter = 0; break;
@@ -112,16 +120,37 @@ public class GameGrid {
         return isDeathRunning;
     }
     /**
+     * Returns the start position for the players.
+     * @return start position given as the Buildiing Block id
+     */
+    public int getStartPosition() {
+        return playerStartpoint;
+    }
+    /**
+     * Returns the size of the grid
+     * @return The size of the grid in pixels
+     */
+    public int getGridSize() {
+        return gridSize;
+    }
+    /**
+     * Returns the size of the BuildingBlocks the grid is made up of.
+     * @return the size of the BuildingBlocks in pixels.
+     */
+    public int getBlockSize() {
+        return blockSize;
+    }
+    /**
      * Returns true if a block id belongs to a block that is in the zone
      * in the middle of the game field.
      * @param blockId id of block to be tested.
      * @return true if the block is in the safe zone
      */
     public boolean isInSafeZone(int blockId) {
-        if(blockId == PLAYER_STARTPOINT) {
+        if(blockId == playerStartpoint) {
             return false;
         }
-        int startPoint = PLAYER_STARTPOINT - SAFE_ZONE_DIAMETER - SAFE_ZONE_DIAMETER * GameEngine.MULIPLIER_X; 
+        int startPoint = playerStartpoint - SAFE_ZONE_DIAMETER - SAFE_ZONE_DIAMETER * GameEngine.MULIPLIER_X; 
         for(int i = 0; i < 2 * SAFE_ZONE_DIAMETER + 1; i++) {
             for(int j = 0; j < 2 * SAFE_ZONE_DIAMETER + 1; j++) {
                 if(blockId == startPoint + i + j * GameEngine.MULIPLIER_X) {
@@ -151,7 +180,7 @@ public class GameGrid {
      * @return a random BuildingBlock in the playable field.
      */
     public BuildingBlock getRandomBlock() {
-        int adjustToMiddle = ((GRID_SIZE / BLOCK_SIZE) - currentGridSize)/2;
+        int adjustToMiddle = ((gridSize / blockSize) - currentGridSize)/2;
         Random random = new Random();
         int randomY = random.nextInt(currentGridSize - 2) + adjustToMiddle + 1;
         int randomX = (random.nextInt(currentGridSize -2) + adjustToMiddle + 1) * GameEngine.MULIPLIER_X;

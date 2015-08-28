@@ -39,6 +39,9 @@ public class GameEngine extends Application {
     private final HashMap<KeyCode, Integer> player3Controls = new HashMap<>();
     private final HashMap<KeyCode, Integer> player4Controls = new HashMap<>();
     
+    public static int screenHeight = 800;
+    public static int screenWidth = (screenHeight * 5) / 3;
+    
     //Game fields
     private long gameSpeed = 3;
     private final boolean isRunning = true;
@@ -57,8 +60,9 @@ public class GameEngine extends Application {
         //Set up the screens and activate the players.
     
         //Set up the screens and activate the players.
-        GUI = new UserInterface(this);
-        gameGrid = new GameGrid(UserInterface.PANE);
+        gameGrid = new GameGrid(UserInterface.PANE, screenHeight);
+        GUI = new UserInterface(this, screenHeight, screenWidth, gameGrid.getGridSize(), gameGrid.getBlockSize());
+        
         bonusHandler = new BonusHandler(gameGrid, numberOfPlayers);
         setUpDefaultControlKeys();
 
@@ -131,7 +135,7 @@ public class GameEngine extends Application {
      * to enable every game to start from scratch.
      */
     public void restart() {
-        gameGrid = new GameGrid(UserInterface.PANE);
+        gameGrid = new GameGrid(UserInterface.PANE, screenHeight);
         bonusHandler = new BonusHandler(gameGrid, numberOfPlayers);
         players.clear();
         createPlayers ();
