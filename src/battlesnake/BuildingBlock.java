@@ -29,12 +29,14 @@ public class BuildingBlock {
      * Constructor used for creating blocks that only need an id, not a graphical appearance.
      * @param blockId the block id to be set for this building block.
      */
-    public BuildingBlock(int blockId) {
+    public BuildingBlock(int blockId, Color color) {
         this.blockId = blockId;
+        this.color = color;
+        rectangle = new Rectangle();
+        rectangle.setFill(color);
     }
     /**
-     * The commonly used constructor. The X and Y is adjusted for 
-     * GUI-purposes.
+     * The commonly used constructor. 
      * @param setX The x-position of the upper left part of the building block.
      * @param setY The y-position of the upper left part of the building block.
      * @param size size of the building block in pixels.
@@ -43,7 +45,7 @@ public class BuildingBlock {
     public BuildingBlock(int setX, int setY, int size, int blockId) {
         this.blockId = blockId;
         color = GameGrid.GAMEGRID_COLOR;
-        createSquare(setX, setY +6 , size, color);
+        createSquare(setX, setY , size, color);
     }
     /**
      * Creates the square that is the base for the building block.

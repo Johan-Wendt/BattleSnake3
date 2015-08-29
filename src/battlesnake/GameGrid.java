@@ -23,6 +23,7 @@ public class GameGrid {
     private static int gridSize;
     private static int playerStartpoint;
     private static final int SAFE_ZONE_DIAMETER = 8;
+    
     public static final Color GAMEGRID_COLOR = Color.web("#0000FF");
     public static final Color SAFE_ZONE_COLOR = Color.web("#4D4DFF");
     
@@ -50,6 +51,7 @@ public class GameGrid {
         this.screenHeight = screenHeight;
         blockSize = (screenHeight - (screenHeight / 8)) / 47;
         gridSize = 2* (blockSize * 23) + blockSize;
+        pane.setPrefSize(gridSize, gridSize);
         playerStartpoint = (((gridSize - blockSize) * GameEngine.MULIPLIER_X) / blockSize) / 2 + (((gridSize - blockSize) / blockSize) / 2);
         currentGridSize = gridSize / blockSize;
 
@@ -70,7 +72,7 @@ public class GameGrid {
         //This block is returned from the grid if it gets asked about a grid id that it cannot
         //find. This is used for making the player move from one side to another on the 
         //field if no death blocks are in the way.
-        outsideBlock = new BuildingBlock(-1);   
+        outsideBlock = new BuildingBlock(-1, Color.BLACK);   
     }
     /**
      * This creates the black death blocks that make the field smaller and smaller.
@@ -184,6 +186,10 @@ public class GameGrid {
         Random random = new Random();
         int randomY = random.nextInt(currentGridSize - 2) + adjustToMiddle + 1;
         int randomX = (random.nextInt(currentGridSize -2) + adjustToMiddle + 1) * GameEngine.MULIPLIER_X;
-        return getBlock(randomY + randomX);
+        BuildingBlock randomBlock = getBlock(randomY + randomX);
+        if(randomBlock.getBlockColor().equals(GAMEGRID_COLOR)) {
+            return getBlock(randomY + randomX);
+        }
+        return outsideBlock;
     }
 }
