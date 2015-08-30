@@ -3,7 +3,6 @@ package battlesnake;
 /**
  * @author johanwendt
  */
-import com.sun.glass.ui.Screen;
 import java.util.HashMap;
 import javafx.stage.Stage;
 import javafx.scene.Scene;
@@ -12,9 +11,7 @@ import javafx.scene.paint.Color;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
-import javafx.geometry.NodeOrientation;
 import javafx.geometry.Pos;
-import javafx.geometry.VPos;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.layout.BorderPane;
@@ -31,18 +28,13 @@ import javafx.scene.effect.Light;
 import javafx.scene.effect.Lighting;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCombination;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.Border;
-import javafx.scene.layout.BorderStroke;
-import javafx.scene.layout.BorderStrokeStyle;
-import javafx.scene.layout.BorderWidths;
 import javafx.scene.layout.ColumnConstraints;
-import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.RowConstraints;
 import javafx.scene.shape.Rectangle;
+import javafx.stage.Screen;
+
+
 
 
 /**
@@ -52,38 +44,39 @@ import javafx.scene.shape.Rectangle;
 public class UserInterface {
     //Fields
     //Panes, scenes and stages.
-    private final BorderPane mainPane = new BorderPane();
-    private final GridPane firstPane = new GridPane();
-    private final VBox rightPane = new VBox();
-    private final VBox outerBonusPane = new VBox();
-    private final GridPane innerBonusPane = new GridPane();
-    private final VBox scorePane = new VBox();
-    private final VBox aboutPane = new VBox();
-    private final GridPane controlsPane = new GridPane();
-    private Scene firstScene;
-    private Scene mainScene;
-    private Scene aboutScene;
-    private Scene controlsScene;
-    private Stage firstStage;
-    private Stage aboutStage;
-    private Stage controlsStage;
-    private final Stage battleStage = new Stage();
+    private static final BorderPane mainPane = new BorderPane();
+    private static final GridPane firstPane = new GridPane();
+    private static final VBox rightPane = new VBox();
+    private static final VBox outerBonusPane = new VBox();
+    private static final GridPane innerBonusPane = new GridPane();
+    private static final VBox scorePane = new VBox();
+    private static final VBox aboutPane = new VBox();
+    private static final GridPane controlsPane = new GridPane();
+    private static Scene firstScene;
+    private static Scene mainScene;
+    private static Scene aboutScene;
+    private static Scene controlsScene;
+    private static Stage firstStage;
+    private static Stage aboutStage;
+    private static Stage controlsStage;
+    private static final Stage battleStage = new Stage();
     
     //Nodes 
-    private final MenuBar menuBar = new MenuBar();
-    private final MenuItem underMenu4 = new MenuItem("Unpause");
-    private ChoiceBox chooseNumberOfPlayers;
-    private Button startButton;
-    private Button cancelButton;
-    private final Text gameInfo = new Text();
-    private final Text winnerInfo = new Text();
-    private final Text playerOneScore = new Text();
-    private final Text playerTwoScore = new Text();
-    private final Text playerThreeScore = new Text();
-    private final Text playerFourScore = new Text();
-    private final Text regularBonusText = new Text(BonusHandler.REGULAR_BONUS_DESCRIPTION);  
-    private final Text makeShortBonusText = new Text(BonusHandler.MAKE_SHORT_BONUS_DESCRIPTION);  
-    private final Text addDeathBlockBonusText = new Text(BonusHandler.ADD_DEATH_BLOCK_BONUS_DESCRIPTION);
+    private static MenuBar menuBar;
+    private static final MenuItem underMenu4 = new MenuItem("Pause / Unpause");
+    private static ChoiceBox chooseNumberOfPlayers;
+    private static Button startButton;
+    private static Button cancelButton;
+    private static Menu menu;
+    private static final Text gameInfo = new Text();
+    private static final Text winnerInfo = new Text();
+    private static final Text playerOneScore = new Text();
+    private static final Text playerTwoScore = new Text();
+    private static final Text playerThreeScore = new Text();
+    private static final Text playerFourScore = new Text();
+    private static final Text regularBonusText = new Text(BonusHandler.regularBonusDescription);  
+    private static final Text makeShortBonusText = new Text(BonusHandler.makeShortDescription);  
+    private static final Text addDeathBlockBonusText = new Text(BonusHandler.addDeathBlockBonusDescription);
         
     
     
@@ -93,19 +86,22 @@ public class UserInterface {
     //block in y-direction adds 1 to the id while every block in 
     //x-direction adds 1000 (MULIPLIER_X).
     
-    private static Pane pane;
-    public static final Color PLAYER_1_COLOR = Color.web("#B200B2");
-    public static final Color PLAYER_2_COLOR = Color.web("#66FF33");
-    public static final Color PLAYER_3_COLOR = Color.web("#E68A00");
-    public static final Color PLAYER_4_COLOR = Color.web("#00FFFF");
+    public static final Pane gameGridPane = new Pane();
     
-    private static int screenHeight;
-    private static int screenWidth;
+    public static final Color playerOneColor = Color.web("#B200B2");
+    public static final Color playerTwoColor = Color.web("#66FF33");
+    public static final Color playerThreeColor = Color.web("#E68A00");
+    public static final Color playerFourColor = Color.web("#00FFFF");
+    
+    private static final double screenHeight = Screen.getPrimary().getVisualBounds().getHeight() - 23;
+    private static final double screenWidth = Screen.getPrimary().getVisualBounds().getWidth();
     private static int gridSize;
     private static int blockSize;
-    private static int standardPadding;
+    private static double standardPadding;
+    private static double borderWidth; 
+    private static double menuBarSize;
    
-    private static int playerScoreSize;
+    private static double playerScoreSize;
     
     
     //Regular fields
@@ -118,25 +114,24 @@ public class UserInterface {
 
     /**
      * Creates the grafical interface.
-     * @param newGameEngine The GameEngine that runs the game.
+     * @param gameEngine The GameEngine that runs the game.
      */
-    public UserInterface (GameEngine newGameEngine, int screenHeight, int screenWidth, int gridSize, int blockSize, Pane pane) {
-        this.gameEngine = newGameEngine;
-        this.screenHeight = screenHeight;
-        this.screenWidth = screenWidth;
-        this.gridSize = gridSize;
-        this.blockSize = blockSize;
-        this.pane = pane;
-        playerScoreSize = 3 * screenHeight / 40;
-        standardPadding = screenHeight / 40;
+    public UserInterface (GameEngine gameEngine) {
+        this.gameEngine = gameEngine;
+        
+        menuBarSize = 23;
+        borderWidth = screenHeight / 200.0;
+        blockSize = (int) ((screenHeight - (screenHeight * 0.06)) / GameEngine.BRICKS_PER_ROW);
+        gridSize = blockSize * GameEngine.BRICKS_PER_ROW;
+        standardPadding = (screenHeight - gridSize - menuBarSize) / 2;
+        playerScoreSize = 1.4 * screenHeight / standardPadding;
         setUpMainScreen();
         setUpBonusInformation();
         setUpControlsScreen();
-        setUpFirstScreen();
         setUpAboutScreen();
         setUpRightPane();
+        setUpFirstScreen();
     }
-    
     public void setCancelButtonDisabled(boolean disable) {
         cancelButton.setDisable(disable);
     }
@@ -155,16 +150,14 @@ public class UserInterface {
     }
     public void restart() {
         setUpWinnerInfo(null);
-        setUpScoreBoard();
-        initiateScoreBoard();
+        //setUpScoreBoard();
+        //initiateScoreBoard();         
     }
-    public void setPause(boolean pause) {
-        if(pause) {
-            underMenu4.setText("Unpause");
-        }
-        else {
-            underMenu4.setText("Pause");
-        }
+    public static int getGridSize() {
+        return gridSize;
+    }
+    public static int getBlockSize() {
+        return blockSize;
     }
     /**
      * Updates the information about the current controls for the players.
@@ -204,11 +197,15 @@ public class UserInterface {
      * This sets upp the main game screen.
      */
     private void setUpMainScreen() {
+        mainScene = new Scene(mainPane, screenWidth, screenHeight);
+        //battleStage.setFullScreenExitKeyCombination(KeyCombination.NO_MATCH);
+        //battleStage.setFullScreen(true);
+        
         //Exit the game on closing this window.
         battleStage.setOnCloseRequest(c -> {
             System.exit(0);
         });
-        mainScene = new Scene(mainPane, screenWidth, screenHeight);
+        //mainScene = new Scene(mainPane, screenWidth, screenHeight);
         mainScene.getStylesheets().add(BattleSnake.class.getResource("BattleSnake.css").toExternalForm());
         
         
@@ -219,24 +216,28 @@ public class UserInterface {
         });
         
         //Create Menubar-system
-        Menu menu = new Menu("Battle Snake");
+        menu = new Menu("Battle Snake");
+
         menu.setId("menu");
         MenuItem underMenu1 = new MenuItem("Set up game");
         MenuItem underMenu2 = new MenuItem("About");
         MenuItem underMenu3 = new MenuItem("Controls");
         MenuItem underMenu5 = new MenuItem("Quit");
         menu.getItems().addAll(underMenu1, underMenu2, underMenu3, underMenu4, underMenu5);
-        menuBar.setMaxHeight(10);
-        menuBar.setBackground(new Background(new BackgroundFill(GameGrid.SAFE_ZONE_COLOR, new CornerRadii(5), Insets.EMPTY)));
-        menuBar.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.DOTTED, CornerRadii.EMPTY, new BorderWidths(screenHeight / 300))));
+        menuBar = new MenuBar();
         menuBar.getMenus().add(menu);
+        menuBar.setPadding(new Insets(0, 0, 0, standardPadding));
         mainPane.setTop(menuBar);
-        menuBar.setEffect(new Lighting(new Light.Distant()));
-
-        menuBar.setId("MBar");
-
         
-        
+        menu.setOnShowing(s -> {
+            gameEngine.setPaused(true);
+          
+        });
+        menu.setOnHiding(h -> {
+            if(!underMenu4.isDisable())
+                gameEngine.setPaused(false);
+        });
+
         //Set Shortcuts for menus.
         underMenu1.setAccelerator(KeyCombination.keyCombination("CTRL + S"));
         underMenu1.setOnAction(a -> {
@@ -270,15 +271,12 @@ public class UserInterface {
         underMenu5.setOnAction(a -> {
             System.exit(0);
         });
-        
         //Adjust the GUI.
+        gameGridPane.setPrefSize(gridSize, gridSize);
         mainPane.setCenter(rightPane);
-        mainPane.setLeft(pane);
-        //mainPane.setPadding(new Insets(standardPadding));
+        mainPane.setLeft(gameGridPane);
         
-        BorderPane.setMargin(pane, new Insets(standardPadding));
-        BorderPane.setMargin(rightPane, new Insets(standardPadding, standardPadding, standardPadding, 0));
-        BorderPane.setMargin(menuBar, new Insets(standardPadding, standardPadding, 0, standardPadding));
+        BorderPane.setMargin(gameGridPane, new Insets(standardPadding));
         
         //Activate the stage
         battleStage.setScene(mainScene);
@@ -296,7 +294,7 @@ public class UserInterface {
         firstStage.setAlwaysOnTop(true);
         firstStage.setMaxWidth(510);
         firstStage.setMaxHeight(600);
-        
+                
         firstStage.setOnShowing(e -> {
             underMenu4.setDisable(true);
         });
@@ -304,6 +302,8 @@ public class UserInterface {
         firstStage.setOnHiding(e -> {
             underMenu4.setDisable(false);
         });
+        
+        firstStage.initOwner(battleStage);
         
         //Adjust the spacing between the different parts of the screen.
         firstPane.getColumnConstraints().addAll(new ColumnConstraints(20), new ColumnConstraints(250), new ColumnConstraints(150));
@@ -401,6 +401,7 @@ public class UserInterface {
         controlsStage.setAlwaysOnTop(true);
         controlsStage.setMaxWidth(500);
         controlsStage.setMaxHeight(230);
+        controlsStage.initOwner(battleStage);
         controlsStage.setResizable(false);
         
         controlsStage.setOnShowing(e -> {
@@ -618,6 +619,7 @@ public class UserInterface {
         aboutStage.setAlwaysOnTop(true);
         aboutStage.setMaxWidth(260);
         aboutStage.setMaxHeight(250);
+        aboutStage.initOwner(battleStage);
         aboutStage.setResizable(false);
         
         aboutStage.setOnShowing(e -> {
@@ -680,12 +682,13 @@ public class UserInterface {
         
         //Set color, add the scoreboard and set some space to the part that is to contain the tostring info.
 
-        rightPane.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, new CornerRadii(5), new BorderWidths(screenHeight / 200))));
+        //rightPane.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, new CornerRadii(5), new BorderWidths(borderWidth))));
         rightPane.getChildren().addAll(scorePane, outerBonusPane);
-        rightPane.setPrefHeight(gridSize);
+        rightPane.setPrefHeight(screenHeight);
         rightPane.setPrefWidth(screenWidth - screenHeight);
         scorePane.setPrefHeight(2 * rightPane.getPrefHeight() / 3);
         outerBonusPane.setPrefHeight(rightPane.getPrefHeight() / 3);
+        scorePane.setPrefWidth(rightPane.getPrefWidth());
  
         rightPane.setEffect(new Lighting(new Light.Distant()));
         rightPane.setId("RPane");  
@@ -705,13 +708,13 @@ public class UserInterface {
         addDeathBlockBonusText.setFont(new Font(playerScoreSize * 0.4));
         
         //Create the rectangles that show what type of bonus the description is about.
-        Rectangle regularBonusColor = new Rectangle(blockSize * 1.5, blockSize * 1.5, BonusHandler.REGULAR_BONUS_COLOR);
+        Rectangle regularBonusColor = new Rectangle(blockSize * 1.5, blockSize * 1.5, BonusHandler.regularBonusColor);
         regularBonusColor.setStroke(Color.BLACK);
         regularBonusColor.setEffect(new Lighting());
-        Rectangle makeShortBonusColor = new Rectangle(blockSize * 1.5, blockSize * 1.5, BonusHandler.MAKE_SHORT_BONUS_COLOR);
+        Rectangle makeShortBonusColor = new Rectangle(blockSize * 1.5, blockSize * 1.5, BonusHandler.makeShortBonusColor);
         makeShortBonusColor.setStroke(Color.BLACK);
         makeShortBonusColor.setEffect(new Lighting());
-        Rectangle addDeathBlockBonusColor = new Rectangle(blockSize * 1.5, blockSize * 1.5, BonusHandler.ADD_DEATH_BLOCK_BONUS_COLOR);
+        Rectangle addDeathBlockBonusColor = new Rectangle(blockSize * 1.5, blockSize * 1.5, BonusHandler.addDeathBlockBonusColor);
         addDeathBlockBonusColor.setStroke(Color.BLACK);
         addDeathBlockBonusColor.setEffect(new Lighting());
         
@@ -725,12 +728,13 @@ public class UserInterface {
         innerBonusPane.add(addDeathBlockBonusText, 1, 2);
         
         //Adjust positioning
-        innerBonusPane.setVgap(standardPadding);
+        innerBonusPane.setVgap(standardPadding / 2);
         innerBonusPane.setHgap(standardPadding);
         innerBonusPane.setPadding(new Insets(standardPadding));
         
         outerBonusPane.setAlignment(Pos.CENTER_LEFT);
         outerBonusPane.getChildren().add(innerBonusPane);
+        
     }
     /**
      * Sets upp the score board for the right pane.
@@ -753,27 +757,27 @@ public class UserInterface {
      * Makes the score board only show scores for relevant players.
      */
     private void initiateScoreBoard() {
-        switch(gameEngine.getNumberOfPlayers()) {
+        switch(GameEngine.getNumberOfPlayers()) {
             case 4: 
                 playerFourScore.setText(gameEngine.getPlayer(3).scoreToString());
                 scorePane.getChildren().add(1, playerFourScore);
                 playerFourScore.setFont(Font.font(playerScoreSize));
-                playerFourScore.setEffect(scoreEffect.getEffect(PLAYER_4_COLOR));
+                playerFourScore.setEffect(scoreEffect.getEffect(playerFourColor));
             case 3: 
                 playerThreeScore.setText(gameEngine.getPlayer(2).scoreToString());
                 scorePane.getChildren().add(1, playerThreeScore);
                 playerThreeScore.setFont(Font.font(playerScoreSize));
-                playerThreeScore.setEffect(scoreEffect.getEffect(PLAYER_3_COLOR));
+                playerThreeScore.setEffect(scoreEffect.getEffect(playerThreeColor));
             case 2: 
                 playerTwoScore.setText(gameEngine.getPlayer(1).scoreToString());
                 scorePane.getChildren().add(1, playerTwoScore);
                 playerTwoScore.setFont(Font.font(playerScoreSize));
-                playerTwoScore.setEffect(scoreEffect.getEffect(PLAYER_2_COLOR));
+                playerTwoScore.setEffect(scoreEffect.getEffect(playerTwoColor));
             case 1: 
                 playerOneScore.setText(gameEngine.getPlayer(0).scoreToString());
                 scorePane.getChildren().add(1, playerOneScore);
                 playerOneScore.setFont(Font.font(playerScoreSize));
-                playerOneScore.setEffect(scoreEffect.getEffect(PLAYER_1_COLOR));
+                playerOneScore.setEffect(scoreEffect.getEffect(playerOneColor));
         }
  
     }
