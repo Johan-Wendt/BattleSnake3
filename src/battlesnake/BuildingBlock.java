@@ -21,13 +21,14 @@ public class BuildingBlock {
     //Regular fields
     private final int blockId;
     private Rectangle rectangle;
-    private Color color;
+    private final Color color;
     private boolean isDeathBlock = false;
     private boolean isDeathBlockIrrevertible = false;
     
     /**
      * Constructor used for creating blocks that only need an id, not a graphical appearance.
      * @param blockId the block id to be set for this building block.
+     * @param color the color of the block
      */
     public BuildingBlock(int blockId, Color color) {
         this.blockId = blockId;

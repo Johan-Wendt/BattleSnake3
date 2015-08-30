@@ -22,10 +22,10 @@ public class AddDeathBlocksBonus extends Bonus{
      * @param gameGrid 
      */
     @Override
-    public void executeBonus(GameGrid gameGrid) {
+    public void executeBonus() {
         for(int i = 0; i < 3; i++) {
-            BuildingBlock deathBlock = gameGrid.getRandomBlock();
-            if(!gameGrid.isInSafeZone(deathBlock.getBlockId())) {
+            BuildingBlock deathBlock = GameEngine.getCurrentGameGrid().getRandomBlock();
+            if(!GameEngine.getCurrentGameGrid().isInSafeZone(deathBlock.getBlockId())) {
                 deathBlock.setDeathBlockIrreveritble();
             }
         }

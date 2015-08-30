@@ -18,10 +18,9 @@ public final class Player {
     
     //Final fields
     private final Color playerColor;
-    private final GameGrid gameGrid;
     private final Stack<BuildingBlock> body = new Stack<>();
     private Stack<BuildingBlock> eraseBody = new Stack<>();
-    private final BonusHandler events;
+    private static BonusHandler events;
     private final int startDirection;
     private final String name;
     
@@ -47,11 +46,10 @@ public final class Player {
      * @param bonusHandler The BonusHandler this player should recieve bonus events from. 
      * @param controls The start controls for this player.
      */
-    public Player(String name, int startDirection, Color playerColor, GameGrid gameGrid, BonusHandler bonusHandler, HashMap controls) {
+    public Player(String name, int startDirection, Color playerColor, BonusHandler bonusHandler, HashMap controls) {
         this.name = name;
         this.startDirection = startDirection;
         this.playerColor = playerColor;
-        this.gameGrid = gameGrid;
         this.events = bonusHandler;
         this.controls = controls;
         turn = -200;
@@ -66,19 +64,15 @@ public final class Player {
         makeShort();
         makeSlow();
         body.clear();
-        BuildingBlock startSnake = gameGrid.getBlock(gameGrid.getStartPosition());
+        BuildingBlock startSnake = GameEngine.getCurrentGameGrid().getBlock(GameEngine.getCurrentGameGrid().getStartPosition());
 
         //Only first block in the stack is added. This makes the snake start 
         //being only one block in size. The rest is added by mevement.
         body.add(0, startSnake);    
 
         //If deathblocks are blocking the the newly created player, get rid of them.
-       // gameGrid.getBlock(GameGrid.playerStartpoint + (startDirection * 2)).revertDeathBlock(true);
-
-
         currentDirection = startDirection;
-        //currentLocation = GameGrid.playerStartpoint + startDirection;
-        currentLocation = gameGrid.getStartPosition();
+        currentLocation = GameEngine.getCurrentGameGrid().getStartPosition();
         mayChangeDirection = false;
     }
     /**
@@ -91,7 +85,7 @@ public final class Player {
         //If the player har died resently take care of the remains one step at a time.
         //This is done here and not as a loop to avoid lag due to thread sleep in the loop.
         if(eraseBody.size() > 0) {
-            if(gameGrid.isInSafeZone(eraseBody.peek().getBlockId())) {
+            if(GameEngine.getCurrentGameGrid().isInSafeZone(eraseBody.peek().getBlockId())) {
                 eraseBody.pop().revertDeathBlock(true);
             }
             else {
@@ -99,7 +93,7 @@ public final class Player {
             }
         }
         //Only act if player is alive, turn is set to a positive number and
-        //the speed of the player allows.
+        //the speed of the player allows it.
         int moved = 0;
         if(isAlive && turn > 0 && turn % playerSlownes == 0) {
             moved = 1;
@@ -107,16 +101,16 @@ public final class Player {
             
             //If the end of the grid is reached and no deathblock is in the way
             //set the destination to the other side of the screen.
-            if(gameGrid.getBlock(destination).getBlockId() < 0) {
-                destination = jumpToOtherSide(gameGrid.getBlock(currentLocation));
+            if(GameEngine.getCurrentGameGrid().getBlock(destination).getBlockId() < 0) {
+                destination = jumpToOtherSide(GameEngine.getCurrentGameGrid().getBlock(currentLocation));
             }
             //If the destination block is a death block or the startpoint kill the player.
-            if(gameGrid.getBlock(destination).isDeathBlock() || gameGrid.getBlock(destination).getBlockId() == gameGrid.getStartPosition()) {
+            if(GameEngine.getCurrentGameGrid().getBlock(destination).isDeathBlock() || GameEngine.getCurrentGameGrid().getBlock(destination).getBlockId() == GameEngine.getCurrentGameGrid().getStartPosition()) {
                 killPlayer();
                 return 1;
             }
             //Move the player, see if a bonus was taken and handle bonus happenings.
-            BuildingBlock moveTo = gameGrid.getBlock(destination);
+            BuildingBlock moveTo = GameEngine.getCurrentGameGrid().getBlock(destination);
             moveTo.setPlayerBlock(playerColor);
             handleBonuses(events.getBonus(destination));
             currentLocation = moveTo.getBlockId();
@@ -127,11 +121,11 @@ public final class Player {
             //to enable player to shrink after the make short bonus.
             if (body.size() > currentLength) {
                 int blockId = body.peek().getBlockId();
-                body.pop().revertDeathBlock(gameGrid.isInSafeZone(blockId));  
+                body.pop().revertDeathBlock(GameEngine.getCurrentGameGrid().isInSafeZone(blockId));  
             }
             if (body.size() > currentLength) {
                 int blockId = body.peek().getBlockId();
-                body.pop().revertDeathBlock(gameGrid.isInSafeZone(blockId)); 
+                body.pop().revertDeathBlock(GameEngine.getCurrentGameGrid().isInSafeZone(blockId)); 
             }
         }
         turn ++;
@@ -166,7 +160,7 @@ public final class Player {
      */
     public int jumpToOtherSide(BuildingBlock block) {
 
-            return block.getBlockId() - (currentDirection * ((gameGrid.getGridSize() / gameGrid.getBlockSize()) - 1));
+            return block.getBlockId() - (currentDirection * ((GameEngine.getCurrentGameGrid().getGridSize() / GameEngine.getCurrentGameGrid().getBlockSize()) - 1));
     }
     /**
      * Kills the player. If the game field is still deminishing or the player is
@@ -176,7 +170,7 @@ public final class Player {
     public void killPlayer() {
         eraseBody = (Stack<BuildingBlock>) body.clone();
         addToScore(GameEngine.PLAYER_DEATH_PENALTY);
-        if(score  < 0 && !gameGrid.isDeathRunning()) {
+        if(score  < 0 && !GameEngine.getCurrentGameGrid().isDeathRunning()) {
             setAlive(false);
         }
         else {

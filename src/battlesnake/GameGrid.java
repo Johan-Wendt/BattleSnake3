@@ -16,7 +16,7 @@ import java.util.Random;
 public class GameGrid {
     //Fields
     
-    private static int screenHeight;
+    private static double screenHeight;
     
     //Static finals
     private static int blockSize;
@@ -47,26 +47,24 @@ public class GameGrid {
      * Constructor for the main game field grid. It creates the field from BuildingBlocks.
      * @param pane The pane where the field should be built.
      */
-    public GameGrid(Pane pane, int screenHeight) {
-        this.screenHeight = screenHeight;
-        blockSize = (screenHeight - (screenHeight / 8)) / 47;
-        gridSize = 2* (blockSize * 23) + blockSize;
-        pane.setPrefSize(gridSize, gridSize);
+    public GameGrid() {
+        blockSize = UserInterface.getBlockSize();
+        gridSize = UserInterface.getGridSize();
         playerStartpoint = (((gridSize - blockSize) * GameEngine.MULIPLIER_X) / blockSize) / 2 + (((gridSize - blockSize) / blockSize) / 2);
         currentGridSize = gridSize / blockSize;
 
         for(int i = 0; i < gridSize/blockSize; i ++) {
             for(int j = 0; j < gridSize/blockSize; j ++) {
                 BuildingBlock block = new BuildingBlock(i * blockSize, j * blockSize, blockSize, (j + i * GameEngine.MULIPLIER_X));
-                pane.getChildren().add(block.getShape());
+                UserInterface.gameGridPane.getChildren().add(block.getShape());
 
                 if(isInSafeZone(block.getBlockId())) {
                     block.setBlockColor(SAFE_ZONE_COLOR);
                 }
                 gridList.add(block);
-
             }
         }
+        
         getBlock(playerStartpoint).setDeathBlockIrreveritble();
         
         //This block is returned from the grid if it gets asked about a grid id that it cannot

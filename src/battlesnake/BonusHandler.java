@@ -15,39 +15,32 @@ import java.util.Iterator;
 public class BonusHandler {
     
     //Static final fields
-    public static final Color DETHBLOCK_COLOR = Color.BLACK;
+    public static final Color deathBlockColor = Color.BLACK;
     private static final int LIFESPAN_MIN = 2000;
     private static final int LIFESPAN_MAX = 10000;
     private static final double BONUS_PROBABILITY = 0.045;
     public static final int REGULAR_BONUS_HAPPENING = 0;
-    public static final Color REGULAR_BONUS_COLOR = Color.web("#FF0000");
+    public static final Color regularBonusColor = Color.web("#FF0000");
     public static final int REGULAR_BONUS_PROBABILTY_FACTOR = 10;
-    public static final String REGULAR_BONUS_DESCRIPTION = "Makes the player longer and faster.";
+    public static final String regularBonusDescription = "Makes the player longer and faster.";
     public static final int MAKE_SHORT_BONUS_HAPPENING = 1;
-    public static final Color MAKE_SHORT_BONUS_COLOR = Color.web("#009933");
+    public static final Color makeShortBonusColor = Color.web("#009933");
     public static final int MAKE_SHORT_BONUS_PROBABILTY_FACTOR = 1;
-    public static final String MAKE_SHORT_BONUS_DESCRIPTION = "Makes the player short.";
+    public static final String makeShortDescription = "Makes the player short.";
     public static final int ADD_DEATH_BLOCK_BONUS_HAPPENING = 2;
-    public static final Color ADD_DEATH_BLOCK_BONUS_COLOR = Color.web("#FFFF00");
+    public static final Color addDeathBlockBonusColor = Color.web("#FFFF00");
     public static final int ADD_DEATH_BLOCK_BONUS_PROBABILTY_FACTOR = 8;
-    public static final String ADD_DEATH_BLOCK_BONUS_DESCRIPTION = "Adds random deathblocks to the field.";
+    public static final String addDeathBlockBonusDescription = "Adds deathblocks to the field.";
     
     //final fields 
-    private final ArrayList <Bonus> eventList = new ArrayList<>();
-    private final GameGrid gameGrid;
-    
+    private final static ArrayList <Bonus> eventList = new ArrayList<>();    
     //Regular fields
-    private final double numberOfPlayers;
     private Random random;
     
     /**
      * Creates a BonusHandler. 
-     * @param gameGrid The gameGrid that the bonuses should be placed on.
-     * @param numberOfPlayers number of players in the game.
      */
-    public BonusHandler(GameGrid gameGrid, double numberOfPlayers) {
-        this.gameGrid = gameGrid;    
-        this.numberOfPlayers = numberOfPlayers;
+    public BonusHandler() {
     }
     /**
      * Method called every round by the players to see if a bonus has been taken.
@@ -60,7 +53,7 @@ public class BonusHandler {
         for(Bonus event: eventList) {
             if(event.getBonusId() == blockId) {
                 event.setTaken();
-                event.executeBonus(gameGrid);
+                event.executeBonus();
                 return event.getBonusHappening();
             }
         }
@@ -71,7 +64,7 @@ public class BonusHandler {
      * also destroys bonuses that are to be removed.
      */
     public void bonusRound() {
-        if(BONUS_PROBABILITY * Math.sqrt(numberOfPlayers) > Math.random()) createRandomBonus();
+        if(BONUS_PROBABILITY * Math.sqrt(GameEngine.getNumberOfPlayers()) > Math.random()) createRandomBonus();
         destroyBonuses();
     }
     /**
@@ -93,24 +86,24 @@ public class BonusHandler {
      * Creates one Regular bonus and places it on the GameGrid.
      */
     public void createRegularBonus() {
-        BuildingBlock bonusBlock = gameGrid.getRandomBlock();
-        Bonus bonus = new RegularBonus(bonusBlock, REGULAR_BONUS_COLOR, LIFESPAN_MIN + new Random().nextInt(LIFESPAN_MAX), REGULAR_BONUS_HAPPENING);
+        BuildingBlock bonusBlock = GameEngine.getCurrentGameGrid().getRandomBlock();
+        Bonus bonus = new RegularBonus(bonusBlock, regularBonusColor, LIFESPAN_MIN + new Random().nextInt(LIFESPAN_MAX), REGULAR_BONUS_HAPPENING);
         eventList.add(bonus);
     }
     /**
      * Creates one Make short bonus and places it on the GameGrid.
      */
     public void createMakeShortBonus() {
-        BuildingBlock bonusBlock = gameGrid.getRandomBlock();
-        Bonus bonus = new MakeShortBonus(bonusBlock,MAKE_SHORT_BONUS_COLOR, LIFESPAN_MIN + new Random().nextInt(LIFESPAN_MAX), MAKE_SHORT_BONUS_HAPPENING);
+        BuildingBlock bonusBlock = GameEngine.getCurrentGameGrid().getRandomBlock();
+        Bonus bonus = new MakeShortBonus(bonusBlock,makeShortBonusColor, LIFESPAN_MIN + new Random().nextInt(LIFESPAN_MAX), MAKE_SHORT_BONUS_HAPPENING);
         eventList.add(bonus);
     }
     /**
      * Creates one Add death block bonus and places it on the GameGrid.
      */
     public void createAddDeathBlocksBonus() {
-        BuildingBlock bonusBlock = gameGrid.getRandomBlock();
-        Bonus bonus = new AddDeathBlocksBonus (bonusBlock,ADD_DEATH_BLOCK_BONUS_COLOR, LIFESPAN_MIN + new Random().nextInt(LIFESPAN_MAX), ADD_DEATH_BLOCK_BONUS_HAPPENING);
+        BuildingBlock bonusBlock = GameEngine.getCurrentGameGrid().getRandomBlock();
+        Bonus bonus = new AddDeathBlocksBonus (bonusBlock,addDeathBlockBonusColor, LIFESPAN_MIN + new Random().nextInt(LIFESPAN_MAX), ADD_DEATH_BLOCK_BONUS_HAPPENING);
         eventList.add(bonus);
     }
     /**

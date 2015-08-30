@@ -5,12 +5,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.scene.Scene;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
-import javafx.stage.Screen;
-
 /**
  *
  * @author johanwendt
@@ -35,27 +32,28 @@ public class GameEngine extends Application {
     public static final int PLAYER_DEATH_PENALTY = -2;
     public static final int PLAYER_START_LENGTH = 20;
     
-    //Player fields
-    private final ArrayList<Player> players = new ArrayList<>();
-    private final HashMap<KeyCode, Integer> player1Controls = new HashMap<>();
-    private final HashMap<KeyCode, Integer> player2Controls = new HashMap<>();
-    private final HashMap<KeyCode, Integer> player3Controls = new HashMap<>();
-    private final HashMap<KeyCode, Integer> player4Controls = new HashMap<>();
+    //Must be an uneven number
+    public static final int BRICKS_PER_ROW = 41;
     
-    private static int screenHeight;
-    private static int screenWidth;
-    private Pane pane = new Pane();
-    private Stage battleStage;
+    private static final boolean isRunning = true;
+    
+    //Player fields
+    private static final ArrayList<Player> players = new ArrayList<>();
+    private static final HashMap<KeyCode, Integer> player1Controls = new HashMap<>();
+    private static final HashMap<KeyCode, Integer> player2Controls = new HashMap<>();
+    private static final HashMap<KeyCode, Integer> player3Controls = new HashMap<>();
+    private static final HashMap<KeyCode, Integer> player4Controls = new HashMap<>();
+    
+    private static int gameSpeed = 3;
+    private static Stage battleStage;
     
     //Game fields
-    private long gameSpeed = 3;
-    private final boolean isRunning = true;
-    private boolean isPaused = true;
-    private int numberOfPlayers = 1;
+    private static boolean isPaused = true;
+    private static int numberOfPlayers = 1;
     private Thread thread;
-    private BonusHandler bonusHandler;
-    private GameGrid gameGrid;
-    private UserInterface GUI;
+    private static BonusHandler bonusHandler;
+    private static GameGrid gameGrid;
+    private static UserInterface GUI;
     
     
     public void NewGameEngine() {
@@ -63,16 +61,11 @@ public class GameEngine extends Application {
     @Override
     public void start(Stage battleStage) throws InterruptedException {
         this.battleStage = battleStage;
-        screenHeight = (int) Screen.getPrimary().getBounds().getHeight();
-        //screenHeight = 600;
-        screenWidth = (screenHeight * 5) / 3;
-        //Set up the screens and activate the players.
-    
-        //Set up the screens and activate the players.
-        gameGrid = new GameGrid(pane, screenHeight);
-        GUI = new UserInterface(this, screenHeight, screenWidth, gameGrid.getGridSize(), gameGrid.getBlockSize(), pane);
+
+        GUI = new UserInterface(this);
+        gameGrid = new GameGrid();
         
-        bonusHandler = new BonusHandler(gameGrid, numberOfPlayers);
+        bonusHandler = new BonusHandler();
         setUpDefaultControlKeys();
 
         
@@ -144,8 +137,7 @@ public class GameEngine extends Application {
      * to enable every game to start from scratch.
      */
     public void restart() {
-        gameGrid = new GameGrid(pane, screenHeight);
-        bonusHandler = new BonusHandler(gameGrid, numberOfPlayers);
+        gameGrid = new GameGrid();
         players.clear();
         createPlayers ();
         GUI.restart();   
@@ -156,7 +148,7 @@ public class GameEngine extends Application {
      * the pause in the gameloop-thread shorter. This is not yet implemented 
      * anywhere in the game.
      */
-    public void turnUpGameSpeed() {
+    public static void turnUpGameSpeed() {
         if(gameSpeed > 1) {
             gameSpeed --;
         }
@@ -166,7 +158,7 @@ public class GameEngine extends Application {
      * the pause in the gameloop-thread shorter. This is not yet implemented 
      * anywhere in the game.
      */
-    public void turnDownGameSpeed() {
+    public static void turnDownGameSpeed() {
         if(gameSpeed < 10) {
             gameSpeed ++;
         }
@@ -175,21 +167,23 @@ public class GameEngine extends Application {
      * Pauses the game. Used for when menus are up.
      * @param pause
      */
-    public void setPaused(boolean pause) {
+    public static void setPaused(boolean pause) {
         isPaused = pause;
-        GUI.setPause(pause);    
     }
-    public boolean isPaused() {
+    public static boolean isPaused() {
         return isPaused;
     }
-    public void setNumberOfPlayers(int toPlay) {
+    public static void setNumberOfPlayers(int toPlay) {
         numberOfPlayers = toPlay;
     }
-    public int getNumberOfPlayers() {
+    public static int getNumberOfPlayers() {
         return numberOfPlayers;
     }
     public Player getPlayer(int playerNumber) {
         return players.get(playerNumber);
+    }
+    public static GameGrid getCurrentGameGrid() {
+        return gameGrid;
     }
     /**
      * Checks if a given deathblock is located inside a player and kills it if it does.
@@ -224,10 +218,10 @@ public class GameEngine extends Application {
      */
     private void createPlayers () {
         switch(numberOfPlayers) {
-            case 4: players.add(0, new Player("Player 4", PLAYER_4_STARTDIRECTION, UserInterface.PLAYER_4_COLOR, gameGrid, bonusHandler, player4Controls));
-            case 3: players.add(0, new Player("Player 3", PLAYER_3_STARTDIRECTION, UserInterface.PLAYER_3_COLOR, gameGrid, bonusHandler, player3Controls));
-            case 2: players.add(0, new Player("Player 2", PLAYER_2_STARTDIRECTION, UserInterface.PLAYER_2_COLOR, gameGrid, bonusHandler, player2Controls));
-            case 1: players.add(0, new Player("Player 1", PLAYER_1_STARTDIRECTION, UserInterface.PLAYER_1_COLOR, gameGrid, bonusHandler, player1Controls));
+            case 4: players.add(0, new Player("Player 4", PLAYER_4_STARTDIRECTION, UserInterface.playerFourColor, bonusHandler, player4Controls));
+            case 3: players.add(0, new Player("Player 3", PLAYER_3_STARTDIRECTION, UserInterface.playerThreeColor, bonusHandler, player3Controls));
+            case 2: players.add(0, new Player("Player 2", PLAYER_2_STARTDIRECTION, UserInterface.playerTwoColor, bonusHandler, player2Controls));
+            case 1: players.add(0, new Player("Player 1", PLAYER_1_STARTDIRECTION, UserInterface.playerOneColor, bonusHandler, player1Controls));
         } 
     }
     /**
