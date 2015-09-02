@@ -62,7 +62,7 @@ public class GameEngine extends Application {
     public void start(Stage battleStage) throws InterruptedException {
         this.battleStage = battleStage;
 
-        GUI = new UserInterface(this);
+        GUI = new UserInterface(this, players);
         gameGrid = new GameGrid();
         
         bonusHandler = new BonusHandler();
@@ -85,7 +85,7 @@ public class GameEngine extends Application {
                             playerKiller(gameGrid.deathBuilder());
                             if(moved > 0) {
                                 bonusHandler.bonusRound();
-                                GUI.showScores();
+                                RightPane.showScores(players);
                             }
                         }
                         if((gameGrid.isDeathRunning() == false && getNumberOfAlivePlayers() < 2 && !isPaused) || getNumberOfAlivePlayers() < 1 && !isPaused) {
@@ -126,7 +126,7 @@ public class GameEngine extends Application {
     /**
      * Unpauses the game and sets all players in status alive so they start moving.
      */
-    public void begin() {
+    public static void begin() {
         setPaused(false);
         for(Player player: players) {
             player.setAlive(true);
@@ -136,11 +136,11 @@ public class GameEngine extends Application {
      * Restart the game from the begining. Everything needed is reset or recreated
      * to enable every game to start from scratch.
      */
-    public void restart() {
+    public static void restart() {
         gameGrid = new GameGrid();
         players.clear();
         createPlayers ();
-        GUI.restart();   
+        UserInterface.restart(players);   
         begin(); 
     }
     /**
@@ -195,7 +195,7 @@ public class GameEngine extends Application {
         for(Player player: players) {
             if(player.containsBlock(deathBlock)) {
                 player.killPlayer();
-                GUI.showScores();
+                RightPane.showScores(players);
             }
         }
     }   
@@ -216,7 +216,7 @@ public class GameEngine extends Application {
     /**
      * Creates the chosen number of players.
      */
-    private void createPlayers () {
+    private static void createPlayers () {
         switch(numberOfPlayers) {
             case 4: players.add(0, new Player("Player 4", PLAYER_4_STARTDIRECTION, UserInterface.playerFourColor, bonusHandler, player4Controls));
             case 3: players.add(0, new Player("Player 3", PLAYER_3_STARTDIRECTION, UserInterface.playerThreeColor, bonusHandler, player3Controls));
