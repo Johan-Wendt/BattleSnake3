@@ -28,9 +28,14 @@ public class GameGrid {
     public static final Color SAFE_ZONE_COLOR = Color.web("#4D4DFF");
     
     //Final fields
-    private final int DEATH_SLOWNESS = GameEngine.PLAYER_START_SLOWNESS;
+    private static final int DEATH_SLOWNESS = GameEngine.PLAYER_START_SLOWNESS;
+    //private static final int DEATH_SLOWNESS = 1;
     private final ArrayList<BuildingBlock> gridList = new ArrayList<>();
-    private final BuildingBlock outsideBlock;
+    
+    //This block is returned from the grid if it gets asked about a grid id that it cannot
+        //find. This is used for making the player move from one side to another on the 
+        //field if no death blocks are in the way.
+    private final static BuildingBlock outsideBlock = new BuildingBlock(-1, Color.BLACK);
     
     //This value is used for the blocks that make tha field smaller and smaller.
     //For convinience this gridsize is normalized to number of blocks.
@@ -65,12 +70,7 @@ public class GameGrid {
             }
         }
         
-        getBlock(playerStartpoint).setDeathBlockIrreveritble();
-        
-        //This block is returned from the grid if it gets asked about a grid id that it cannot
-        //find. This is used for making the player move from one side to another on the 
-        //field if no death blocks are in the way.
-        outsideBlock = new BuildingBlock(-1, Color.BLACK);   
+        getBlock(playerStartpoint).setDeathBlockIrreveritble(); 
     }
     /**
      * This creates the black death blocks that make the field smaller and smaller.

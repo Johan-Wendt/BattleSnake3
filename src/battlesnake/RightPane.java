@@ -40,7 +40,7 @@ public class RightPane {
     private static final Text playerThreeScore = new Text();
     private static final Text playerFourScore = new Text();
     
-    public RightPane(ArrayList<Player> players) {      
+    public RightPane() {      
         //Set color, add the scoreboard and set some space to the part that is to contain the tostring info.
 
         //rightPane.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, new CornerRadii(5), new BorderWidths(borderWidth))));
@@ -55,7 +55,7 @@ public class RightPane {
         
         setUpBonusInformation();
         setUpScoreBoard();
-        initiateScoreBoard(players);
+        initiateScoreBoard();
                 
         
     }
@@ -122,27 +122,27 @@ public class RightPane {
     /**
      * Makes the score board only show scores for relevant players.
      */
-    public static void initiateScoreBoard(ArrayList<Player> players) {
+    public static void initiateScoreBoard() {
         playerScores.add(playerOneScore);
         playerScores.add(playerTwoScore);
         playerScores.add(playerThreeScore);
         playerScores.add(playerFourScore);
         
-        int i = players.size() - 1;
+        int i = GameEngine.getPlayers().size() - 1;
         while(i >= 0) {
-            playerScores.get(i).setText(players.get(i).scoreToString());
+            playerScores.get(i).setText(GameEngine.getPlayers().get(i).scoreToString());
             playerScores.get(i).setFont(Font.font(UserInterface.getPlayerScoreSize()));
-            playerScores.get(i).setEffect(scoreEffect.getEffect(players.get(i).getPlayerColor()));
+            playerScores.get(i).setEffect(scoreEffect.getEffect(GameEngine.getPlayers().get(i).getPlayerColor()));
             scorePane.getChildren().add(1, playerScores.get(i));
             playerScores.add(new Text());
             i--;
         }
     }
     
-    public static void showScores(ArrayList<Player> players) {
+    public static void showScores() {
         int i = 0;
-        while(i < players.size()) {
-            playerScores.get(i).textProperty().set(players.get(i).scoreToString());
+        while(i < GameEngine.getPlayers().size()) {
+            playerScores.get(i).textProperty().set(GameEngine.getPlayers().get(i).scoreToString());
             i++;
         }
     }

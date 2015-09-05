@@ -22,6 +22,8 @@ public final class Player {
     private Stack<BuildingBlock> eraseBody = new Stack<>();
     private static BonusHandler events;
     private final int startDirection;
+    private static int numberOfPlayers = 0;
+    private int playerNumber;
     private final String name;
     
     //Regular fields
@@ -53,6 +55,7 @@ public final class Player {
         this.events = bonusHandler;
         this.controls = controls;
         turn = -200;
+        playerNumber = GameEngine.MAX_NUMBER_OF_PLAYERS + 1 - numberOfPlayers;
         createPlayer(); 
     }
     /**
@@ -299,5 +302,11 @@ public final class Player {
      */
     public void addToScore(int addToScore) {
         score += addToScore;
+    }
+    public int getPlayerNumber() {
+        return playerNumber;
+    }
+    public static void resetNumberOfPlayers() {
+        numberOfPlayers = 0;
     }
 }
