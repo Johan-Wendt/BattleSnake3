@@ -7,6 +7,7 @@ import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.Pane;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 /**
  *
@@ -28,9 +29,16 @@ public class GameEngine extends Application {
     public static final int PLAYER_3_STARTDIRECTION = UP;
     public static final int PLAYER_4_STARTDIRECTION = DOWN;
     
+    public static final String playerOneName = "Player 1";
+    public static final String playerTwoName = "Player 2";
+    public static final String playerThreeName = "Player 3";
+    public static final String playerFourName = "Player 4";
+    
+    
     public static final int PLAYER_START_SLOWNESS = 25;
     public static final int PLAYER_DEATH_PENALTY = -2;
     public static final int PLAYER_START_LENGTH = 20;
+    public static final int MAX_NUMBER_OF_PLAYERS = 4;
     
     //Must be an uneven number
     public static final int BRICKS_PER_ROW = 41;
@@ -44,17 +52,22 @@ public class GameEngine extends Application {
     private static final HashMap<KeyCode, Integer> player3Controls = new HashMap<>();
     private static final HashMap<KeyCode, Integer> player4Controls = new HashMap<>();
     
+    private static final Color playerOneColor = Color.web("#B200B2");
+    private static final Color playerTwoColor = Color.web("#66FF33");
+    private static final Color playerThreeColor = Color.web("#E68A00");
+    private static final Color playerFourColor = Color.web("#00FFFF");
+    
     private static int gameSpeed = 3;
     private static Stage battleStage;
     
     //Game fields
     private static boolean isPaused = true;
-    private static int numberOfPlayers = 1;
+    private static int numberToPlay = 1;
     private Thread thread;
     private static BonusHandler bonusHandler;
     private static GameGrid gameGrid;
-    private static UserInterface GUI;
-    
+    //private static UserInterface userInterface;
+    private static KeyCode pauseKey = KeyCode.P;
     
     public void NewGameEngine() {
     }
@@ -62,7 +75,7 @@ public class GameEngine extends Application {
     public void start(Stage battleStage) throws InterruptedException {
         this.battleStage = battleStage;
 
-        GUI = new UserInterface(this, players);
+        UserInterface userInterface = new UserInterface();
         gameGrid = new GameGrid();
         
         bonusHandler = new BonusHandler();
@@ -85,14 +98,14 @@ public class GameEngine extends Application {
                             playerKiller(gameGrid.deathBuilder());
                             if(moved > 0) {
                                 bonusHandler.bonusRound();
-                                RightPane.showScores(players);
+                                RightPane.showScores();
                             }
                         }
                         if((gameGrid.isDeathRunning() == false && getNumberOfAlivePlayers() < 2 && !isPaused) || getNumberOfAlivePlayers() < 1 && !isPaused) {
                             Platform.runLater(() -> {
                                 gameOver();
+                                setPaused(true);
                             });
-                            
                         }
                         Thread.sleep(gameSpeed);
                     }
@@ -115,12 +128,16 @@ public class GameEngine extends Application {
                 winner = player;
             }
         }
-        GUI.gameOver(winner);
-        setPaused(true);
+        UserInterface.gameOver(winner);
     }
-    public void takePressedKey(KeyCode key) {
-        for(Player player: players) {
-            player.setCurrentDirection(key);
+    public static void takePressedKey(KeyCode key) {
+        if(key.equals(pauseKey)) {
+            pauseUnpause();
+        }
+        else {
+            for(Player player: players) {
+                player.setCurrentDirection(key);
+            }
         }
     }
     /**
@@ -139,8 +156,9 @@ public class GameEngine extends Application {
     public static void restart() {
         gameGrid = new GameGrid();
         players.clear();
+        Player.resetNumberOfPlayers();
         createPlayers ();
-        UserInterface.restart(players);   
+        UserInterface.restart();   
         begin(); 
     }
     /**
@@ -173,17 +191,32 @@ public class GameEngine extends Application {
     public static boolean isPaused() {
         return isPaused;
     }
+    public static void pauseUnpause() {
+        if(isPaused) {
+            setPaused(false);
+        }
+        else {
+            setPaused(true);
+        }
+    }
     public static void setNumberOfPlayers(int toPlay) {
-        numberOfPlayers = toPlay;
+        numberToPlay = toPlay;
     }
     public static int getNumberOfPlayers() {
-        return numberOfPlayers;
+        return numberToPlay;
     }
     public Player getPlayer(int playerNumber) {
         return players.get(playerNumber);
     }
     public static GameGrid getCurrentGameGrid() {
         return gameGrid;
+    }
+    public static ArrayList<Player> getPlayers() {
+        return players;
+    }
+    public static void setPauseKey(KeyCode newPauseKey) {
+        ControlsStage.updatePausedKeyText(newPauseKey.toString());
+        pauseKey = newPauseKey;
     }
     /**
      * Checks if a given deathblock is located inside a player and kills it if it does.
@@ -195,7 +228,7 @@ public class GameEngine extends Application {
         for(Player player: players) {
             if(player.containsBlock(deathBlock)) {
                 player.killPlayer();
-                RightPane.showScores(players);
+                RightPane.showScores();
             }
         }
     }   
@@ -217,11 +250,11 @@ public class GameEngine extends Application {
      * Creates the chosen number of players.
      */
     private static void createPlayers () {
-        switch(numberOfPlayers) {
-            case 4: players.add(0, new Player("Player 4", PLAYER_4_STARTDIRECTION, UserInterface.playerFourColor, bonusHandler, player4Controls));
-            case 3: players.add(0, new Player("Player 3", PLAYER_3_STARTDIRECTION, UserInterface.playerThreeColor, bonusHandler, player3Controls));
-            case 2: players.add(0, new Player("Player 2", PLAYER_2_STARTDIRECTION, UserInterface.playerTwoColor, bonusHandler, player2Controls));
-            case 1: players.add(0, new Player("Player 1", PLAYER_1_STARTDIRECTION, UserInterface.playerOneColor, bonusHandler, player1Controls));
+        switch(numberToPlay) {
+            case 4: players.add(0, new Player(playerFourName, PLAYER_4_STARTDIRECTION, playerFourColor, bonusHandler, player4Controls));
+            case 3: players.add(0, new Player(playerThreeName, PLAYER_3_STARTDIRECTION, playerThreeColor, bonusHandler, player3Controls));
+            case 2: players.add(0, new Player(playerTwoName, PLAYER_2_STARTDIRECTION, playerTwoColor, bonusHandler, player2Controls));
+            case 1: players.add(0, new Player(playerOneName, PLAYER_1_STARTDIRECTION, playerOneColor, bonusHandler, player1Controls));
         } 
     }
     /**
@@ -231,26 +264,26 @@ public class GameEngine extends Application {
      * @param direction The direction the key should make the player turn.
      * @param newKey The key used for turning the player in the given direction.
      */
-    public void setControlKey(String playerName, int direction, KeyCode newKey) {
+    public static void setControlKey(String playerName, int direction, KeyCode newKey) {
         if(playerName.equals("Player 1")) {
             removeDuplicateKeys(player1Controls, direction);
             player1Controls.put(newKey, direction);
-            GUI.updateControlText(playerName, direction, newKey.toString());
+            ControlsStage.updateControlText(playerName, direction, newKey.toString());
         }
         if(playerName.equals("Player 2")) {
             removeDuplicateKeys(player2Controls, direction);
             player2Controls.put(newKey, direction);
-            GUI.updateControlText(playerName, direction, newKey.toString());
+            ControlsStage.updateControlText(playerName, direction, newKey.toString());
         }
         if(playerName.equals("Player 3")) {
             removeDuplicateKeys(player3Controls, direction);
             player3Controls.put(newKey, direction);
-            GUI.updateControlText(playerName, direction, newKey.toString());
+            ControlsStage.updateControlText(playerName, direction, newKey.toString());
         }
         if(playerName.equals("Player 4")) {
             removeDuplicateKeys(player4Controls, direction);
             player4Controls.put(newKey, direction);
-            GUI.updateControlText(playerName, direction, newKey.toString());
+            ControlsStage.updateControlText(playerName, direction, newKey.toString());
         }
     }
     /**
@@ -258,19 +291,20 @@ public class GameEngine extends Application {
      * @param toShave The HashMap that the new key was added to.
      * @param direction The direction the new key controlls.
      */
-    private void removeDuplicateKeys(HashMap<KeyCode, Integer> toShave, int direction) {
-        for(KeyCode keyCode: toShave.keySet())
+    private static void removeDuplicateKeys(HashMap<KeyCode, Integer> toShave, int direction) {
+        for(KeyCode keyCode: toShave.keySet()) {
             if(toShave.get(keyCode).equals(direction)) {
                 toShave.remove(keyCode);
                 return;
             }
+        }
     } 
     /**
      * Sets upp the deafult controll keys for the game. These keys
      * are set everytime the application is restarted.
      */
     
-    public void setUpDefaultControlKeys() {
+    public static void setUpDefaultControlKeys() {
         setControlKey("Player 1", UP, KeyCode.UP);
         setControlKey("Player 1", RIGHT, KeyCode.RIGHT);
         setControlKey("Player 1", DOWN, KeyCode.DOWN);
@@ -291,5 +325,6 @@ public class GameEngine extends Application {
         setControlKey("Player 4", DOWN, KeyCode.K);
         setControlKey("Player 4", LEFT, KeyCode.J);
         
+        setPauseKey(pauseKey);
     }
 }
