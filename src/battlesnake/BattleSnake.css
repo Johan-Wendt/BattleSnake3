@@ -5,66 +5,14 @@
 */
 .root {
      -fx-background-image: url("images.jpg");
-     //-fx-background-size: cover;
-      -fx-font-size: 5px;
 }
-//images
-/*
-#info-text {
-  -fx-font-size: 15px;
-  -fx-fill: #E6E6E6;
-}
-/*
-.button {
-    -fx-font-size: 15px;
-    -fx-text-fill: #000000;  
-}
-
-
-
-/*
-.combo-box, .combo-box-base {
-    -fx-font-size: 15px;
-    -fx-text-fill: #333333;
-    -fx-base: #0000FF;
-}
- #menu {
-    -fx-text-fill: #000000;
-    -fx-base: #000000;
-}
-*/
-#RBonus, #MBonus, #ABonus {
-    -fx-fill: #E6E6E6;
-}
-
-.label {
-    -fx-font-size: 15px;
-    -fx-text-fill: #E6E6E6;
-}
-
-
-.cell .button {
-    -fx-font-size: 15px;
-    -fx-font-weight: bold;
-    -fx-text-fill: #FFFFFF;  
-}
-.menu .label {
-    -fx-text-fill: #000000; 
-}
-
-.text {
-    -fx-font-size: 15px;
-    -fx-text-fill: #000000; 
-}
-//background2.jpg
-
 #RPane, #MBar {
     -fx-background-image: url("background2.jpg");
-    
 }
-
-
-
-#menu:hover, #menu:showing, #menu:focused, #menu:pressed {
-    -fx-background-color: rgb(0, 0, 0, 0.4);
+.menu {
+    -fx-font-size: 10px;
+    -fx-font-weight: bold;
+}
+.menu:showing .context-menu {
+    -fx-font-size: 17px;
 }

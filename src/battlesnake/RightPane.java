@@ -1,6 +1,5 @@
 package battlesnake;
 
-
 import java.util.ArrayList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -8,20 +7,15 @@ import javafx.scene.effect.Bloom;
 import javafx.scene.effect.Light;
 import javafx.scene.effect.Lighting;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 /**
- *
+ *This class creates the pane that shows the player scores.
  * @author johanwendt
  */
 public class RightPane {
@@ -29,9 +23,9 @@ public class RightPane {
     private static final VBox outerBonusPane = new VBox();
     private static final GridPane innerBonusPane = new GridPane();
     private static final VBox scorePane = new VBox();
-    private static final Text regularBonusText = new Text(BonusHandler.regularBonusDescription);  
-    private static final Text makeShortBonusText = new Text(BonusHandler.makeShortDescription);  
-    private static final Text addDeathBlockBonusText = new Text(BonusHandler.addDeathBlockBonusDescription);
+    private static final Text regularBonusText = new Text(BonusHandler.getRegularBonusDescription());  
+    private static final Text makeShortBonusText = new Text(BonusHandler.getMakeShortDescription());  
+    private static final Text addDeathBlockBonusText = new Text(BonusHandler.getAddDeathBlockBonusDescription());
     private static final ScoreEffect scoreEffect = new ScoreEffect();
     private static ArrayList<Text> playerScores = new ArrayList<>();
     
@@ -41,9 +35,6 @@ public class RightPane {
     private static final Text playerFourScore = new Text();
     
     public RightPane() {      
-        //Set color, add the scoreboard and set some space to the part that is to contain the tostring info.
-
-        //rightPane.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, new CornerRadii(5), new BorderWidths(borderWidth))));
         rightPane.getChildren().addAll(scorePane, outerBonusPane);
         rightPane.setPrefHeight(UserInterface.getScreenHeight());
         rightPane.setPrefWidth(UserInterface.getScreenWidth() - UserInterface.getScreenHeight());
@@ -61,26 +52,23 @@ public class RightPane {
     }
     public void setUpBonusInformation() {
         //Set bonus effects and id for css.
-        regularBonusText.setEffect(new Bloom());
-        regularBonusText.setId("RBonus");
-        regularBonusText.setFont(new Font(UserInterface.getPlayerScoreSize() * 0.4));
+        regularBonusText.setEffect(scoreEffect.getEffect(BonusHandler.getRegularBonusColor()));
+        regularBonusText.setFont(new Font(UserInterface.getPlayerScoreSize() * 0.6));
 
-        makeShortBonusText.setEffect(new Bloom());
-        makeShortBonusText.setId("MBonus");
-        makeShortBonusText.setFont(new Font(UserInterface.getPlayerScoreSize() * 0.4));
+        makeShortBonusText.setEffect(scoreEffect.getEffect(BonusHandler.getMakeShortBonusColor()));
+        makeShortBonusText.setFont(new Font(UserInterface.getPlayerScoreSize() * 0.6));
 
-        addDeathBlockBonusText.setEffect(new Bloom());
-        addDeathBlockBonusText.setId("ABonus");
-        addDeathBlockBonusText.setFont(new Font(UserInterface.getPlayerScoreSize() * 0.4));
+        addDeathBlockBonusText.setEffect(scoreEffect.getEffect(BonusHandler.getAddDeathBlockBonusColor()));
+        addDeathBlockBonusText.setFont(new Font(UserInterface.getPlayerScoreSize() * 0.6));
         
         //Create the rectangles that show what type of bonus the description is about.
-        Rectangle regularBonusColor = new Rectangle(UserInterface.getBlockSize() * 1.5, UserInterface.getBlockSize() * 1.5, BonusHandler.regularBonusColor);
+        Rectangle regularBonusColor = new Rectangle(UserInterface.getBlockSize() * 1.5, UserInterface.getBlockSize() * 1.5, BonusHandler.getRegularBonusColor());
         regularBonusColor.setStroke(Color.BLACK);
         regularBonusColor.setEffect(new Lighting());
-        Rectangle makeShortBonusColor = new Rectangle(UserInterface.getBlockSize() * 1.5, UserInterface.getBlockSize() * 1.5, BonusHandler.makeShortBonusColor);
+        Rectangle makeShortBonusColor = new Rectangle(UserInterface.getBlockSize() * 1.5, UserInterface.getBlockSize() * 1.5, BonusHandler.getMakeShortBonusColor());
         makeShortBonusColor.setStroke(Color.BLACK);
         makeShortBonusColor.setEffect(new Lighting());
-        Rectangle addDeathBlockBonusColor = new Rectangle(UserInterface.getBlockSize() * 1.5, UserInterface.getBlockSize() * 1.5, BonusHandler.addDeathBlockBonusColor);
+        Rectangle addDeathBlockBonusColor = new Rectangle(UserInterface.getBlockSize() * 1.5, UserInterface.getBlockSize() * 1.5, BonusHandler.getAddDeathBlockBonusColor());
         addDeathBlockBonusColor.setStroke(Color.BLACK);
         addDeathBlockBonusColor.setEffect(new Lighting());
         
@@ -109,15 +97,19 @@ public class RightPane {
         //Clear the scores for every new game.
         scorePane.getChildren().clear();
         
-        //Add some space
-        scorePane.setPadding(new Insets(UserInterface.getStandardPadding()));
+        scorePane.setSpacing(UserInterface.getStandardPadding());
+        scorePane.setPadding(new Insets(2 * UserInterface.getStandardPadding()));
         //Create, add the header nad apply efects.
         Text scoreHeader = new Text("Scores");
-        scorePane.getChildren().add(scoreHeader);
-        scoreHeader.setFont(Font.font(UserInterface.getPlayerScoreSize()));
+        HBox scoreHeaderPane = new HBox(scoreHeader);
+        scoreHeaderPane.setAlignment(Pos.CENTER);
+        scorePane.getChildren().add(scoreHeaderPane);
+        scoreHeader.setFont(Font.font(1.5 * UserInterface.getPlayerScoreSize()));
         scoreHeader.setFill(GameGrid.GAMEGRID_COLOR);
         scoreHeader.setUnderline(true);
         scoreHeader.setEffect(scoreEffect.getEffect(GameGrid.GAMEGRID_COLOR));
+        scoreHeaderPane.setPadding(new Insets(0, 0, 2 * UserInterface.getStandardPadding(), 0));
+        
     }
     /**
      * Makes the score board only show scores for relevant players.

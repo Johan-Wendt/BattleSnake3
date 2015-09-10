@@ -1,4 +1,19 @@
-
+/*
+ * Copyright (C) 2015 johanwendt
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package battlesnake;
 
 /**
@@ -10,7 +25,7 @@ import java.util.Stack;
 import javafx.scene.input.KeyCode;
 
 /**
- *Every player in the game is an instance of this class. This class hold information
+ *Creates a player. Every player in the game is an instance of this class. This class hold information
  * about player direction, speed, length, score and so on.
  */
 public final class Player {
@@ -22,8 +37,6 @@ public final class Player {
     private Stack<BuildingBlock> eraseBody = new Stack<>();
     private static BonusHandler events;
     private final int startDirection;
-    private static int numberOfPlayers = 0;
-    private int playerNumber;
     private final String name;
     
     //Regular fields
@@ -55,7 +68,6 @@ public final class Player {
         this.events = bonusHandler;
         this.controls = controls;
         turn = -200;
-        playerNumber = GameEngine.MAX_NUMBER_OF_PLAYERS + 1 - numberOfPlayers;
         createPlayer(); 
     }
     /**
@@ -154,7 +166,6 @@ public final class Player {
         isAlive = alive;
     }
 
-    
     /**
      * Method that helps teleporting the player from one side of the screen, if no death blocks are in the way
      * to the other.
@@ -261,7 +272,6 @@ public final class Player {
         }
         return isFound;
     }
-    
     /**
      * Boolean property to check if the player is still alive.
      * @return true if the player is alive.
@@ -302,11 +312,5 @@ public final class Player {
      */
     public void addToScore(int addToScore) {
         score += addToScore;
-    }
-    public int getPlayerNumber() {
-        return playerNumber;
-    }
-    public static void resetNumberOfPlayers() {
-        numberOfPlayers = 0;
     }
 }

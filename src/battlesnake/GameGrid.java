@@ -4,7 +4,6 @@ package battlesnake;
 /**
  * @author johanwendt
  */
-import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import java.util.ArrayList;
 import java.util.Random;
@@ -14,11 +13,7 @@ import java.util.Random;
  * make the field smaller and smaller.
  */
 public class GameGrid {
-    //Fields
-    
     private static double screenHeight;
-    
-    //Static finals
     private static int blockSize;
     private static int gridSize;
     private static int playerStartpoint;
@@ -27,21 +22,18 @@ public class GameGrid {
     public static final Color GAMEGRID_COLOR = Color.web("#0000FF");
     public static final Color SAFE_ZONE_COLOR = Color.web("#4D4DFF");
     
-    //Final fields
     private static final int DEATH_SLOWNESS = GameEngine.PLAYER_START_SLOWNESS;
-    //private static final int DEATH_SLOWNESS = 1;
     private final ArrayList<BuildingBlock> gridList = new ArrayList<>();
     
     //This block is returned from the grid if it gets asked about a grid id that it cannot
-        //find. This is used for making the player move from one side to another on the 
-        //field if no death blocks are in the way.
+    //find. This is used for making the player move from one side to another on the 
+    //field if no death blocks are in the way.
     private final static BuildingBlock outsideBlock = new BuildingBlock(-1, Color.BLACK);
     
     //This value is used for the blocks that make tha field smaller and smaller.
     //For convinience this gridsize is normalized to number of blocks.
     private int currentGridSize;
     
-    //Regular fields
     private int deathCounter = 0;
     private int deathLocation = 0;
     private int deathDirection = GameEngine.RIGHT;
@@ -50,7 +42,6 @@ public class GameGrid {
 
     /**
      * Constructor for the main game field grid. It creates the field from BuildingBlocks.
-     * @param pane The pane where the field should be built.
      */
     public GameGrid() {
         blockSize = UserInterface.getBlockSize();
@@ -69,7 +60,6 @@ public class GameGrid {
                 gridList.add(block);
             }
         }
-        
         getBlock(playerStartpoint).setDeathBlockIrreveritble(); 
     }
     /**
@@ -87,7 +77,6 @@ public class GameGrid {
         //Slow down the building progress to match the initial speed of players.
         if(isDeathRunning) {
             if(deathPause % (DEATH_SLOWNESS) == 0) {
-
                 if(deathCounter < currentGridSize -1) {
                     getBlock(deathLocation).setDeathBlockIrreveritble();
                     deathReturn = deathLocation;
@@ -104,13 +93,28 @@ public class GameGrid {
     }
     //Checks if the end of the grid has been reached redirects the deathbuilder.
     private void changeDeathDirection() {
-        switch(deathDirection) {
-            case GameEngine.RIGHT: deathDirection = GameEngine.DOWN; deathCounter = 0; if(deathPause / (DEATH_SLOWNESS)> gridSize / blockSize) currentGridSize --; break;
-            case GameEngine.DOWN: deathDirection = GameEngine.LEFT; deathCounter = 0; break;
-            case GameEngine.LEFT: deathDirection = GameEngine.UP; deathCounter = 0; currentGridSize --; break;          
-            case GameEngine.UP: deathDirection = GameEngine.RIGHT; deathCounter = 0; break;
+        switch (deathDirection) {
+            case GameEngine.RIGHT:
+                deathDirection = GameEngine.DOWN;
+                deathCounter = 0;
+                if (deathPause / (DEATH_SLOWNESS) > gridSize / blockSize) {
+                    currentGridSize--;
+                }
+                break;
+            case GameEngine.DOWN:
+                deathDirection = GameEngine.LEFT;
+                deathCounter = 0;
+                break;
+            case GameEngine.LEFT:
+                deathDirection = GameEngine.UP;
+                deathCounter = 0;
+                currentGridSize--;
+                break;
+            case GameEngine.UP:
+                deathDirection = GameEngine.RIGHT;
+                deathCounter = 0;
+                break;
         }
-        
     }
     /**
      * Returns true if the death builder is still running and false if not.

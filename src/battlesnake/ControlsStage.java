@@ -1,28 +1,40 @@
-/**
- * @author johanwendt
+/*
+ * Copyright (C) 2015 johanwendt
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package battlesnake;
 
 import java.util.HashMap;
+import javafx.geometry.HPos;
 import javafx.geometry.Insets;
-import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
-import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Priority;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 /**
- *
+ *Creates the stage where the player can set the controls.
  * @author johanwendt
  */
-public class ControlsStage {
+public class ControlsStage extends PopUp{
     private static final GridPane controlsPane = new GridPane();
-    private static Scene controlsScene;
-    private static Stage controlsStage;
     
     private static final HashMap<Integer, TextField> playerOneControls = new HashMap<>();
     private static final HashMap<Integer, TextField> playerTwoControls = new HashMap<>();
@@ -30,24 +42,13 @@ public class ControlsStage {
     private static final HashMap<Integer, TextField> playerFourControls = new HashMap<>();
     private static TextField pauseKeyField = new TextField();
     
-    public ControlsStage() {
-        setUpControlsScreen();
+    public ControlsStage(String title, String okMessage) {
+        super(title, okMessage, PopUp.STANDARD_PANE_WIDTH);
         setUpInitialControlsInfo();
         setUpInfoTexts();
         makeControlsEditable();
         createButtons();
-
-        controlsScene = new Scene(controlsPane, 600, 300);
-        controlsStage.setScene(controlsScene);
-        controlsStage.setTitle("Set player controls");
-    }
-    private void setUpControlsScreen() {
-        controlsStage = new Stage();
-        controlsStage.setAlwaysOnTop(true);
-        controlsStage.setMaxWidth(500);
-        controlsStage.setMaxHeight(230);
-        controlsStage.initOwner(UserInterface.getBattleStage());
-        controlsStage.setResizable(false);
+        addExtraPane(controlsPane);
     }
     private void setUpInitialControlsInfo() {
         
@@ -73,41 +74,59 @@ public class ControlsStage {
     }
  
     private void setUpInfoTexts() {
-        
+        int fontSize = 20;
         controlsPane.setPadding(new Insets(20));
-        
+        controlsPane.setVgap(3);
+        controlsPane.setHgap(3);
         //Set up info texts
-        Text player1 = new Text("Player 1 ");
-        Text player2 = new Text("Player 2 ");
-        Text player3 = new Text("Player 3 ");
-        Text player4 = new Text("Player 4 ");
-        Text pauseKey = new Text("Pause key");
+        Text player1 = new Text(PlayerEnum.PLAYER_ONE.getName() + " ");
+        Text player2 = new Text(PlayerEnum.PLAYER_TWO.getName() + " ");
+        Text player3 = new Text(PlayerEnum.PLAYER_THREE.getName() + " ");
+        Text player4 = new Text(PlayerEnum.PLAYER_FOUR.getName() + " ");
+        Text pauseKey = new Text("Pause ");
         
-        Text space = new Text("");
+        //ColumnConstraints rightAlign = new ColumnConstraints(150, 150, 150, Priority.NEVER, HPos.RIGHT, true);
+        //controlsPane.getColumnConstraints().add(0, rightAlign);
+        GridPane.setHalignment(player1, HPos.RIGHT);
+        GridPane.setHalignment(player2, HPos.RIGHT);
+        GridPane.setHalignment(player3, HPos.RIGHT);
+        GridPane.setHalignment(player4, HPos.RIGHT);
+        GridPane.setHalignment(pauseKey, HPos.RIGHT);
+        
+        //Text space = new Text("");
         Text Up = new Text("Up");
         Text Right = new Text("Right");
         Text Down = new Text("Down");
         Text Left = new Text("Left");
         
-        player1.setFont(Font.font(15));
-        player2.setFont(Font.font(15));
-        player3.setFont(Font.font(15));
-        player4.setFont(Font.font(15));
-        pauseKey.setFont(Font.font(15));
-        Up.setFont(Font.font(15));
-        Right.setFont(Font.font(15));
-        Down.setFont(Font.font(15));
-        Left.setFont(Font.font(15));
+        player1.setFont(Font.font(fontSize));
+        player2.setFont(Font.font(fontSize));
+        player3.setFont(Font.font(fontSize));
+        player4.setFont(Font.font(fontSize));
+        pauseKey.setFont(Font.font(fontSize));
+        player1.setFill(PlayerEnum.PLAYER_ONE.getColor());
+        player2.setFill(PlayerEnum.PLAYER_TWO.getColor());
+        player3.setFill(PlayerEnum.PLAYER_THREE.getColor());
+        player4.setFill(PlayerEnum.PLAYER_FOUR.getColor());
+        
+        Up.setFont(Font.font(fontSize));
+        Right.setFont(Font.font(fontSize));
+        Down.setFont(Font.font(fontSize));
+        Left.setFont(Font.font(fontSize));
   
-        controlsPane.addRow(0, space, Up, Right, Down, Left);
+        controlsPane.addRow(0,new Text(""), Up, Right, Down, Left);
+       // controlsPane.addColumn(0, new Text(""), new Text(""),new Text(""), new Text(""), new Text(""));
+        controlsPane.addColumn(0, player1, player2, player3, player4, pauseKey);
+        
         
         //Add input text fields for editing the controls and display current controls.
-        
+        /*
         controlsPane.add(player1, 0, 1);
         controlsPane.add(player2, 0, 2);
         controlsPane.add(player3, 0, 3);
         controlsPane.add(player4, 0, 4);
         controlsPane.add(pauseKey, 0, 5);
+        */
         
         controlsPane.add(playerOneControls.get(GameEngine.UP), 1, 1);
         controlsPane.add(playerOneControls.get(GameEngine.RIGHT), 2, 1);
@@ -151,119 +170,93 @@ public class ControlsStage {
         
         //Update player controls when pressing a button in the grid.
         playerOneControls.get(GameEngine.UP).setOnKeyPressed(e ->  {
-            GameEngine.setControlKey("Player 1", GameEngine.UP, e.getCode());
+            GameEngine.setControlKey(PlayerEnum.PLAYER_ONE.getName(), GameEngine.UP, e.getCode());
             playerOneControls.get(GameEngine.RIGHT).requestFocus();
         });
         playerOneControls.get(GameEngine.RIGHT).setOnKeyPressed(e ->  {
-            GameEngine.setControlKey("Player 1", GameEngine.RIGHT, e.getCode());
+            GameEngine.setControlKey(PlayerEnum.PLAYER_ONE.getName(), GameEngine.RIGHT, e.getCode());
             playerOneControls.get(GameEngine.DOWN).requestFocus();
         });
         playerOneControls.get(GameEngine.DOWN).setOnKeyPressed(e ->  {
-            GameEngine.setControlKey("Player 1", GameEngine.DOWN, e.getCode());
+            GameEngine.setControlKey(PlayerEnum.PLAYER_ONE.getName(), GameEngine.DOWN, e.getCode());
             playerOneControls.get(GameEngine.LEFT).requestFocus();
         });
         playerOneControls.get(GameEngine.LEFT).setOnKeyPressed(e ->  {
-            GameEngine.setControlKey("Player 1", GameEngine.LEFT, e.getCode());
+            GameEngine.setControlKey(PlayerEnum.PLAYER_ONE.getName(), GameEngine.LEFT, e.getCode());
             playerTwoControls.get(GameEngine.UP).requestFocus();
         });
         
         playerTwoControls.get(GameEngine.UP).setOnKeyPressed(e ->  {
-            GameEngine.setControlKey("Player 2", GameEngine.UP, e.getCode());
+            GameEngine.setControlKey(PlayerEnum.PLAYER_TWO.getName(), GameEngine.UP, e.getCode());
             playerTwoControls.get(GameEngine.RIGHT).requestFocus();
         });
         playerTwoControls.get(GameEngine.RIGHT).setOnKeyPressed(e ->  {
-            GameEngine.setControlKey("Player 2", GameEngine.RIGHT, e.getCode());
+            GameEngine.setControlKey(PlayerEnum.PLAYER_TWO.getName(), GameEngine.RIGHT, e.getCode());
             playerTwoControls.get(GameEngine.DOWN).requestFocus();
         });
         playerTwoControls.get(GameEngine.DOWN).setOnKeyPressed(e ->  {
-            GameEngine.setControlKey("Player 2", GameEngine.DOWN, e.getCode());
+            GameEngine.setControlKey(PlayerEnum.PLAYER_TWO.getName(), GameEngine.DOWN, e.getCode());
             playerTwoControls.get(GameEngine.LEFT).requestFocus();
         });
         playerTwoControls.get(GameEngine.LEFT).setOnKeyPressed(e ->  {
-            GameEngine.setControlKey("Player 2", GameEngine.LEFT, e.getCode());
+            GameEngine.setControlKey(PlayerEnum.PLAYER_TWO.getName(), GameEngine.LEFT, e.getCode());
             playerThreeControls.get(GameEngine.UP).requestFocus();
         });
         
         playerThreeControls.get(GameEngine.UP).setOnKeyPressed(e ->  {
-            GameEngine.setControlKey("Player 3", GameEngine.UP, e.getCode());
+            GameEngine.setControlKey(PlayerEnum.PLAYER_THREE.getName(), GameEngine.UP, e.getCode());
             playerThreeControls.get(GameEngine.RIGHT).requestFocus();
         });
         playerThreeControls.get(GameEngine.RIGHT).setOnKeyPressed(e ->  {
-            GameEngine.setControlKey("Player 3", GameEngine.RIGHT, e.getCode());
+            GameEngine.setControlKey(PlayerEnum.PLAYER_THREE.getName(), GameEngine.RIGHT, e.getCode());
             playerThreeControls.get(GameEngine.DOWN).requestFocus();
         });
         playerThreeControls.get(GameEngine.DOWN).setOnKeyPressed(e ->  {
-            GameEngine.setControlKey("Player 3", GameEngine.DOWN, e.getCode());
+            GameEngine.setControlKey(PlayerEnum.PLAYER_THREE.getName(), GameEngine.DOWN, e.getCode());
             playerThreeControls.get(GameEngine.LEFT).requestFocus();
         });
         playerThreeControls.get(GameEngine.LEFT).setOnKeyPressed(e ->  {
-            GameEngine.setControlKey("Player 3", GameEngine.LEFT, e.getCode());
+            GameEngine.setControlKey(PlayerEnum.PLAYER_THREE.getName(), GameEngine.LEFT, e.getCode());
             playerFourControls.get(GameEngine.UP).requestFocus();
         });
         
         playerFourControls.get(GameEngine.UP).setOnKeyPressed(e ->  {
-            GameEngine.setControlKey("Player 4", GameEngine.UP, e.getCode());
+            GameEngine.setControlKey(PlayerEnum.PLAYER_FOUR.getName(), GameEngine.UP, e.getCode());
             playerFourControls.get(GameEngine.RIGHT).requestFocus();
         });
         playerFourControls.get(GameEngine.RIGHT).setOnKeyPressed(e ->  {
-            GameEngine.setControlKey("Player 4", GameEngine.RIGHT, e.getCode());
+            GameEngine.setControlKey(PlayerEnum.PLAYER_FOUR.getName(), GameEngine.RIGHT, e.getCode());
             playerFourControls.get(GameEngine.DOWN).requestFocus();
         });
         playerFourControls.get(GameEngine.DOWN).setOnKeyPressed(e ->  {
-            GameEngine.setControlKey("Player 4", GameEngine.DOWN, e.getCode());
+            GameEngine.setControlKey(PlayerEnum.PLAYER_FOUR.getName(), GameEngine.DOWN, e.getCode());
             playerFourControls.get(GameEngine.LEFT).requestFocus();
         });
         playerFourControls.get(GameEngine.LEFT).setOnKeyPressed(e ->  {
-            GameEngine.setControlKey("Player 4", GameEngine.LEFT, e.getCode());
+            GameEngine.setControlKey(PlayerEnum.PLAYER_FOUR.getName(), GameEngine.LEFT, e.getCode());
             pauseKeyField.requestFocus();
         });
         pauseKeyField.setOnKeyPressed(e -> {
             if(e.getCode().equals(KeyCode.ENTER) || e.getCode().equals(KeyCode.ESCAPE)) {
-                GameEngine.setPaused(false);
-                controlsStage.hide();
+                showPopUp(false);
             }
             else {
             GameEngine.setPauseKey(e.getCode());
             }
         });
     }
-
     private void createButtons() {
-        //Setup confirmation button.
-        Button backButton = new Button("Back to the battlin'");
-        backButton.setPrefWidth(200);
-        backButton.setStyle("-fx-font: 15 arial; -fx-base: #009933;");
-        backButton.setOnAction(e -> {
-            GameEngine.setPaused(false);
-            controlsStage.hide();
-        });
-        
         //Setup button for using default keys.
         Button deafultButton = new Button("Use default keys");
-        deafultButton.setPrefWidth(200);
-        deafultButton.setStyle("-fx-font: 15 arial; -fx-base: #FF00FF;");
+        addExtraButton(deafultButton, deafultButton.getText().length());
         deafultButton.setOnAction(e -> {
             GameEngine.setUpDefaultControlKeys();
         });
-        
-        //Add empty row,for spacing in the grid, and button.
-        Text emptyRow = new Text("");
-        
-        controlsPane.add(emptyRow, 2, 5);
-        controlsPane.add(deafultButton, 0, 6, 2, 1);
-        controlsPane.add(backButton, 3, 6, 2, 1);
-
-        //Make enter and escape return the user to the game. N.B escape 
-        //does not reset keys to the state before the stage was brought up..
-        controlsPane.setOnKeyPressed(e -> {
-            if(e.getCode().equals(KeyCode.ENTER)) {
-                GameEngine.setPaused(false);
-                controlsStage.hide();    
-            }
-            if(e.getCode().equals(KeyCode.ESCAPE)) {
-                GameEngine.setPaused(false);
-                controlsStage.hide();
-            }
+    }
+    @Override
+    protected void setOnActions() {
+        getOkButton().setOnAction(e -> {
+            showPopUp(false);
         });
     }
     /**
@@ -273,25 +266,20 @@ public class ControlsStage {
      * @param key key used to turn in the given direction
      */
     public static void updateControlText(String playerName, Integer direction, String key) {
-        if(playerName.equals("Player 1")) {
+        if(playerName.equals(PlayerEnum.PLAYER_ONE.getName())) {
             playerOneControls.get(direction).setText(key);
         }
-        if(playerName.equals("Player 2")) {
+        if(playerName.equals(PlayerEnum.PLAYER_TWO.getName())) {
             playerTwoControls.get(direction).setText(key);
         }
-        if(playerName.equals("Player 3")) {
+        if(playerName.equals(PlayerEnum.PLAYER_THREE.getName())) {
             playerThreeControls.get(direction).setText(key);
         }
-        if(playerName.equals("Player 4")) {
+        if(playerName.equals(PlayerEnum.PLAYER_FOUR.getName())) {
             playerFourControls.get(direction).setText(key);
         }
     }
     public static void updatePausedKeyText(String key) {
         pauseKeyField.setText(key);
     }
-    public static void showStage(boolean show) {
-        if(show) controlsStage.show();
-        else controlsStage.hide();
-    }
-    
 }

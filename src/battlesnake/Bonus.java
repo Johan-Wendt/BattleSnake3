@@ -7,11 +7,9 @@ import javafx.scene.paint.Color;
  * @author johanwendt
  */
 public abstract class Bonus {
-    //Final fields.
-    private final double lefespan;
+    private final double lifespan;
     private final int bonusHappening;
     private final BuildingBlock bonusBlock;
-    //Regular fields.
     private double startTime;
     private boolean isToRemove = false;
     private boolean isTaken = false;
@@ -25,7 +23,7 @@ public abstract class Bonus {
      * @param bonusHappening Int describing what happens when the bonus is taken.
      */
     public Bonus(BuildingBlock bonusBlock, Color bonusColor, int lifespan, int bonusHappening) {
-        this.lefespan = lifespan;
+        this.lifespan = lifespan;
         this.bonusBlock = bonusBlock;
         this.bonusHappening = bonusHappening;
         if(this.bonusBlock.getBlockColor().equals(GameGrid.GAMEGRID_COLOR)) {
@@ -45,7 +43,7 @@ public abstract class Bonus {
      * @return If the bonus is to be removed.
      */
     public boolean checkRemove() {
-        if(System.currentTimeMillis() - startTime > lefespan) {
+        if(System.currentTimeMillis() - startTime > lifespan) {
             isToRemove = true;
             bonusBlock.removeEffect();
             if(!isTaken) bonusBlock.revertDeathBlock(false);
@@ -77,7 +75,6 @@ public abstract class Bonus {
     /**
      * Method to be overridden by those bonuses that need to be executed 
      * on the GameGrid.
-     * @param gameGrid 
      */
     public void executeBonus() {
     }

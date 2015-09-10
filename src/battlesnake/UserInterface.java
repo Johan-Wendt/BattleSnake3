@@ -1,3 +1,19 @@
+/*
+ * Copyright (C) 2015 johanwendt
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package battlesnake;
 
 /**
@@ -37,34 +53,29 @@ public class UserInterface {
 
     public static final Pane gameGridPane = new Pane();
     
-    private static final double screenHeight = Screen.getPrimary().getVisualBounds().getHeight() - 23;
+    private static final double menuBarSize = 23;
+    private static final double screenHeight = Screen.getPrimary().getVisualBounds().getHeight() - menuBarSize;
     private static final double screenWidth = Screen.getPrimary().getVisualBounds().getWidth();
     private static int gridSize;
     private static int blockSize;
     private static double standardPadding;
     private static double borderWidth; 
-    private static double menuBarSize;
    
     private static double playerScoreSize;
         
-    
-    
-    //Regular fields
-
     /**
      * Creates the grafical interface.
      * @param gameEngine The GameEngine that runs the game.
      */
     public UserInterface () {        
-        menuBarSize = 23;
         borderWidth = screenHeight / 200.0;
         blockSize = (int) ((screenHeight - (screenHeight * 0.06)) / GameEngine.BRICKS_PER_ROW);
         gridSize = blockSize * GameEngine.BRICKS_PER_ROW;
         standardPadding = (screenHeight - gridSize - menuBarSize) / 2;
-        playerScoreSize = 1.4 * screenHeight / standardPadding;
+        playerScoreSize = 0.9 * screenHeight / standardPadding;
         setUpMainScreen();
-        aboutStage = new AboutStage("About Battle Snake", getInfoAboutStage(), "I get it, let's play some more.");
-        controlsStage = new ControlsStage();
+        aboutStage = new AboutStage("About Battle Snake", getInfoAboutStage(), "I get it, let's play some more.", 400);
+        controlsStage = new ControlsStage("Set player controls", "Back to the battlin'");
         rightPane = new RightPane();
         firstStage = new FirstStage("Start New Game", getInfoFirstStage(), " LET'S DO THIS! ", "  Cancel  ");
         quitStage = new QuitStage("Quit?!", getInfoQuitStage(), "Just leave me alone!", "Hell no!");
@@ -89,8 +100,6 @@ public class UserInterface {
      */
     private void setUpMainScreen() {
         mainScene = new Scene(mainPane, screenWidth, screenHeight);
-        
-        //Adjust the GUI.
         gameGridPane.setPrefSize(gridSize, gridSize);
         mainPane.setCenter(RightPane.getPane());
         mainPane.setLeft(gameGridPane);
@@ -122,46 +131,42 @@ public class UserInterface {
         
     private void buildMenuSystem() {
         menu = new Menu("Battle Snake");
-        menu.setId("menu");
         MenuItem underMenu1 = new MenuItem("Set up game");
         MenuItem underMenu2 = new MenuItem("About");
         MenuItem underMenu3 = new MenuItem("Controls");
         MenuItem underMenu4 = new MenuItem("Quit");
         menu.getItems().addAll(underMenu1, underMenu2, underMenu3, underMenu4);
         menuBar = new MenuBar();
+        menuBar.setPrefHeight(menuBarSize);
         menuBar.getMenus().add(menu);
         menuBar.setPadding(new Insets(0, 0, 0, standardPadding));
         mainPane.setTop(menuBar);
         
         menu.setOnShowing(s -> {
-            GameEngine.setPaused(true);
-          
+            GameEngine.popUpOpened();          
         });
         menu.setOnHiding(h -> {
-                GameEngine.setPaused(false);
+            GameEngine.popUpClosed();
         });
 
         //Set Shortcuts for menus.
         underMenu1.setAccelerator(KeyCombination.keyCombination("CTRL + S"));
         underMenu1.setOnAction(a -> {
-            GameEngine.setPaused(true);
             firstStage.showPopUp(true);
         });
         
         underMenu2.setAccelerator(KeyCombination.keyCombination("CTRL + A"));
         underMenu2.setOnAction(a -> {
-            GameEngine.setPaused(true);
-            aboutStage.showPopUp(true);
+            aboutStage.showPopUp(true
+            );
         });
         
         underMenu3.setAccelerator(KeyCombination.keyCombination("CTRL + C"));
         underMenu3.setOnAction(a -> {
-            GameEngine.setPaused(true);
-            ControlsStage.showStage(true);
+            controlsStage.showPopUp(true);
         });
         underMenu4.setAccelerator(KeyCombination.keyCombination("CTRL + Q"));
         underMenu4.setOnAction(a -> {
-            GameEngine.setPaused(true);
             quitStage.showPopUp(true);
         }); 
     }
@@ -170,10 +175,6 @@ public class UserInterface {
     }
     public void restartGameEngine() {
         GameEngine.restart();
-    }
-    public void setPauseGameEngine(boolean pause) {
-        if(pause) GameEngine.setPaused(true);
-        else GameEngine.setPaused(false);
     }
     public static void setDisableMenuBar(boolean disabled) {
         if(disabled) menuBar.setDisable(true);
@@ -194,15 +195,15 @@ public class UserInterface {
     private String getInfoFirstStage() {
         return "Battle against your friends. Collect bonuses for points, and lose "
         + "them when you die. When the field is reduced to the core, "
-        + "the eliminationbegins as snakes with negative scores are terminated." 
-        + "\nLast snake standing wins!";
+        + "the elimination begins as snakes with negative scores are terminated." 
+        + " Last snake crawling wins!";
     }
     private String getInfoQuitStage() {
         return "Really quit being a snake and return to your boring life"
                 + " as a corporate drone??";
     }
     private String getInfoAboutStage() {
-        return "Created by Johan Wendt. \n" 
+        return " \nCreated by Johan Wendt. \n" 
         + "\n"
         + "johan.wendt1981@gmail.com \n"
         + "\n"
