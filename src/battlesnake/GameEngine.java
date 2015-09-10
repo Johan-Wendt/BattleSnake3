@@ -1,4 +1,19 @@
-
+/*
+ * Copyright (C) 2015 johanwendt
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package battlesnake;
 
 import java.util.ArrayList;
@@ -6,15 +21,12 @@ import java.util.HashMap;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.scene.input.KeyCode;
-import javafx.scene.layout.Pane;
-import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 /**
- *
+ *This class is the master class. It drives the game via a loop.
  * @author johanwendt
  */
 public class GameEngine extends Application {
-    //Static finals
     //To be able to give every block in the field grid a unique id every 
     //block in y-direction adds 1 to the id while every block in 
     //x-direction adds 1000 (MULIPLIER_X).
@@ -23,17 +35,6 @@ public class GameEngine extends Application {
     public static final int LEFT = -MULIPLIER_X;
     public static final int DOWN = 1;
     public static final int UP = -1;
-
-    public static final int PLAYER_1_STARTDIRECTION = RIGHT;
-    public static final int PLAYER_2_STARTDIRECTION = LEFT;
-    public static final int PLAYER_3_STARTDIRECTION = UP;
-    public static final int PLAYER_4_STARTDIRECTION = DOWN;
-    
-    public static final String playerOneName = "Player 1";
-    public static final String playerTwoName = "Player 2";
-    public static final String playerThreeName = "Player 3";
-    public static final String playerFourName = "Player 4";
-    
     
     public static final int PLAYER_START_SLOWNESS = 25;
     public static final int PLAYER_DEATH_PENALTY = -2;
@@ -45,30 +46,25 @@ public class GameEngine extends Application {
     
     private static final boolean isRunning = true;
     
-    //Player fields
     private static final ArrayList<Player> players = new ArrayList<>();
     private static final HashMap<KeyCode, Integer> player1Controls = new HashMap<>();
     private static final HashMap<KeyCode, Integer> player2Controls = new HashMap<>();
     private static final HashMap<KeyCode, Integer> player3Controls = new HashMap<>();
     private static final HashMap<KeyCode, Integer> player4Controls = new HashMap<>();
     
-    private static final Color playerOneColor = Color.web("#B200B2");
-    private static final Color playerTwoColor = Color.web("#66FF33");
-    private static final Color playerThreeColor = Color.web("#E68A00");
-    private static final Color playerFourColor = Color.web("#00FFFF");
-    
     private static int gameSpeed = 3;
     private static Stage battleStage;
     
-    //Game fields
     private static boolean isPaused = true;
     private static int numberToPlay = 1;
     private Thread thread;
     private static BonusHandler bonusHandler;
     private static GameGrid gameGrid;
-    //private static UserInterface userInterface;
     private static KeyCode pauseKey = KeyCode.P;
     
+    private static boolean pauseButtonPressed = false;
+    private static int numberOfPopUpsOpen = 0;
+        
     public void NewGameEngine() {
     }
     @Override
@@ -87,7 +83,7 @@ public class GameEngine extends Application {
 
             @Override
             public void run() {
-                thread.setPriority(Thread.MAX_PRIORITY);
+                //thread.setPriority(Thread.MAX_PRIORITY);
                 try {
                     while (isRunning) {
                         if(!isPaused) {
@@ -104,7 +100,6 @@ public class GameEngine extends Application {
                         if((gameGrid.isDeathRunning() == false && getNumberOfAlivePlayers() < 2 && !isPaused) || getNumberOfAlivePlayers() < 1 && !isPaused) {
                             Platform.runLater(() -> {
                                 gameOver();
-                                setPaused(true);
                             });
                         }
                         Thread.sleep(gameSpeed);
@@ -144,7 +139,6 @@ public class GameEngine extends Application {
      * Unpauses the game and sets all players in status alive so they start moving.
      */
     public static void begin() {
-        setPaused(false);
         for(Player player: players) {
             player.setAlive(true);
         }
@@ -156,7 +150,6 @@ public class GameEngine extends Application {
     public static void restart() {
         gameGrid = new GameGrid();
         players.clear();
-        Player.resetNumberOfPlayers();
         createPlayers ();
         UserInterface.restart();   
         begin(); 
@@ -185,18 +178,32 @@ public class GameEngine extends Application {
      * Pauses the game. Used for when menus are up.
      * @param pause
      */
-    public static void setPaused(boolean pause) {
-        isPaused = pause;
+    public static void popUpOpened() {
+        numberOfPopUpsOpen ++;
+        checkStartOrPauseGame();
+        
     }
-    public static boolean isPaused() {
-        return isPaused;
+    public static void popUpClosed() {
+        numberOfPopUpsOpen --;
+        checkStartOrPauseGame();
     }
     public static void pauseUnpause() {
-        if(isPaused) {
-            setPaused(false);
+        if(pauseButtonPressed) {
+            pauseButtonPressed = false;
         }
         else {
-            setPaused(true);
+            pauseButtonPressed = true;
+        }
+        checkStartOrPauseGame();
+    }
+    public static void checkStartOrPauseGame() {
+        //System.out.println(pauseButtonPressed);
+        
+        if (!pauseButtonPressed && numberOfPopUpsOpen == 0) {
+            isPaused = false;
+        }
+        else {
+            isPaused = true;
         }
     }
     public static void setNumberOfPlayers(int toPlay) {
@@ -251,10 +258,10 @@ public class GameEngine extends Application {
      */
     private static void createPlayers () {
         switch(numberToPlay) {
-            case 4: players.add(0, new Player(playerFourName, PLAYER_4_STARTDIRECTION, playerFourColor, bonusHandler, player4Controls));
-            case 3: players.add(0, new Player(playerThreeName, PLAYER_3_STARTDIRECTION, playerThreeColor, bonusHandler, player3Controls));
-            case 2: players.add(0, new Player(playerTwoName, PLAYER_2_STARTDIRECTION, playerTwoColor, bonusHandler, player2Controls));
-            case 1: players.add(0, new Player(playerOneName, PLAYER_1_STARTDIRECTION, playerOneColor, bonusHandler, player1Controls));
+            case 4: players.add(0, new Player(PlayerEnum.PLAYER_FOUR.getName(), PlayerEnum.PLAYER_FOUR.getStartDirection(), PlayerEnum.PLAYER_FOUR.getColor(), bonusHandler, player4Controls));
+            case 3: players.add(0, new Player(PlayerEnum.PLAYER_THREE.getName(), PlayerEnum.PLAYER_THREE.getStartDirection(), PlayerEnum.PLAYER_THREE.getColor(), bonusHandler, player3Controls));
+            case 2: players.add(0, new Player(PlayerEnum.PLAYER_TWO.getName(), PlayerEnum.PLAYER_TWO.getStartDirection(), PlayerEnum.PLAYER_TWO.getColor(), bonusHandler, player2Controls));
+            case 1: players.add(0, new Player(PlayerEnum.PLAYER_ONE.getName(), PlayerEnum.PLAYER_ONE.getStartDirection(), PlayerEnum.PLAYER_ONE.getColor(), bonusHandler, player1Controls));
         } 
     }
     /**
@@ -265,22 +272,22 @@ public class GameEngine extends Application {
      * @param newKey The key used for turning the player in the given direction.
      */
     public static void setControlKey(String playerName, int direction, KeyCode newKey) {
-        if(playerName.equals("Player 1")) {
+        if(playerName.equals(PlayerEnum.PLAYER_ONE.getName())) {
             removeDuplicateKeys(player1Controls, direction);
             player1Controls.put(newKey, direction);
             ControlsStage.updateControlText(playerName, direction, newKey.toString());
         }
-        if(playerName.equals("Player 2")) {
+        if(playerName.equals(PlayerEnum.PLAYER_TWO.getName())) {
             removeDuplicateKeys(player2Controls, direction);
             player2Controls.put(newKey, direction);
             ControlsStage.updateControlText(playerName, direction, newKey.toString());
         }
-        if(playerName.equals("Player 3")) {
+        if(playerName.equals(PlayerEnum.PLAYER_THREE.getName())) {
             removeDuplicateKeys(player3Controls, direction);
             player3Controls.put(newKey, direction);
             ControlsStage.updateControlText(playerName, direction, newKey.toString());
         }
-        if(playerName.equals("Player 4")) {
+        if(playerName.equals(PlayerEnum.PLAYER_FOUR.getName())) {
             removeDuplicateKeys(player4Controls, direction);
             player4Controls.put(newKey, direction);
             ControlsStage.updateControlText(playerName, direction, newKey.toString());
@@ -305,25 +312,25 @@ public class GameEngine extends Application {
      */
     
     public static void setUpDefaultControlKeys() {
-        setControlKey("Player 1", UP, KeyCode.UP);
-        setControlKey("Player 1", RIGHT, KeyCode.RIGHT);
-        setControlKey("Player 1", DOWN, KeyCode.DOWN);
-        setControlKey("Player 1", LEFT, KeyCode.LEFT);
+        setControlKey(PlayerEnum.PLAYER_ONE.getName(), UP, KeyCode.UP);
+        setControlKey(PlayerEnum.PLAYER_ONE.getName(), RIGHT, KeyCode.RIGHT);
+        setControlKey(PlayerEnum.PLAYER_ONE.getName(), DOWN, KeyCode.DOWN);
+        setControlKey(PlayerEnum.PLAYER_ONE.getName(), LEFT, KeyCode.LEFT);
         
-        setControlKey("Player 2", UP, KeyCode.W);
-        setControlKey("Player 2", RIGHT, KeyCode.D);
-        setControlKey("Player 2", DOWN, KeyCode.S);
-        setControlKey("Player 2", LEFT, KeyCode.A);
+        setControlKey(PlayerEnum.PLAYER_TWO.getName(), UP, KeyCode.W);
+        setControlKey(PlayerEnum.PLAYER_TWO.getName(), RIGHT, KeyCode.D);
+        setControlKey(PlayerEnum.PLAYER_TWO.getName(), DOWN, KeyCode.S);
+        setControlKey(PlayerEnum.PLAYER_TWO.getName(), LEFT, KeyCode.A);
         
-        setControlKey("Player 3", UP, KeyCode.T);
-        setControlKey("Player 3", RIGHT, KeyCode.H);
-        setControlKey("Player 3", DOWN, KeyCode.G);
-        setControlKey("Player 3", LEFT, KeyCode.F);
+        setControlKey(PlayerEnum.PLAYER_THREE.getName(), UP, KeyCode.T);
+        setControlKey(PlayerEnum.PLAYER_THREE.getName(), RIGHT, KeyCode.H);
+        setControlKey(PlayerEnum.PLAYER_THREE.getName(), DOWN, KeyCode.G);
+        setControlKey(PlayerEnum.PLAYER_THREE.getName(), LEFT, KeyCode.F);
         
-        setControlKey("Player 4", UP, KeyCode.I);
-        setControlKey("Player 4", RIGHT, KeyCode.L);
-        setControlKey("Player 4", DOWN, KeyCode.K);
-        setControlKey("Player 4", LEFT, KeyCode.J);
+        setControlKey(PlayerEnum.PLAYER_FOUR.getName(), UP, KeyCode.I);
+        setControlKey(PlayerEnum.PLAYER_FOUR.getName(), RIGHT, KeyCode.L);
+        setControlKey(PlayerEnum.PLAYER_FOUR.getName(), DOWN, KeyCode.K);
+        setControlKey(PlayerEnum.PLAYER_FOUR.getName(), LEFT, KeyCode.J);
         
         setPauseKey(pauseKey);
     }

@@ -16,16 +16,16 @@ import javafx.scene.input.KeyCode;
 public class QuitStage extends PopUp {
     
     public QuitStage(String title, String infoText, String okMessage, String cancelMessage) {
-        super(title, infoText, okMessage, cancelMessage);
-        setOnOkKeyBehaviour();
-        setBackgroundImage("noose.jpg");
+        super(title, infoText, okMessage, cancelMessage, PopUp.STANDARD_PANE_WIDTH);
+        setBackGround("noose.jpg", false);
+        getCancelButton().requestFocus();
     }
-    private void setOnOkKeyBehaviour() {
+    @Override
+    protected void setOnActions() {
         getOkButton().setOnAction(a -> {
             System.exit(0);
         });
         getCancelButton().setOnAction(a -> {
-            GameEngine.setPaused(false);
             showPopUp(false);
         });
 
@@ -41,7 +41,4 @@ public class QuitStage extends PopUp {
         picture.setFitHeight(150);
         addInfoPicture(picture);
     }
-    private void setBackgroundImage(String name) {
-        setBackGround(name);
-    } 
 }

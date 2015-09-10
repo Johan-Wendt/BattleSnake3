@@ -1,8 +1,4 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package battlesnake;
 
 import javafx.collections.FXCollections;
@@ -10,15 +6,9 @@ import javafx.collections.ObservableList;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.input.KeyCode;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
-import javafx.scene.text.Text;
-import javafx.stage.Stage;
 
 /**
- *
+ *This class creates the stage that lets the player initiate a new game.
  * @author johanwendt
  */
 public class FirstStage extends PopUp{
@@ -26,21 +16,15 @@ public class FirstStage extends PopUp{
     private static final Label winnerInfo = new Label();
     
     public FirstStage(String title, String infoText, String okMessage, String cancelMessage) {
-        super(title, infoText, okMessage, cancelMessage);
+        super(title, infoText, okMessage, cancelMessage, PopUp.STANDARD_PANE_WIDTH);
         
         getOkButton().setDisable(true);
         getCancelButton().setDisable(true);
         setUpWinnerInfo(null);
-        setUpButtons();
-        setOnActions();
+        addComboBox();
         setUpLowerPart();        
         showPopUp(true);
     }
-
-    private void setUpButtons() {
-        addComboBox();
-    }
-
     private void addComboBox() {
         ObservableList<String> options = FXCollections.observableArrayList("1 player", "2 players","3 players","4 players");
         chooseNumberOfPlayers.getItems().addAll(options);
@@ -51,9 +35,6 @@ public class FirstStage extends PopUp{
             GameEngine.setNumberOfPlayers(options.indexOf(chooseNumberOfPlayers.getValue()) + 1);
             getOkButton().setDisable(false);
         });
-        
-        //Enter has the same effekt as clicking the LET'S DO THIS!-button.
-        //Escape has the same effect as pressing the cancel-button.
         chooseNumberOfPlayers.setOnKeyPressed(e -> {
             if(e.getCode().equals(KeyCode.ENTER) && !chooseNumberOfPlayers.getValue().equals("Select number of players")) {
                 GameEngine.restart();
@@ -61,13 +42,13 @@ public class FirstStage extends PopUp{
                 getCancelButton().setDisable(false);
             }
             if(e.getCode().equals(KeyCode.ESCAPE) && !getCancelButton().isDisable()) {
-                GameEngine.setPaused(false);
                 showPopUp(false);
             }
         });
         addExtraButton(chooseNumberOfPlayers);
     }
-    private void setOnActions() {
+    @Override
+    protected void setOnActions() {
         getOkButton().setOnAction(e -> {
             GameEngine.restart();
             UserInterface.setDisableMenuBar(false);
@@ -76,7 +57,6 @@ public class FirstStage extends PopUp{
         });
 
         getCancelButton().setOnAction(e -> {
-            GameEngine.setPaused(false);
             showPopUp(false);
         });   
         
@@ -90,22 +70,22 @@ public class FirstStage extends PopUp{
             getExtraLabel().setStyle("-fx-text-fill: #000000; -fx-font-size: 30px;" );
         }
         else {
-            System.out.println(winner.getPlayerNumber());
-            switch(winner.getPlayerNumber()) {
-                case 1: 
+            switch(winner.getName()) {
+                case "Player 1": 
                     getExtraLabel().setStyle("-fx-text-fill: #B200B2; -fx-font-size: 30px;");
                     break;
-                case 2: 
+                case "Player 2": 
                     getExtraLabel().setStyle("-fx-text-fill: #66FF33; -fx-font-size: 30px;");
                     break;
-                case 3: 
+                case "Player 3": 
                     getExtraLabel().setStyle("-fx-text-fill: #E68A00; -fx-font-size: 30px;");
                     break;
-                case 4: 
+                case "Player 4": 
                     getExtraLabel().setStyle("-fx-text-fill: #00FFFF; -fx-font-size: 30px;");
                     break;
             }
             getExtraLabel().setText("The winner is " + winner.getName());
+                    
         }
     }
 }

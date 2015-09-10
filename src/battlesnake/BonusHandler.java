@@ -14,25 +14,22 @@ import java.util.Iterator;
  */
 public class BonusHandler {
     
-    //Static final fields
     public static final Color deathBlockColor = Color.BLACK;
     private static final int LIFESPAN_MIN = 2000;
     private static final int LIFESPAN_MAX = 10000;
     private static final double BONUS_PROBABILITY = 0.045;
     public static final int REGULAR_BONUS_HAPPENING = 0;
-    public static final Color regularBonusColor = Color.web("#FF0000");
+    private static final Color regularBonusColor = Color.web("#FF0000");
     public static final int REGULAR_BONUS_PROBABILTY_FACTOR = 10;
-    public static final String regularBonusDescription = "Makes the player longer and faster.";
+    private static final String regularBonusDescription = "Makes the player longer and faster.";
     public static final int MAKE_SHORT_BONUS_HAPPENING = 1;
-    public static final Color makeShortBonusColor = Color.web("#009933");
+    private static final Color makeShortBonusColor = Color.web("#009933");
     public static final int MAKE_SHORT_BONUS_PROBABILTY_FACTOR = 1;
-    public static final String makeShortDescription = "Makes the player short.";
+    private static final String makeShortDescription = "Makes the player short.";
     public static final int ADD_DEATH_BLOCK_BONUS_HAPPENING = 2;
-    public static final Color addDeathBlockBonusColor = Color.web("#FFFF00");
+    private static final Color addDeathBlockBonusColor = Color.web("#FFFF00");
     public static final int ADD_DEATH_BLOCK_BONUS_PROBABILTY_FACTOR = 8;
-    public static final String addDeathBlockBonusDescription = "Adds deathblocks to the field.";
-    
-    //final fields 
+    private static final String addDeathBlockBonusDescription = "Adds deathblocks to the field.";
     private final static ArrayList <Bonus> eventList = new ArrayList<>();    
     //Regular fields
     private Random random;
@@ -117,5 +114,23 @@ public class BonusHandler {
                 itr.remove();
             }
         }
+    }
+    public static Color getRegularBonusColor() {
+        return regularBonusColor;
+    }
+    public static String getRegularBonusDescription() {
+        return regularBonusDescription;
+    }
+    public static Color getMakeShortBonusColor() {
+        return makeShortBonusColor;
+    }
+    public static String getMakeShortDescription() {
+        return makeShortDescription;
+    }
+    public static Color getAddDeathBlockBonusColor() {
+        return addDeathBlockBonusColor;
+    }
+    public static String getAddDeathBlockBonusDescription() {
+        return addDeathBlockBonusDescription;
     }
 }

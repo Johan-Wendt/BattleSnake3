@@ -5,8 +5,6 @@ package battlesnake;
  *
  * @author johanwendt
  */
-import javafx.scene.effect.BoxBlur;
-import javafx.scene.effect.Glow;
 import javafx.scene.effect.Lighting;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
