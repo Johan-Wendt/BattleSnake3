@@ -14,22 +14,13 @@ import java.util.Iterator;
  */
 public class BonusHandler {
     
-    public static final Color deathBlockColor = Color.BLACK;
+    private static final Color deathBlockColor = Color.BLACK;
+    public static final int REGULAR_BONUS = 0;
+    public static final int MAKE_SHORT_BONUS = 1;
+    public static final int ADD_DEATH_BLOCK_BONUS = 2;
     private static final int LIFESPAN_MIN = 2000;
     private static final int LIFESPAN_MAX = 10000;
     private static final double BONUS_PROBABILITY = 0.045;
-    public static final int REGULAR_BONUS_HAPPENING = 0;
-    private static final Color regularBonusColor = Color.web("#FF0000");
-    public static final int REGULAR_BONUS_PROBABILTY_FACTOR = 10;
-    private static final String regularBonusDescription = "Makes the player longer and faster.";
-    public static final int MAKE_SHORT_BONUS_HAPPENING = 1;
-    private static final Color makeShortBonusColor = Color.web("#009933");
-    public static final int MAKE_SHORT_BONUS_PROBABILTY_FACTOR = 1;
-    private static final String makeShortDescription = "Makes the player short.";
-    public static final int ADD_DEATH_BLOCK_BONUS_HAPPENING = 2;
-    private static final Color addDeathBlockBonusColor = Color.web("#FFFF00");
-    public static final int ADD_DEATH_BLOCK_BONUS_PROBABILTY_FACTOR = 8;
-    private static final String addDeathBlockBonusDescription = "Adds deathblocks to the field.";
     private final static ArrayList <Bonus> eventList = new ArrayList<>();    
     //Regular fields
     private Random random;
@@ -68,11 +59,11 @@ public class BonusHandler {
      * Method that randomly, but wieghted, creates one of the bonusetypes.
      */
     public void createRandomBonus() { 
-        int chance = new Random().nextInt(REGULAR_BONUS_PROBABILTY_FACTOR + MAKE_SHORT_BONUS_PROBABILTY_FACTOR + ADD_DEATH_BLOCK_BONUS_PROBABILTY_FACTOR);
-        if(chance < MAKE_SHORT_BONUS_PROBABILTY_FACTOR) {
+        int chance = new Random().nextInt(BonusEnum.REGULAR_BONUS.getBonusProbabilityFactor() + BonusEnum.MAKE_SHORT_BONUS.getBonusProbabilityFactor() + BonusEnum.ADD_DEATH_BLOCK_BONUS.getBonusProbabilityFactor());
+        if(chance < BonusEnum.MAKE_SHORT_BONUS.getBonusProbabilityFactor()) {
             createMakeShortBonus();
         }
-        else if (chance < ADD_DEATH_BLOCK_BONUS_PROBABILTY_FACTOR + MAKE_SHORT_BONUS_PROBABILTY_FACTOR) {
+        else if (chance < BonusEnum.ADD_DEATH_BLOCK_BONUS.getBonusProbabilityFactor() + BonusEnum.MAKE_SHORT_BONUS.getBonusProbabilityFactor()) {
             createAddDeathBlocksBonus();
         }
         else {
@@ -84,7 +75,7 @@ public class BonusHandler {
      */
     public void createRegularBonus() {
         BuildingBlock bonusBlock = GameEngine.getCurrentGameGrid().getRandomBlock();
-        Bonus bonus = new RegularBonus(bonusBlock, regularBonusColor, LIFESPAN_MIN + new Random().nextInt(LIFESPAN_MAX), REGULAR_BONUS_HAPPENING);
+        Bonus bonus = new RegularBonus(bonusBlock, BonusEnum.REGULAR_BONUS.getBonusColor(), LIFESPAN_MIN + new Random().nextInt(LIFESPAN_MAX), REGULAR_BONUS);
         eventList.add(bonus);
     }
     /**
@@ -92,7 +83,7 @@ public class BonusHandler {
      */
     public void createMakeShortBonus() {
         BuildingBlock bonusBlock = GameEngine.getCurrentGameGrid().getRandomBlock();
-        Bonus bonus = new MakeShortBonus(bonusBlock,makeShortBonusColor, LIFESPAN_MIN + new Random().nextInt(LIFESPAN_MAX), MAKE_SHORT_BONUS_HAPPENING);
+        Bonus bonus = new MakeShortBonus(bonusBlock,BonusEnum.MAKE_SHORT_BONUS.getBonusColor(), LIFESPAN_MIN + new Random().nextInt(LIFESPAN_MAX), MAKE_SHORT_BONUS);
         eventList.add(bonus);
     }
     /**
@@ -100,7 +91,7 @@ public class BonusHandler {
      */
     public void createAddDeathBlocksBonus() {
         BuildingBlock bonusBlock = GameEngine.getCurrentGameGrid().getRandomBlock();
-        Bonus bonus = new AddDeathBlocksBonus (bonusBlock,addDeathBlockBonusColor, LIFESPAN_MIN + new Random().nextInt(LIFESPAN_MAX), ADD_DEATH_BLOCK_BONUS_HAPPENING);
+        Bonus bonus = new AddDeathBlocksBonus (bonusBlock,BonusEnum.ADD_DEATH_BLOCK_BONUS.getBonusColor(), LIFESPAN_MIN + new Random().nextInt(LIFESPAN_MAX), ADD_DEATH_BLOCK_BONUS);
         eventList.add(bonus);
     }
     /**
@@ -114,23 +105,5 @@ public class BonusHandler {
                 itr.remove();
             }
         }
-    }
-    public static Color getRegularBonusColor() {
-        return regularBonusColor;
-    }
-    public static String getRegularBonusDescription() {
-        return regularBonusDescription;
-    }
-    public static Color getMakeShortBonusColor() {
-        return makeShortBonusColor;
-    }
-    public static String getMakeShortDescription() {
-        return makeShortDescription;
-    }
-    public static Color getAddDeathBlockBonusColor() {
-        return addDeathBlockBonusColor;
-    }
-    public static String getAddDeathBlockBonusDescription() {
-        return addDeathBlockBonusDescription;
     }
 }

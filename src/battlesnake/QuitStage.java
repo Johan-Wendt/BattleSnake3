@@ -25,14 +25,9 @@ public class QuitStage extends PopUp {
         getOkButton().setOnAction(a -> {
             System.exit(0);
         });
+        
         getCancelButton().setOnAction(a -> {
             showPopUp(false);
-        });
-
-        getPopUpPane().setOnKeyPressed(k -> {
-            if(k.equals(KeyCode.ESCAPE)) {
-                showPopUp(false);
-            }
         });
     }
     private void addPicture(String name) {

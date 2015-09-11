@@ -23,9 +23,9 @@ public class RightPane {
     private static final VBox outerBonusPane = new VBox();
     private static final GridPane innerBonusPane = new GridPane();
     private static final VBox scorePane = new VBox();
-    private static final Text regularBonusText = new Text(BonusHandler.getRegularBonusDescription());  
-    private static final Text makeShortBonusText = new Text(BonusHandler.getMakeShortDescription());  
-    private static final Text addDeathBlockBonusText = new Text(BonusHandler.getAddDeathBlockBonusDescription());
+    private static final Text regularBonusText = new Text(BonusEnum.REGULAR_BONUS.getBonusDescription());  
+    private static final Text makeShortBonusText = new Text(BonusEnum.MAKE_SHORT_BONUS.getBonusDescription());  
+    private static final Text addDeathBlockBonusText = new Text(BonusEnum.ADD_DEATH_BLOCK_BONUS.getBonusDescription());
     private static final ScoreEffect scoreEffect = new ScoreEffect();
     private static ArrayList<Text> playerScores = new ArrayList<>();
     
@@ -51,24 +51,23 @@ public class RightPane {
         
     }
     public void setUpBonusInformation() {
-        //Set bonus effects and id for css.
-        regularBonusText.setEffect(scoreEffect.getEffect(BonusHandler.getRegularBonusColor()));
+        regularBonusText.setEffect(scoreEffect.getEffect(BonusEnum.REGULAR_BONUS.getBonusColor()));
         regularBonusText.setFont(new Font(UserInterface.getPlayerScoreSize() * 0.6));
 
-        makeShortBonusText.setEffect(scoreEffect.getEffect(BonusHandler.getMakeShortBonusColor()));
+        makeShortBonusText.setEffect(scoreEffect.getEffect(BonusEnum.MAKE_SHORT_BONUS.getBonusColor()));
         makeShortBonusText.setFont(new Font(UserInterface.getPlayerScoreSize() * 0.6));
 
-        addDeathBlockBonusText.setEffect(scoreEffect.getEffect(BonusHandler.getAddDeathBlockBonusColor()));
+        addDeathBlockBonusText.setEffect(scoreEffect.getEffect(BonusEnum.ADD_DEATH_BLOCK_BONUS.getBonusColor()));
         addDeathBlockBonusText.setFont(new Font(UserInterface.getPlayerScoreSize() * 0.6));
         
         //Create the rectangles that show what type of bonus the description is about.
-        Rectangle regularBonusColor = new Rectangle(UserInterface.getBlockSize() * 1.5, UserInterface.getBlockSize() * 1.5, BonusHandler.getRegularBonusColor());
+        Rectangle regularBonusColor = new Rectangle(UserInterface.getBlockSize() * 1.5, UserInterface.getBlockSize() * 1.5, BonusEnum.REGULAR_BONUS.getBonusColor());
         regularBonusColor.setStroke(Color.BLACK);
         regularBonusColor.setEffect(new Lighting());
-        Rectangle makeShortBonusColor = new Rectangle(UserInterface.getBlockSize() * 1.5, UserInterface.getBlockSize() * 1.5, BonusHandler.getMakeShortBonusColor());
+        Rectangle makeShortBonusColor = new Rectangle(UserInterface.getBlockSize() * 1.5, UserInterface.getBlockSize() * 1.5, BonusEnum.MAKE_SHORT_BONUS.getBonusColor());
         makeShortBonusColor.setStroke(Color.BLACK);
         makeShortBonusColor.setEffect(new Lighting());
-        Rectangle addDeathBlockBonusColor = new Rectangle(UserInterface.getBlockSize() * 1.5, UserInterface.getBlockSize() * 1.5, BonusHandler.getAddDeathBlockBonusColor());
+        Rectangle addDeathBlockBonusColor = new Rectangle(UserInterface.getBlockSize() * 1.5, UserInterface.getBlockSize() * 1.5, BonusEnum.ADD_DEATH_BLOCK_BONUS.getBonusColor());
         addDeathBlockBonusColor.setStroke(Color.BLACK);
         addDeathBlockBonusColor.setEffect(new Lighting());
         

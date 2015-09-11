@@ -22,7 +22,8 @@ public class GameGrid {
     public static final Color GAMEGRID_COLOR = Color.web("#0000FF");
     public static final Color SAFE_ZONE_COLOR = Color.web("#4D4DFF");
     
-    private static final int DEATH_SLOWNESS = GameEngine.PLAYER_START_SLOWNESS;
+    //private static final int DEATH_SLOWNESS = GameEngine.PLAYER_START_SLOWNESS;
+    private static final int DEATH_SLOWNESS = 1;
     private final ArrayList<BuildingBlock> gridList = new ArrayList<>();
     
     //This block is returned from the grid if it gets asked about a grid id that it cannot
@@ -77,15 +78,14 @@ public class GameGrid {
         //Slow down the building progress to match the initial speed of players.
         if(isDeathRunning) {
             if(deathPause % (DEATH_SLOWNESS) == 0) {
-                if(deathCounter < currentGridSize -1) {
-                    getBlock(deathLocation).setDeathBlockIrreveritble();
-                    deathReturn = deathLocation;
-                    deathCounter ++;
-                    deathLocation += deathDirection;
-                }
-                else {
+                if(!(deathCounter < currentGridSize -1)) {
                     changeDeathDirection();
                 }
+                getBlock(deathLocation).setDeathBlockIrreveritble();
+                deathReturn = deathLocation;
+                deathCounter ++;
+                deathLocation += deathDirection;
+                
             }
             deathPause ++; 
         }

@@ -31,7 +31,6 @@ import javafx.scene.input.KeyCode;
 public final class Player {
     //Fields
     
-    //Final fields
     private final Color playerColor;
     private final Stack<BuildingBlock> body = new Stack<>();
     private Stack<BuildingBlock> eraseBody = new Stack<>();
@@ -39,7 +38,6 @@ public final class Player {
     private final int startDirection;
     private final String name;
     
-    //Regular fields
     private int turn;
     private int currentLocation;
     private int currentDirection;
@@ -153,9 +151,9 @@ public final class Player {
     public void handleBonuses(int bonusHappening) {
         
         switch(bonusHappening) {
-            case BonusHandler.REGULAR_BONUS_HAPPENING: makeLonger(4); makeFaster(); score++; break;
-            case BonusHandler.MAKE_SHORT_BONUS_HAPPENING: setLength(8); score++; break;
-            case BonusHandler.ADD_DEATH_BLOCK_BONUS_HAPPENING: score++; break;
+            case BonusHandler.REGULAR_BONUS: makeLonger(4); makeFaster(); score++; break;
+            case BonusHandler.MAKE_SHORT_BONUS: setLength(8); score++; break;
+            case BonusHandler.ADD_DEATH_BLOCK_BONUS: score++; break;
         }
     }
     /**

@@ -41,9 +41,6 @@ public class FirstStage extends PopUp{
                 showPopUp(false);
                 getCancelButton().setDisable(false);
             }
-            if(e.getCode().equals(KeyCode.ESCAPE) && !getCancelButton().isDisable()) {
-                showPopUp(false);
-            }
         });
         addExtraButton(chooseNumberOfPlayers);
     }
@@ -67,25 +64,26 @@ public class FirstStage extends PopUp{
     public void setUpWinnerInfo(Player winner) {
         if(winner == null) {
             getExtraLabel().setText("May the best squamata win!");
-            getExtraLabel().setStyle("-fx-text-fill: #000000; -fx-font-size: 30px;" );
+            getExtraLabel().setStyle("-fx-text-fill: #2B2B22; -fx-font-size: 30px;" );
         }
         else {
+            String player1 = PlayerEnum.PLAYER_ONE.getName();
             switch(winner.getName()) {
                 case "Player 1": 
-                    getExtraLabel().setStyle("-fx-text-fill: #B200B2; -fx-font-size: 30px;");
+                    getExtraLabel().setStyle("-fx-text-fill: #B200B2;");
+                    System.out.println("Got it");
                     break;
                 case "Player 2": 
-                    getExtraLabel().setStyle("-fx-text-fill: #66FF33; -fx-font-size: 30px;");
+                    getExtraLabel().setStyle("-fx-text-fill: #66FF33;");
                     break;
                 case "Player 3": 
-                    getExtraLabel().setStyle("-fx-text-fill: #E68A00; -fx-font-size: 30px;");
+                    getExtraLabel().setStyle("-fx-text-fill: #E68A00;");
                     break;
                 case "Player 4": 
-                    getExtraLabel().setStyle("-fx-text-fill: #00FFFF; -fx-font-size: 30px;");
+                    getExtraLabel().setStyle("-fx-text-fill: #00FFFF;");
                     break;
             }
-            getExtraLabel().setText("The winner is " + winner.getName());
-                    
+            getExtraLabel().setText("The winner is " + winner.getName());                    
         }
     }
 }

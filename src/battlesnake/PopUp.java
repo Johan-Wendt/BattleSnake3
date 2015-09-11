@@ -25,7 +25,8 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 /**
- *
+ *Class that is the base for all popup, that is all the stages except for the
+ * main stage where the game is played.
  * @author johanwendt
  */
 public abstract class PopUp {
@@ -51,13 +52,20 @@ public abstract class PopUp {
     
     protected final static int STANDARD_BUTTON_HEIGHT = 70;
     
+    /**
+     * Create a popup with a title, a message for the ok button and a preffered 
+     * width for the pane.
+     * @param title title of the stage.
+     * @param okMessage message displayed on the confirmation button.
+     * @param paneWidth prefered width of the pane
+     */
     public PopUp(String title, String okMessage, int paneWidth) {
         setUpOuterPart(title, paneWidth);
         setUpLowerPart();
         setUpExtraPane();
         setUpUpperPart();
         addOkButton(okMessage);
-        standardOnStageKeyBehaviour();
+        setStandardOnStageKeyBehaviour();
         setOnActions();
         okButton.requestFocus();
     }
@@ -68,7 +76,7 @@ public abstract class PopUp {
         setUpUpperPart();
         setUpInfoLabel(infoText);
         addOkButton(okMessage);
-        standardOnStageKeyBehaviour();
+        setStandardOnStageKeyBehaviour();
         setOnActions();
         okButton.requestFocus();
     }
@@ -80,7 +88,7 @@ public abstract class PopUp {
         setUpInfoLabel(infoText);
         addOkButton(okMessage);
         addCancelButton(cancelMessage);
-        standardOnStageKeyBehaviour();
+        setStandardOnStageKeyBehaviour();
         setOnActions();
         okButton.requestFocus();
     }
@@ -120,7 +128,7 @@ public abstract class PopUp {
     protected void setUpInfoLabel(String infoText) {
         infoLabelText.setText(infoText);
         infoLabelText.setWrapText(true);
-        infoLabelText.setStyle("-fx-font-size: 25px;");
+        infoLabelText.setStyle("-fx-font-size: 25px; -fx-text-fill: #2B2B22");
         VBox.setMargin(infoLabelText, new Insets(0, 0, STANDARD_PADDING, 0));
         
     }
@@ -181,20 +189,14 @@ public abstract class PopUp {
     protected HBox getPopUpPaneInnerLower() {
         return popUpPaneInnerLower;
     }
-    protected void standardOnStageKeyBehaviour() {
+    protected void setStandardOnStageKeyBehaviour() {
         okButton.defaultButtonProperty().bind(okButton.focusedProperty());
         cancelButton.defaultButtonProperty().bind(cancelButton.focusedProperty());
-        popUpPane.setOnKeyPressed(k -> {
-            if(k.getCode().equals(KeyCode.ESCAPE)) {
-                if(!cancelButton.isDisabled()) {
-                    showPopUp(false);
-                }
-        }
-        });
     }
-
     /**
-     *Set the actions for pressing buttons.
+     *Set actions for pressing the buttons. The canelButton usually just closes 
+     * the popup while the okButton closes the popup and performs some
+     * action.
      */
     protected abstract void setOnActions();
     
