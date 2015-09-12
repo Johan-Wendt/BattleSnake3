@@ -31,12 +31,10 @@ import javafx.scene.input.KeyCode;
 public final class Player {
     //Fields
     
-    private final Color playerColor;
     private final Stack<BuildingBlock> body = new Stack<>();
     private Stack<BuildingBlock> eraseBody = new Stack<>();
     private static BonusHandler events;
-    private final int startDirection;
-    private final String name;
+    private final PlayerEnum playerDetails;
     
     private int turn;
     private int currentLocation;
@@ -59,10 +57,8 @@ public final class Player {
      * @param bonusHandler The BonusHandler this player should recieve bonus events from. 
      * @param controls The start controls for this player.
      */
-    public Player(String name, int startDirection, Color playerColor, BonusHandler bonusHandler, HashMap controls) {
-        this.name = name;
-        this.startDirection = startDirection;
-        this.playerColor = playerColor;
+    public Player(PlayerEnum playerDetails, BonusHandler bonusHandler, HashMap controls) {
+        this.playerDetails = playerDetails;
         this.events = bonusHandler;
         this.controls = controls;
         turn = -200;
@@ -84,7 +80,7 @@ public final class Player {
         body.add(0, startSnake);    
 
         //If deathblocks are blocking the the newly created player, get rid of them.
-        currentDirection = startDirection;
+        currentDirection = playerDetails.getStartDirection();
         currentLocation = GameEngine.getCurrentGameGrid().getStartPosition();
         mayChangeDirection = false;
     }
@@ -124,7 +120,7 @@ public final class Player {
             }
             //Move the player, see if a bonus was taken and handle bonus happenings.
             BuildingBlock moveTo = GameEngine.getCurrentGameGrid().getBlock(destination);
-            moveTo.setPlayerBlock(playerColor);
+            moveTo.setPlayerBlock(playerDetails.getColor());
             handleBonuses(events.getBonus(destination));
             currentLocation = moveTo.getBlockId();
             body.add(0, moveTo);
@@ -234,27 +230,18 @@ public final class Player {
         return score;
     }
     /**
-     * Returns the name of the player.
-     * @return player name.
+     * Returns the enum with name, color, number and start direction of the player.
+     * @return player details.
      */
-    public String getName() {
-        return name;
+    public PlayerEnum getPlayerDetails() {
+        return playerDetails;
     }
-    /**
-     * Returns the color of the player.
-     * @return player color.
-     */
-    public Color getPlayerColor() {
-        return playerColor;
-    }
-    /**
-     * Used for the scoreboard.
-     * @return a string with the player name and current score.
-     */
+    
     public String scoreToString() {
-        String scoreString = name + ": " + score;
+        String scoreString = playerDetails.getName() + ": " + score;
         return scoreString;
     }
+
     /**
      * Boolean property for determining if the player contains the block with the
      * given id.
