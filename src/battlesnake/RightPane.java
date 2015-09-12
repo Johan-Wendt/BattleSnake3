@@ -123,7 +123,7 @@ public class RightPane {
         while(i >= 0) {
             playerScores.get(i).setText(GameEngine.getPlayers().get(i).scoreToString());
             playerScores.get(i).setFont(Font.font(UserInterface.getPlayerScoreSize()));
-            playerScores.get(i).setEffect(scoreEffect.getEffect(GameEngine.getPlayers().get(i).getPlayerColor()));
+            playerScores.get(i).setEffect(scoreEffect.getEffect(GameEngine.getPlayers().get(i).getPlayerDetails().getColor()));
             scorePane.getChildren().add(1, playerScores.get(i));
             playerScores.add(new Text());
             i--;

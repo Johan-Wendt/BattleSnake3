@@ -83,7 +83,6 @@ public class GameEngine extends Application {
 
             @Override
             public void run() {
-                //thread.setPriority(Thread.MAX_PRIORITY);
                 try {
                     while (isRunning) {
                         if(!isPaused) {
@@ -115,12 +114,12 @@ public class GameEngine extends Application {
  * Brings up the initial screen and displays the winner of the game.
  */
     public void gameOver() {
-        Player winner = null;
+        PlayerEnum winner = null;
         int highest = -10000;
         for(Player player: players) {
             if(player.getScore() > highest) {
                 highest = player.getScore();
-                winner = player;
+                winner = player.getPlayerDetails();
             }
         }
         UserInterface.gameOver(winner);
@@ -258,10 +257,10 @@ public class GameEngine extends Application {
      */
     private static void createPlayers () {
         switch(numberToPlay) {
-            case 4: players.add(0, new Player(PlayerEnum.PLAYER_FOUR.getName(), PlayerEnum.PLAYER_FOUR.getStartDirection(), PlayerEnum.PLAYER_FOUR.getColor(), bonusHandler, player4Controls));
-            case 3: players.add(0, new Player(PlayerEnum.PLAYER_THREE.getName(), PlayerEnum.PLAYER_THREE.getStartDirection(), PlayerEnum.PLAYER_THREE.getColor(), bonusHandler, player3Controls));
-            case 2: players.add(0, new Player(PlayerEnum.PLAYER_TWO.getName(), PlayerEnum.PLAYER_TWO.getStartDirection(), PlayerEnum.PLAYER_TWO.getColor(), bonusHandler, player2Controls));
-            case 1: players.add(0, new Player(PlayerEnum.PLAYER_ONE.getName(), PlayerEnum.PLAYER_ONE.getStartDirection(), PlayerEnum.PLAYER_ONE.getColor(), bonusHandler, player1Controls));
+            case 4: players.add(0, new Player(PlayerEnum.PLAYER_FOUR, bonusHandler, player4Controls));
+            case 3: players.add(0, new Player(PlayerEnum.PLAYER_THREE, bonusHandler, player3Controls));
+            case 2: players.add(0, new Player(PlayerEnum.PLAYER_TWO, bonusHandler, player2Controls));
+            case 1: players.add(0, new Player(PlayerEnum.PLAYER_ONE, bonusHandler, player1Controls));
         } 
     }
     /**

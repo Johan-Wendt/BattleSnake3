@@ -61,26 +61,24 @@ public class FirstStage extends PopUp{
     //Add info about the objective of the game and info about the winner. 
         //Winner info is empty untill a player has won the game and is
         //emptied again after the game is restarted.
-    public void setUpWinnerInfo(Player winner) {
+    public void setUpWinnerInfo(PlayerEnum winner) {
         if(winner == null) {
             getExtraLabel().setText("May the best squamata win!");
             getExtraLabel().setStyle("-fx-text-fill: #2B2B22; -fx-font-size: 30px;" );
         }
         else {
-            String player1 = PlayerEnum.PLAYER_ONE.getName();
-            switch(winner.getName()) {
-                case "Player 1": 
-                    getExtraLabel().setStyle("-fx-text-fill: #B200B2;");
-                    System.out.println("Got it");
+            switch(winner) {
+                case PLAYER_ONE: 
+                    getExtraLabel().setStyle("-fx-text-fill: #B200B2; -fx-font-size: 30px;");
                     break;
-                case "Player 2": 
-                    getExtraLabel().setStyle("-fx-text-fill: #66FF33;");
+                case PLAYER_TWO: 
+                    getExtraLabel().setStyle("-fx-text-fill: #66FF33 -fx-font-size: 30px;;");
                     break;
-                case "Player 3": 
-                    getExtraLabel().setStyle("-fx-text-fill: #E68A00;");
+                case PLAYER_THREE: 
+                    getExtraLabel().setStyle("-fx-text-fill: #E68A00 -fx-font-size: 30px;;");
                     break;
-                case "Player 4": 
-                    getExtraLabel().setStyle("-fx-text-fill: #00FFFF;");
+                case PLAYER_FOUR: 
+                    getExtraLabel().setStyle("-fx-text-fill: #00FFFF -fx-font-size: 30px;;");
                     break;
             }
             getExtraLabel().setText("The winner is " + winner.getName());                    

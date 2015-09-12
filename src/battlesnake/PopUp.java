@@ -136,11 +136,11 @@ public abstract class PopUp {
         getInfoLabel().setText(infoText);
     }       
     protected void showPopUp(boolean show) {
-        if(show) {
+        if(show && !pupUpStage.isShowing()) {
             pupUpStage.show();
             GameEngine.popUpOpened();
         }
-        else {
+        if(!show && pupUpStage.isShowing()) {
             pupUpStage.hide();
             GameEngine.popUpClosed();
         }

@@ -80,7 +80,7 @@ public class UserInterface {
         firstStage = new FirstStage("Start New Game", getInfoFirstStage(), " LET'S DO THIS! ", "  Cancel  ");
         quitStage = new QuitStage("Quit?!", getInfoQuitStage(), "Just leave me alone!", "Hell no!");
     }
-    public static void gameOver(Player winner) {
+    public static void gameOver(PlayerEnum winner) {
         firstStage.setUpWinnerInfo(winner);
         firstStage.showPopUp(true);
     }
