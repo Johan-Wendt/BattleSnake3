@@ -65,8 +65,6 @@ public class GameEngine extends Application {
     
     private static boolean pauseButtonPressed = false;
     private static int numberOfPopUpsOpen = 0;
-    
-    private static UserInterface userInterface;
         
     public void NewGameEngine() {
     }
@@ -74,7 +72,7 @@ public class GameEngine extends Application {
     public void start(Stage battleStage) throws InterruptedException {
         this.battleStage = battleStage;
 
-        userInterface = new UserInterface(this);
+        UserInterface userInterface = new UserInterface(this);
         gameGrid = new GameGrid();
         
         bonusHandler = new BonusHandler();
@@ -96,7 +94,7 @@ public class GameEngine extends Application {
                             for(Player player: players) {
                                 moved += player.movePlayer();
                             }
-                         //   playerKiller(gameGrid.deathBuilder());
+                            playerKiller(gameGrid.deathBuilder());
                             if(moved > 0) {
                                 bonusHandler.bonusRound();
                                 RightPane.showScores();

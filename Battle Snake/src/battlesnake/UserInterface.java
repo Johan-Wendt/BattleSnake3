@@ -98,7 +98,7 @@ public class UserInterface {
     /**
      * This sets upp the main game screen.
      */
-    private static void setUpMainScreen() {
+    private void setUpMainScreen() {
         mainScene = new Scene(mainPane, screenWidth, screenHeight);
         gameGridPane.setPrefSize(gridSize, gridSize);
         mainPane.setCenter(RightPane.getPane());
@@ -129,7 +129,7 @@ public class UserInterface {
         battleStage.show();  
     }
         
-    private static void buildMenuSystem() {
+    private void buildMenuSystem() {
         menu = new Menu("Battle Snake");
         MenuItem underMenu1 = new MenuItem("Set up game");
         MenuItem underMenu2 = new MenuItem("About");
