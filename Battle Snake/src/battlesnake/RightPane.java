@@ -119,11 +119,11 @@ public class RightPane {
         playerScores.add(playerThreeScore);
         playerScores.add(playerFourScore);
         
-        int i = GameEngine.getPlayers().size() - 1;
-        while(i >= 0) {
-            playerScores.get(i).setText(GameEngine.getPlayers().get(i).scoreToString());
+        int i = GameEngine.getPlayers().size();
+        while(i >= 1) {
+            playerScores.get(i).setText(GameEngine.getPlayer(i).scoreToString());
             playerScores.get(i).setFont(Font.font(UserInterface.getPlayerScoreSize()));
-            playerScores.get(i).setEffect(scoreEffect.getEffect(GameEngine.getPlayers().get(i).getPlayerDetails().getColor()));
+            playerScores.get(i).setEffect(scoreEffect.getEffect(GameEngine.getPlayer(i).getPlayerDetails().getColor()));
             scorePane.getChildren().add(1, playerScores.get(i));
             playerScores.add(new Text());
             i--;
@@ -133,7 +133,7 @@ public class RightPane {
     public static void showScores() {
         int i = 0;
         while(i < GameEngine.getPlayers().size()) {
-            playerScores.get(i).textProperty().set(GameEngine.getPlayers().get(i).scoreToString());
+            playerScores.get(i + 1).textProperty().set(GameEngine.getPlayer(i + 1).scoreToString());
             i++;
         }
     }

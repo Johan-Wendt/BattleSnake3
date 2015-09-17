@@ -5,7 +5,7 @@ package battlesnake;
  * @author johanwendt
  */
 import javafx.scene.paint.Color;
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Random;
 
 /**
@@ -24,7 +24,7 @@ public class GameGrid {
     
     private static final int DEATH_SLOWNESS = GameEngine.PLAYER_START_SLOWNESS;
     //private static final int DEATH_SLOWNESS = 1;
-    private final ArrayList<BuildingBlock> gridList = new ArrayList<>();
+    private final HashSet<BuildingBlock> gridList = new HashSet<>(GameEngine.BRICKS_PER_ROW * GameEngine.BRICKS_PER_ROW + 10);
     
     //This block is returned from the grid if it gets asked about a grid id that it cannot
     //find. This is used for making the player move from one side to another on the 
