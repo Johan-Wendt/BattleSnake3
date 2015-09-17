@@ -4,6 +4,7 @@
 package battlesnake;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Random;
 import javafx.scene.paint.Color;
 import java.util.Iterator;
@@ -21,7 +22,7 @@ public class BonusHandler {
     private static final int LIFESPAN_MIN = 2000;
     private static final int LIFESPAN_MAX = 10000;
     private static final double BONUS_PROBABILITY = 0.045;
-    private final static ArrayList <Bonus> eventList = new ArrayList<>();    
+    private final static HashSet <Bonus> eventList = new HashSet<>();    
     //Regular fields
     private Random random;
     

@@ -18,6 +18,7 @@ package battlesnake;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.concurrent.TimeUnit;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -47,7 +48,7 @@ public class GameEngine extends Application {
     
     private static final boolean isRunning = true;
     
-    private static final ArrayList<Player> players = new ArrayList<>();
+    private static final HashSet<Player> players = new HashSet<>(4);
     private static final HashMap<KeyCode, Integer> player1Controls = new HashMap<>();
     private static final HashMap<KeyCode, Integer> player2Controls = new HashMap<>();
     private static final HashMap<KeyCode, Integer> player3Controls = new HashMap<>();
@@ -96,7 +97,7 @@ public class GameEngine extends Application {
                             for(Player player: players) {
                                 moved += player.movePlayer();
                             }
-                         //   playerKiller(gameGrid.deathBuilder());
+                            playerKiller(gameGrid.deathBuilder());
                             if(moved > 0) {
                                 bonusHandler.bonusRound();
                                 RightPane.showScores();
@@ -203,7 +204,6 @@ public class GameEngine extends Application {
         checkStartOrPauseGame();
     }
     public static void checkStartOrPauseGame() {
-        //System.out.println(pauseButtonPressed);
         
         if (!pauseButtonPressed && numberOfPopUpsOpen == 0) {
             isPaused = false;
@@ -218,13 +218,18 @@ public class GameEngine extends Application {
     public static int getNumberOfPlayers() {
         return numberToPlay;
     }
-    public Player getPlayer(int playerNumber) {
-        return players.get(playerNumber);
+    public static Player getPlayer(int playerNumber) {
+        for(Player player: players) {
+            if(player.getPlayerDetails().getNumber() == playerNumber) {
+                return player;
+            }
+        }
+        return null;
     }
     public static GameGrid getCurrentGameGrid() {
         return gameGrid;
     }
-    public static ArrayList<Player> getPlayers() {
+    public static HashSet<Player> getPlayers() {
         return players;
     }
     public static void setPauseKey(KeyCode newPauseKey) {
@@ -265,10 +270,10 @@ public class GameEngine extends Application {
     private static void createPlayers () {
         players.clear();
         switch(numberToPlay) {
-            case 4: players.add(0, new Player(PlayerEnum.PLAYER_FOUR, bonusHandler, player4Controls));
-            case 3: players.add(0, new Player(PlayerEnum.PLAYER_THREE, bonusHandler, player3Controls));
-            case 2: players.add(0, new Player(PlayerEnum.PLAYER_TWO, bonusHandler, player2Controls));
-            case 1: players.add(0, new Player(PlayerEnum.PLAYER_ONE, bonusHandler, player1Controls));
+            case 4: players.add(new Player(PlayerEnum.PLAYER_FOUR, bonusHandler, player4Controls));
+            case 3: players.add(new Player(PlayerEnum.PLAYER_THREE, bonusHandler, player3Controls));
+            case 2: players.add(new Player(PlayerEnum.PLAYER_TWO, bonusHandler, player2Controls));
+            case 1: players.add(new Player(PlayerEnum.PLAYER_ONE, bonusHandler, player1Controls));
         } 
     }
     /**

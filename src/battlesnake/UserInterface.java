@@ -103,6 +103,7 @@ public class UserInterface {
         gameGridPane.setPrefSize(gridSize, gridSize);
         mainPane.setCenter(RightPane.getPane());
         mainPane.setLeft(gameGridPane);
+        //mainPane.setRight(RightPane.getPane());
         
         BorderPane.setMargin(gameGridPane, new Insets(standardPadding));
         
@@ -124,7 +125,7 @@ public class UserInterface {
         
         //Activate the stage
         battleStage.setScene(mainScene);
-        battleStage.setResizable(false);
+       // battleStage.setResizable(false);
         battleStage.setTitle("Battle Snake");
         battleStage.show();  
     }

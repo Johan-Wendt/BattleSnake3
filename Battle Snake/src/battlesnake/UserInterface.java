@@ -98,11 +98,12 @@ public class UserInterface {
     /**
      * This sets upp the main game screen.
      */
-    private void setUpMainScreen() {
+    private static void setUpMainScreen() {
         mainScene = new Scene(mainPane, screenWidth, screenHeight);
         gameGridPane.setPrefSize(gridSize, gridSize);
         mainPane.setCenter(RightPane.getPane());
         mainPane.setLeft(gameGridPane);
+        //mainPane.setRight(RightPane.getPane());
         
         BorderPane.setMargin(gameGridPane, new Insets(standardPadding));
         
@@ -124,12 +125,12 @@ public class UserInterface {
         
         //Activate the stage
         battleStage.setScene(mainScene);
-        battleStage.setResizable(false);
+       // battleStage.setResizable(false);
         battleStage.setTitle("Battle Snake");
         battleStage.show();  
     }
         
-    private void buildMenuSystem() {
+    private static void buildMenuSystem() {
         menu = new Menu("Battle Snake");
         MenuItem underMenu1 = new MenuItem("Set up game");
         MenuItem underMenu2 = new MenuItem("About");

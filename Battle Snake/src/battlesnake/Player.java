@@ -21,6 +21,8 @@ package battlesnake;
  */
 import javafx.scene.paint.Color;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.Stack;
 import javafx.scene.input.KeyCode;
 
@@ -31,8 +33,8 @@ import javafx.scene.input.KeyCode;
 public final class Player {
     //Fields
     
-    private final Stack<BuildingBlock> body = new Stack<>();
-    private Stack<BuildingBlock> eraseBody = new Stack<>();
+    private final LinkedList<BuildingBlock> body = new LinkedList<>();
+   // private LinkedList<BuildingBlock> eraseBody = new LinkedList<>();
     private static BonusHandler events;
     private final PlayerEnum playerDetails;
     
@@ -45,6 +47,7 @@ public final class Player {
     private boolean mayChangeDirection = true;
     private int score = 0;
     private HashMap<KeyCode, Integer> controls = new HashMap<>();
+    private BuildingBlock lastBlock = null;
     
     /**
      * Create a player instance.The names cannot yet be set by players. To implement this feature one
@@ -72,12 +75,11 @@ public final class Player {
     public void createPlayer() {
         makeShort();
         makeSlow();
-        body.clear();
         BuildingBlock startSnake = GameEngine.getCurrentGameGrid().getBlock(GameEngine.getCurrentGameGrid().getStartPosition());
 
         //Only first block in the stack is added. This makes the snake start 
         //being only one block in size. The rest is added by mevement.
-        body.add(0, startSnake);    
+        body.add(startSnake);    
 
         //If deathblocks are blocking the the newly created player, get rid of them.
         currentDirection = playerDetails.getStartDirection();
@@ -93,12 +95,25 @@ public final class Player {
     public int movePlayer() {
         //If the player har died resently take care of the remains one step at a time.
         //This is done here and not as a loop to avoid lag due to thread sleep in the loop.
+        /*
         if(eraseBody.size() > 0) {
             if(GameEngine.getCurrentGameGrid().isInSafeZone(eraseBody.peek().getBlockId())) {
-                eraseBody.pop().revertDeathBlock(true);
+                eraseBody.poll().revertDeathBlock(true);
             }
             else {
-                eraseBody.pop().setDeathBlockIrreveritble();
+                eraseBody.poll().setDeathBlockIrreveritble();
+            }
+        }
+        */
+        if(body.contains(lastBlock)) {
+            if(body.peek().equals(lastBlock)) {
+                    lastBlock = null;
+                }
+            if(GameEngine.getCurrentGameGrid().isInSafeZone(body.peek().getBlockId())) {
+                body.poll().revertDeathBlock(true);
+            }
+            else {
+                body.poll().setDeathBlockIrreveritble();
             }
         }
         //Only act if player is alive, turn is set to a positive number and
@@ -123,20 +138,22 @@ public final class Player {
             moveTo.setPlayerBlock(playerDetails.getColor());
             handleBonuses(events.getBonus(destination));
             currentLocation = moveTo.getBlockId();
-            body.add(0, moveTo);
+            body.add(moveTo);
             mayChangeDirection = true;
             //If the body is longer than it should be, which is the usual case after
             //a new block has been reached, peel the oldest block of. Repeat
             //to enable player to shrink after the make short bonus.
             if (body.size() > currentLength) {
                 int blockId = body.peek().getBlockId();
-                body.pop().revertDeathBlock(GameEngine.getCurrentGameGrid().isInSafeZone(blockId));  
+                body.poll().revertDeathBlock(GameEngine.getCurrentGameGrid().isInSafeZone(blockId));  
             }
             if (body.size() > currentLength) {
                 int blockId = body.peek().getBlockId();
-                body.pop().revertDeathBlock(GameEngine.getCurrentGameGrid().isInSafeZone(blockId)); 
+                body.poll().revertDeathBlock(GameEngine.getCurrentGameGrid().isInSafeZone(blockId)); 
             }
         }
+        System.out.println(body.size());
+        System.out.println("length " + currentLength);
         turn ++;
         return moved;
     }
@@ -176,7 +193,8 @@ public final class Player {
      * moving again.
      */
     public void killPlayer() {
-        eraseBody = (Stack<BuildingBlock>) body.clone();
+        //eraseBody = new LinkedList<>(body);
+        lastBlock = body.getLast();
         addToScore(GameEngine.PLAYER_DEATH_PENALTY);
         if(score  < 0 && !GameEngine.getCurrentGameGrid().isDeathRunning()) {
             setAlive(false);
@@ -250,7 +268,8 @@ public final class Player {
      */
     public boolean containsBlock(int blockId) {
         boolean isFound = false;
-        for(BuildingBlock block: body) {
+        HashSet<BuildingBlock> bodyCopy = new HashSet<BuildingBlock>(body);
+        for(BuildingBlock block: bodyCopy) {
             if(block.getBlockId() == blockId) {
                 isFound = true;
             }
@@ -272,24 +291,13 @@ public final class Player {
      * @param pressedKey 
      */
     public void setCurrentDirection(KeyCode pressedKey) {
-        int newDirection = keyCodeToDirection(pressedKey);
-        if(newDirection != -currentDirection && newDirection != currentDirection && mayChangeDirection) {
-            currentDirection = newDirection;
-            mayChangeDirection = false;
-        }
-    }
-    /**
-     * If the key pressed is to make the player turn, the new direction is return. Otherwise
-     * the current direction is returned.
-     * @param pressedKey the key pressed on the keyboard.
-     * @return new direction for the player.
-     */
-    public int keyCodeToDirection(KeyCode pressedKey) {
-        int newDirection = currentDirection;
         if(controls.containsKey(pressedKey)) {
-            newDirection = controls.get(pressedKey);
+            int newDirection  = controls.get(pressedKey);
+            if(newDirection != -currentDirection && newDirection != currentDirection && mayChangeDirection) {
+                currentDirection = newDirection;
+                mayChangeDirection = false;
+            }
         }
-        return newDirection;
     }
     /**
      * Adds to the players score.

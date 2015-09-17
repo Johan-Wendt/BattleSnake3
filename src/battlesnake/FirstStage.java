@@ -12,7 +12,7 @@ import javafx.scene.input.KeyCode;
  * @author johanwendt
  */
 public class FirstStage extends PopUp{
-    private final ComboBox chooseNumberOfPlayers = new ComboBox<>();
+    private final static ComboBox chooseNumberOfPlayers = new ComboBox<>();
     private static final Label winnerInfo = new Label();
     private GameEngine gameEngine;
     
