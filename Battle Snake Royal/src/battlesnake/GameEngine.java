@@ -117,7 +117,7 @@ public class GameEngine extends Application {
         });
         thread.start();
     }
-/**
+/*
  * Brings up the initial screen and displays the winner of the game.
  */
     public void gameOver() {
@@ -242,7 +242,7 @@ public class GameEngine extends Application {
      * kill a player.
      * @param deathBlock the id of the deathBlock. 
      */
-    public void playerKiller(int deathBlock) {
+    public void playerKiller(BuildingBlock deathBlock) {
         for(Player player: players) {
             if(player.containsBlock(deathBlock)) {
                 player.killPlayer();

@@ -41,6 +41,7 @@ public final class Player {
     private int turn;
     private int currentLocation;
     private int currentDirection;
+    private int delayedChangeDirection = 0;
     private int currentLength = GameEngine.PLAYER_START_LENGTH;
     private int playerSlownes = GameEngine.PLAYER_START_SLOWNESS;
     private boolean isAlive = true;
@@ -140,6 +141,11 @@ public final class Player {
             currentLocation = moveTo.getBlockId();
             body.add(moveTo);
             mayChangeDirection = true;
+            if (delayedChangeDirection != 0) {
+                currentDirection = delayedChangeDirection;
+                delayedChangeDirection = 0;
+                mayChangeDirection = false;
+            }
             //If the body is longer than it should be, which is the usual case after
             //a new block has been reached, peel the oldest block of. Repeat
             //to enable player to shrink after the make short bonus.
@@ -152,8 +158,6 @@ public final class Player {
                 body.poll().revertDeathBlock(GameEngine.getCurrentGameGrid().isInSafeZone(blockId)); 
             }
         }
-        System.out.println(body.size());
-        System.out.println("length " + currentLength);
         turn ++;
         return moved;
     }
@@ -164,7 +168,9 @@ public final class Player {
     public void handleBonuses(int bonusHappening) {
         
         switch(bonusHappening) {
-            case BonusHandler.REGULAR_BONUS: makeLonger(4); makeFaster(); score++; break;
+            case BonusHandler.REGULAR_BONUS: makeLonger(4); makeFaster(); score++; 
+            turn = 1;
+            break;
             case BonusHandler.MAKE_SHORT_BONUS: setLength(8); score++; break;
             case BonusHandler.ADD_DEATH_BLOCK_BONUS: score++; break;
         }
@@ -210,7 +216,6 @@ public final class Player {
     public void makeFaster() {
         if(playerSlownes > 3) {
             playerSlownes--;
-            turn = 1;
         }
     }    
     /**
@@ -266,7 +271,9 @@ public final class Player {
      * @param blockId the id of the block.
      * @return true if the player contains the block.
      */
-    public boolean containsBlock(int blockId) {
+    public boolean containsBlock(BuildingBlock buildingBlock) {
+        return body.contains(buildingBlock);
+        /*
         boolean isFound = false;
         HashSet<BuildingBlock> bodyCopy = new HashSet<BuildingBlock>(body);
         for(BuildingBlock block: bodyCopy) {
@@ -275,6 +282,7 @@ public final class Player {
             }
         }
         return isFound;
+        */
     }
     /**
      * Boolean property to check if the player is still alive.
@@ -296,6 +304,9 @@ public final class Player {
             if(newDirection != -currentDirection && newDirection != currentDirection && mayChangeDirection) {
                 currentDirection = newDirection;
                 mayChangeDirection = false;
+            }
+            if(newDirection != -currentDirection && newDirection != currentDirection && turn > 0) {
+                delayedChangeDirection = newDirection;
             }
         }
     }

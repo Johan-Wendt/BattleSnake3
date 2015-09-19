@@ -70,8 +70,8 @@ public class GameGrid {
      * is used for killing players cought in the death builder.
      * @return id for the deathblock if a new one has been created or -1 if nothing happened.
      */
-    public int deathBuilder() {
-        int deathReturn = -1;
+    public BuildingBlock deathBuilder() {
+        BuildingBlock deathReturn = outsideBlock;
         if(isInSafeZone(deathLocation) == true) {
             isDeathRunning = false;
         }
@@ -81,8 +81,9 @@ public class GameGrid {
                 if(!(deathCounter < currentGridSize -1)) {
                     changeDeathDirection();
                 }
-                getBlock(deathLocation).setDeathBlockIrreveritble();
-                deathReturn = deathLocation;
+                deathReturn =  getBlock(deathLocation);
+               deathReturn.setDeathBlockIrreveritble();
+               // deathReturn = deathLocation;
                 deathCounter ++;
                 deathLocation += deathDirection;
             }
