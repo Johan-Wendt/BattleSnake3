@@ -38,7 +38,7 @@ public class BonusHandler {
      * @param blockId The block id for the BuildingBlock to be checked.
      * @return int representing bonus happening or -1 if no bonus is present.
      */
-    public int getBonus(int blockId) {
+    public static int getBonus(int blockId) {
         for(Bonus event: eventList) {
             if(event.getBonusId() == blockId) {
                 event.setTaken();
@@ -76,7 +76,7 @@ public class BonusHandler {
      * Creates one Regular bonus and places it on the GameGrid.
      */
     public void createRegularBonus() {
-        BuildingBlock bonusBlock = GameEngine.getCurrentGameGrid().getRandomBlock();
+        BuildingBlock bonusBlock = GameGrid.getRandomBlock();
         Bonus bonus = new RegularBonus(bonusBlock, BonusEnum.REGULAR_BONUS.getBonusColor(), LIFESPAN_MIN + new Random().nextInt(LIFESPAN_MAX), REGULAR_BONUS);
         eventList.add(bonus);
     }
@@ -84,7 +84,7 @@ public class BonusHandler {
      * Creates one Make short bonus and places it on the GameGrid.
      */
     public void createMakeShortBonus() {
-        BuildingBlock bonusBlock = GameEngine.getCurrentGameGrid().getRandomBlock();
+        BuildingBlock bonusBlock = GameGrid.getRandomBlock();
         Bonus bonus = new MakeShortBonus(bonusBlock,BonusEnum.MAKE_SHORT_BONUS.getBonusColor(), LIFESPAN_MIN + new Random().nextInt(LIFESPAN_MAX), MAKE_SHORT_BONUS);
         eventList.add(bonus);
     }
@@ -92,7 +92,7 @@ public class BonusHandler {
      * Creates one Add death block bonus and places it on the GameGrid.
      */
     public void createAddDeathBlocksBonus() {
-        BuildingBlock bonusBlock = GameEngine.getCurrentGameGrid().getRandomBlock();
+        BuildingBlock bonusBlock = GameGrid.getRandomBlock();
         Bonus bonus = new AddDeathBlocksBonus (bonusBlock,BonusEnum.ADD_DEATH_BLOCK_BONUS.getBonusColor(), LIFESPAN_MIN + new Random().nextInt(LIFESPAN_MAX), ADD_DEATH_BLOCK_BONUS);
         eventList.add(bonus);
     }

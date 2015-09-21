@@ -119,7 +119,7 @@ public class RightPane {
         playerScores.add(playerThreeScore);
         playerScores.add(playerFourScore);
         
-        int i = GameEngine.getPlayers().size();
+        int i = GameEngine.getNumberOfPlayers();
         while(i >= 1) {
             playerScores.get(i).setText(GameEngine.getPlayer(i).scoreToString());
             playerScores.get(i).setFont(Font.font(UserInterface.getPlayerScoreSize()));
