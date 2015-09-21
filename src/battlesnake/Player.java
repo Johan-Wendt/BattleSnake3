@@ -108,7 +108,7 @@ public final class Player {
         //Only act if player is alive, turn is set to a positive number and
         //the speed of the player allows it.
         int moved = 0;
-        if(isAlive && turn > 0 && turn % playerSlownes == 0) {
+        if(isAlive && turn > 0 && turn % playerSlownes == playerDetails.getMoveTurn()) {
             moved = 1;
             int destination = currentLocation + currentDirection;
 
@@ -158,7 +158,7 @@ public final class Player {
         
         switch(bonusHappening) {
             case BonusHandler.REGULAR_BONUS: makeLonger(4); makeFaster(); score++; 
-            turn = 1;
+            turn = playerDetails.getMoveTurn() + 1;
             break;
             case BonusHandler.MAKE_SHORT_BONUS: setLength(8); score++; break;
             case BonusHandler.ADD_DEATH_BLOCK_BONUS: score++; break;
@@ -201,7 +201,7 @@ public final class Player {
      * Makes the player slightly faster.
      */
     public void makeFaster() {
-        if(playerSlownes > 3) {
+        if(playerSlownes > 10) {
             playerSlownes--;
         }
     }    
@@ -238,6 +238,9 @@ public final class Player {
      */
     public int getScore() {
         return score;
+    }
+    public void clearBody() {
+        body.clear();
     }
     /**
      * Returns the enum with name, color, number and start direction of the player.

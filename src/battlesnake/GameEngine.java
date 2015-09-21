@@ -70,6 +70,8 @@ public class GameEngine extends Application implements Runnable{
     private static int numberOfPopUpsOpen = 0;
     
     private static UserInterface userInterface;
+    private int turn = 0;
+    
         
     public void NewGameEngine() {
     }
@@ -88,6 +90,7 @@ public class GameEngine extends Application implements Runnable{
 
             @Override
             public void run() {
+                
                 thread.setPriority(Thread.MAX_PRIORITY);
                 try {
                     while (isRunning) {
@@ -96,8 +99,8 @@ public class GameEngine extends Application implements Runnable{
                             for(Player player: players) {
                                 moved += player.movePlayer();
                             }
-                            playerKiller(GameGrid.deathBuilder());
-                            if(moved > 0) {
+                            if(!(moved < 0))playerKiller(GameGrid.deathBuilder());
+                            if(turn % 3 == 2) {
                                 bonusHandler.bonusRound();
                                 RightPane.showScores();
                             }
@@ -108,10 +111,12 @@ public class GameEngine extends Application implements Runnable{
                             });
                         }
                         thread.sleep(gameSpeed);
+                        turn++;
                     }
                 }
                 catch (InterruptedException ex) {
                 }
+                
 
     }
 /*
@@ -159,6 +164,7 @@ public class GameEngine extends Application implements Runnable{
     public void restart() {
         for(Player player: players) {
             player.clearScore();
+            player.clearBody();
             player.setAlive(false);
             player.setTurn(-200);
         }

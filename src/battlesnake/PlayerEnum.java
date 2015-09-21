@@ -23,21 +23,23 @@ import javafx.scene.paint.Color;
  * @author johanwendt
  */
 public enum PlayerEnum {
-    PLAYER_ONE (1, "Moon Unit", Color.web("#B200B2"), GameEngine.RIGHT),
-    PLAYER_TWO (2, "Daisy Boo", Color.web("#66FF33"), GameEngine.LEFT),
-    PLAYER_THREE (3, "Bronx Mowgli", Color.web("#E68A00"), GameEngine.UP),
-    PLAYER_FOUR (4, "Moxie CrimeFighter", Color.web("#00FFFF"), GameEngine.DOWN);
+    PLAYER_ONE (1, "Moon Unit", Color.web("#B200B2"), GameEngine.RIGHT, 2),
+    PLAYER_TWO (2, "Daisy Boo", Color.web("#66FF33"), GameEngine.LEFT, 4),
+    PLAYER_THREE (3, "Bronx Mowgli", Color.web("#E68A00"), GameEngine.UP, 6),
+    PLAYER_FOUR (4, "Moxie CrimeFighter", Color.web("#00FFFF"), GameEngine.DOWN, 8);
     
     private final int number;
     private final String name;
     private final Color color;
     private final int startDirection;
+    private final int moveTurn;
 
-    PlayerEnum(int playerNumber, String playerName, Color playerColor, int startDirection) {
+    PlayerEnum(int playerNumber, String playerName, Color playerColor, int startDirection, int moveTurn) {
         this.number = playerNumber;
         this.name = playerName;
         this.color = playerColor;
         this.startDirection = startDirection;
+        this.moveTurn = moveTurn;
     }
     public int getNumber() {
         return number;
@@ -50,5 +52,8 @@ public enum PlayerEnum {
     }
     public int getStartDirection() {
         return startDirection;
+    }
+    public int getMoveTurn() {
+        return moveTurn;
     }
 }
