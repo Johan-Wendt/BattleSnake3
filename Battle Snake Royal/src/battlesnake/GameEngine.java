@@ -20,6 +20,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.scene.input.KeyCode;
@@ -28,7 +30,7 @@ import javafx.stage.Stage;
  *This class is the master class. It drives the game via a loop.
  * @author johanwendt
  */
-public class GameEngine extends Application {
+public class GameEngine extends Application implements Runnable{
     //To be able to give every block in the field grid a unique id every 
     //block in y-direction adds 1 to the id while every block in 
     //x-direction adds 1000 (MULIPLIER_X).
@@ -58,9 +60,9 @@ public class GameEngine extends Application {
     private static Stage battleStage;
     
     private static boolean isPaused = true;
-    private static int numberToPlay = 1;
+    private static int numberToPlay = 0;
     private Thread thread;
-    private static BonusHandler bonusHandler;
+    private static final BonusHandler bonusHandler = new BonusHandler();
     private static GameGrid gameGrid;
     private static KeyCode pauseKey = KeyCode.P;
     
@@ -77,19 +79,16 @@ public class GameEngine extends Application {
 
         userInterface = new UserInterface(this);
         gameGrid = new GameGrid();
+        createPlayers();
         
-        bonusHandler = new BonusHandler();
         setUpDefaultControlKeys();
-        startGameThread();
+        thread = new Thread(this);
+        thread.start();
     }
-
-        private void startGameThread() {
-        
-        //Get the thread that is running movoment of the players and creations of bonuses started.
-        thread = new Thread(new Runnable() {
 
             @Override
             public void run() {
+                thread.setPriority(Thread.MAX_PRIORITY);
                 try {
                     while (isRunning) {
                         if(!isPaused) {
@@ -97,13 +96,13 @@ public class GameEngine extends Application {
                             for(Player player: players) {
                                 moved += player.movePlayer();
                             }
-                            playerKiller(gameGrid.deathBuilder());
+                            playerKiller(GameGrid.deathBuilder());
                             if(moved > 0) {
                                 bonusHandler.bonusRound();
                                 RightPane.showScores();
                             }
                         }
-                        if((gameGrid.isDeathRunning() == false && getNumberOfAlivePlayers() < 2 && !isPaused) || getNumberOfAlivePlayers() < 1 && !isPaused) {
+                        if((GameGrid.isDeathRunning() == false && getNumberOfAlivePlayers() < 2 && !isPaused) || getNumberOfAlivePlayers() < 1 && !isPaused) {
                             Platform.runLater(() -> {
                                 gameOver();
                             });
@@ -113,9 +112,7 @@ public class GameEngine extends Application {
                 }
                 catch (InterruptedException ex) {
                 }
-            }
-        });
-        thread.start();
+
     }
 /*
  * Brings up the initial screen and displays the winner of the game.
@@ -145,8 +142,14 @@ public class GameEngine extends Application {
      * Unpauses the game and sets all players in status alive so they start moving.
      */
     public static void begin() {
+        switch(numberToPlay) {
+            case 4: getPlayer(PlayerEnum.PLAYER_FOUR.getNumber()).setAlive(true);
+            case 3: getPlayer(PlayerEnum.PLAYER_THREE.getNumber()).setAlive(true);
+            case 2: getPlayer(PlayerEnum.PLAYER_TWO.getNumber()).setAlive(true);
+            case 1: getPlayer(PlayerEnum.PLAYER_ONE.getNumber()).setAlive(true);
+        } 
         for(Player player: players) {
-            player.setAlive(true);
+            player.createPlayer();
         }
     }
     /**
@@ -154,11 +157,18 @@ public class GameEngine extends Application {
      * to enable every game to start from scratch.
      */
     public void restart() {
-        thread.interrupt();
-        gameGrid = new GameGrid();
-        createPlayers ();
+        for(Player player: players) {
+            player.clearScore();
+            player.setAlive(false);
+            player.setTurn(-200);
+        }
+        GameGrid.reset();
         UserInterface.restart();
-        startGameThread();
+        try {
+            TimeUnit.MILLISECONDS.sleep(500);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(GameEngine.class.getName()).log(Level.SEVERE, null, ex);
+        }
         begin(); 
     }
     /**
@@ -226,9 +236,6 @@ public class GameEngine extends Application {
         }
         return null;
     }
-    public static GameGrid getCurrentGameGrid() {
-        return gameGrid;
-    }
     public static HashSet<Player> getPlayers() {
         return players;
     }
@@ -268,13 +275,10 @@ public class GameEngine extends Application {
      * Creates the chosen number of players.
      */
     private static void createPlayers () {
-        players.clear();
-        switch(numberToPlay) {
-            case 4: players.add(new Player(PlayerEnum.PLAYER_FOUR, bonusHandler, player4Controls));
-            case 3: players.add(new Player(PlayerEnum.PLAYER_THREE, bonusHandler, player3Controls));
-            case 2: players.add(new Player(PlayerEnum.PLAYER_TWO, bonusHandler, player2Controls));
-            case 1: players.add(new Player(PlayerEnum.PLAYER_ONE, bonusHandler, player1Controls));
-        } 
+        players.add(new Player(PlayerEnum.PLAYER_FOUR, player4Controls));
+        players.add(new Player(PlayerEnum.PLAYER_THREE, player3Controls));
+        players.add(new Player(PlayerEnum.PLAYER_TWO, player2Controls));
+        players.add(new Player(PlayerEnum.PLAYER_ONE, player1Controls));
     }
     /**
      * Adds a key for contolling the direction of the player. If a key for the 

@@ -35,7 +35,6 @@ public final class Player {
     
     private final LinkedList<BuildingBlock> body = new LinkedList<>();
    // private LinkedList<BuildingBlock> eraseBody = new LinkedList<>();
-    private static BonusHandler events;
     private final PlayerEnum playerDetails;
     
     private int turn;
@@ -61,9 +60,8 @@ public final class Player {
      * @param bonusHandler The BonusHandler this player should recieve bonus events from. 
      * @param controls The start controls for this player.
      */
-    public Player(PlayerEnum playerDetails, BonusHandler bonusHandler, HashMap controls) {
+    public Player(PlayerEnum playerDetails, HashMap controls) {
         this.playerDetails = playerDetails;
-        this.events = bonusHandler;
         this.controls = controls;
         turn = -200;
         createPlayer(); 
@@ -74,18 +72,20 @@ public final class Player {
      * activated.
      */
     public void createPlayer() {
-        makeShort();
-        makeSlow();
-        BuildingBlock startSnake = GameEngine.getCurrentGameGrid().getBlock(GameEngine.getCurrentGameGrid().getStartPosition());
+        if(isAlive) {
+            makeShort();
+            makeSlow();
+            BuildingBlock startSnake = GameGrid.getBlock(GameGrid.getStartPosition());
 
-        //Only first block in the stack is added. This makes the snake start 
-        //being only one block in size. The rest is added by mevement.
-        body.add(startSnake);    
+            //Only first block in the stack is added. This makes the snake start 
+            //being only one block in size. The rest is added by mevement.
+            body.add(startSnake);    
 
-        //If deathblocks are blocking the the newly created player, get rid of them.
-        currentDirection = playerDetails.getStartDirection();
-        currentLocation = GameEngine.getCurrentGameGrid().getStartPosition();
-        mayChangeDirection = false;
+            //If deathblocks are blocking the the newly created player, get rid of them.
+            currentDirection = playerDetails.getStartDirection();
+            currentLocation = GameGrid.getStartPosition();
+            mayChangeDirection = false;
+        }
     }
     /**
      * Makes the player move. This method is called by the game thread that controls 
@@ -94,23 +94,11 @@ public final class Player {
      * @return 0 if player didnt move and one if it did. 
      */
     public int movePlayer() {
-        //If the player har died resently take care of the remains one step at a time.
-        //This is done here and not as a loop to avoid lag due to thread sleep in the loop.
-        /*
-        if(eraseBody.size() > 0) {
-            if(GameEngine.getCurrentGameGrid().isInSafeZone(eraseBody.peek().getBlockId())) {
-                eraseBody.poll().revertDeathBlock(true);
-            }
-            else {
-                eraseBody.poll().setDeathBlockIrreveritble();
-            }
-        }
-        */
         if(body.contains(lastBlock)) {
             if(body.peek().equals(lastBlock)) {
                     lastBlock = null;
                 }
-            if(GameEngine.getCurrentGameGrid().isInSafeZone(body.peek().getBlockId())) {
+            if(GameGrid.isInSafeZone(body.peek().getBlockId())) {
                 body.poll().revertDeathBlock(true);
             }
             else {
@@ -123,21 +111,21 @@ public final class Player {
         if(isAlive && turn > 0 && turn % playerSlownes == 0) {
             moved = 1;
             int destination = currentLocation + currentDirection;
-            
+
             //If the end of the grid is reached and no deathblock is in the way
             //set the destination to the other side of the screen.
-            if(GameEngine.getCurrentGameGrid().getBlock(destination).getBlockId() < 0) {
-                destination = jumpToOtherSide(GameEngine.getCurrentGameGrid().getBlock(currentLocation));
+            if(GameGrid.getBlock(destination).getBlockId() < 0) {
+                destination = jumpToOtherSide(GameGrid.getBlock(currentLocation));
             }
             //If the destination block is a death block or the startpoint kill the player.
-            if(GameEngine.getCurrentGameGrid().getBlock(destination).isDeathBlock() || GameEngine.getCurrentGameGrid().getBlock(destination).getBlockId() == GameEngine.getCurrentGameGrid().getStartPosition()) {
+            if(GameGrid.getBlock(destination).isDeathBlock() || destination == GameGrid.getStartPosition()) {
                 killPlayer();
                 return 1;
             }
             //Move the player, see if a bonus was taken and handle bonus happenings.
-            BuildingBlock moveTo = GameEngine.getCurrentGameGrid().getBlock(destination);
+            BuildingBlock moveTo = GameGrid.getBlock(destination);
             moveTo.setPlayerBlock(playerDetails.getColor());
-            handleBonuses(events.getBonus(destination));
+            handleBonuses(BonusHandler.getBonus(destination));
             currentLocation = moveTo.getBlockId();
             body.add(moveTo);
             mayChangeDirection = true;
@@ -151,11 +139,12 @@ public final class Player {
             //to enable player to shrink after the make short bonus.
             if (body.size() > currentLength) {
                 int blockId = body.peek().getBlockId();
-                body.poll().revertDeathBlock(GameEngine.getCurrentGameGrid().isInSafeZone(blockId));  
+                body.poll().revertDeathBlock(GameGrid.isInSafeZone(blockId));  
             }
             if (body.size() > currentLength) {
                 int blockId = body.peek().getBlockId();
-                body.poll().revertDeathBlock(GameEngine.getCurrentGameGrid().isInSafeZone(blockId)); 
+                body.poll().revertDeathBlock(GameGrid.isInSafeZone(blockId)); 
+
             }
         }
         turn ++;
@@ -168,7 +157,9 @@ public final class Player {
     public void handleBonuses(int bonusHappening) {
         
         switch(bonusHappening) {
-            case BonusHandler.REGULAR_BONUS: makeLonger(4); makeFaster(); score++; break;
+            case BonusHandler.REGULAR_BONUS: makeLonger(4); makeFaster(); score++; 
+            turn = 1;
+            break;
             case BonusHandler.MAKE_SHORT_BONUS: setLength(8); score++; break;
             case BonusHandler.ADD_DEATH_BLOCK_BONUS: score++; break;
         }
@@ -189,7 +180,7 @@ public final class Player {
      */
     public int jumpToOtherSide(BuildingBlock block) {
 
-            return block.getBlockId() - (currentDirection * ((GameEngine.getCurrentGameGrid().getGridSize() / GameEngine.getCurrentGameGrid().getBlockSize()) - 1));
+            return block.getBlockId() - (currentDirection * ((GameGrid.getGridSize() / GameGrid.getBlockSize()) - 1));
     }
     /**
      * Kills the player. If the game field is still deminishing or the player is
@@ -200,13 +191,11 @@ public final class Player {
         //eraseBody = new LinkedList<>(body);
         lastBlock = body.getLast();
         addToScore(GameEngine.PLAYER_DEATH_PENALTY);
-        if(score  < 0 && !GameEngine.getCurrentGameGrid().isDeathRunning()) {
+        if(score  < 0 && !GameGrid.isDeathRunning()) {
             setAlive(false);
         }
-        else {
-            createPlayer();
-            turn = -500;
-        }
+        createPlayer();
+        turn = -500;
     }
     /**
      * Makes the player slightly faster.
@@ -214,7 +203,6 @@ public final class Player {
     public void makeFaster() {
         if(playerSlownes > 3) {
             playerSlownes--;
-            turn = 1;
         }
     }    
     /**
@@ -315,5 +303,11 @@ public final class Player {
      */
     public void addToScore(int addToScore) {
         score += addToScore;
+    }
+    public void clearScore(){
+        score = 0;
+    }
+    public void setTurn(int newTurn) {
+        turn = newTurn;
     }
 }

@@ -21,18 +21,18 @@ public class BuildingBlock {
     //Regular fields
     private final int blockId;
     private Rectangle rectangle;
-    private final Color color;
+    private Color revertColor;
     private boolean isDeathBlock = false;
     private boolean isDeathBlockIrrevertible = false;
     
     /**
      * Constructor used for creating blocks that only need an id, not a graphical appearance.
      * @param blockId the block id to be set for this building block.
-     * @param color the color of the block
+     * @param color the revertColor of the block
      */
     public BuildingBlock(int blockId, Color color) {
         this.blockId = blockId;
-        this.color = color;
+        this.revertColor = color;
         rectangle = new Rectangle();
         rectangle.setFill(color);
     }
@@ -45,8 +45,8 @@ public class BuildingBlock {
      */
     public BuildingBlock(int setX, int setY, int size, int blockId) {
         this.blockId = blockId;
-        color = GameGrid.GAMEGRID_COLOR;
-        createSquare(setX, setY , size, color);
+        revertColor = GameGrid.GAMEGRID_COLOR;
+        createSquare(setX, setY , size, revertColor);
     }
     /**
      * Creates the square that is the base for the building block.
@@ -82,14 +82,14 @@ public class BuildingBlock {
     }
     /**
      * Sets the collor for this building block.
-     * @param color new color for the block.
+     * @param color new revertColor for the block.
      */
     public void setBlockColor(Color color) {
         rectangle.setFill(color);
     }
     /**
-     * Returns the current color af this block.
-     * @return current block color.
+     * Returns the current revertColor af this block.
+     * @return current block revertColor.
      */
     public Paint getBlockColor() {
         return rectangle.getFill();
@@ -97,6 +97,15 @@ public class BuildingBlock {
     public void setPlayerBlock(Color playerColor) {
         setBlockColor(playerColor);
         setDeathBlock();
+    }
+    public void resetBlock() {
+        rectangle.setFill(revertColor);
+        isDeathBlock = false;
+        isDeathBlockIrrevertible = false;
+        rectangle.setEffect(null); 
+    }
+    public void setRevertColor(Color color) {
+        revertColor = color;
     }
     /**
      * Returns the shape that is associated with this building block.
@@ -123,24 +132,20 @@ public class BuildingBlock {
      * remove the death block property.
      */
     public void setDeathBlockIrreveritble() {
+        rectangle.setEffect(null);
         isDeathBlock = true;
         setBlockColor(Color.BLACK);
         isDeathBlockIrrevertible = true;
     }
     /**
      * If the death block property is not irrevertible this method removes the
-     * it and sets the correct color for the block depending on where it is in the GameGrid.
+ it and sets the correct revertColor for the block depending on where it is in the GameGrid.
      * @param isInSafeZone set true if the block is in the safe zone in the middle of the GameGrid.
      */
     public void revertDeathBlock(boolean isInSafeZone) {
         if(!isDeathBlockIrrevertible) {
             isDeathBlock = false;
-            if(isInSafeZone) {
-                rectangle.setFill(GameGrid.SAFE_ZONE_COLOR);
-            }
-            else {
-                rectangle.setFill(GameGrid.GAMEGRID_COLOR);         
-            }
+            rectangle.setFill(revertColor);
         }
     }
 }
