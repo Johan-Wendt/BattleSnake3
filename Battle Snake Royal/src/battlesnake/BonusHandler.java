@@ -21,7 +21,7 @@ public class BonusHandler {
     public static final int ADD_DEATH_BLOCK_BONUS = 2;
     private static final int LIFESPAN_MIN = 2000;
     private static final int LIFESPAN_MAX = 10000;
-    private static final double BONUS_PROBABILITY = 0.045;
+    private static final double BONUS_PROBABILITY = 0.009;
     private final static HashSet <Bonus> eventList = new HashSet<>();    
     //Regular fields
     private Random random;

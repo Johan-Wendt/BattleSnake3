@@ -72,6 +72,9 @@ public class GameEngine extends Application implements Runnable{
     private static UserInterface userInterface;
     private int turn = 0;
     
+    private GameGrid gameGrid2;
+    
+    long startTime;
         
     public void NewGameEngine() {
     }
@@ -80,6 +83,7 @@ public class GameEngine extends Application implements Runnable{
         this.battleStage = battleStage;
 
         userInterface = new UserInterface(this);
+        gameGrid2 = new GameGrid(true);
         gameGrid = new GameGrid();
         createPlayers();
         
@@ -94,24 +98,29 @@ public class GameEngine extends Application implements Runnable{
                 thread.setPriority(Thread.MAX_PRIORITY);
                 try {
                     while (isRunning) {
+                        int moved = 0;
                         if(!isPaused) {
-                            int moved = 0;
+                            
                             for(Player player: players) {
                                 moved += player.movePlayer();
                             }
-                            if(!(moved < 0))playerKiller(GameGrid.deathBuilder());
+                            if(!(moved < 0) && turn > 500)playerKiller(GameGrid.deathBuilder());
                             if(turn % 3 == 2) {
                                 bonusHandler.bonusRound();
                                 RightPane.showScores();
+                                moved ++;
                             }
+                            if((GameGrid.isDeathRunning() == false && getNumberOfAlivePlayers() < 2) || getNumberOfAlivePlayers() < 1) {
+                                Platform.runLater(() -> {
+                                    gameOver();
+                                });
+                            }
+                            turn++;
                         }
-                        if((GameGrid.isDeathRunning() == false && getNumberOfAlivePlayers() < 2 && !isPaused) || getNumberOfAlivePlayers() < 1 && !isPaused) {
-                            Platform.runLater(() -> {
-                                gameOver();
-                            });
+                        if(turn < 50 && turn >= 0) {
+                            thread.sleep((long) Math.sqrt(50 - turn));
                         }
                         thread.sleep(gameSpeed);
-                        turn++;
                     }
                 }
                 catch (InterruptedException ex) {
@@ -166,8 +175,9 @@ public class GameEngine extends Application implements Runnable{
             player.clearScore();
             player.clearBody();
             player.setAlive(false);
-            player.setTurn(-200);
+            player.setTurn(-20);
         }
+        turn = 0;
         GameGrid.reset();
         UserInterface.restart();
         try {

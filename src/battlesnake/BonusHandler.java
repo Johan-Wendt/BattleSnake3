@@ -21,7 +21,7 @@ public class BonusHandler {
     public static final int ADD_DEATH_BLOCK_BONUS = 2;
     private static final int LIFESPAN_MIN = 2000;
     private static final int LIFESPAN_MAX = 10000;
-    private static final double BONUS_PROBABILITY = 0.0045;
+    private static final double BONUS_PROBABILITY = 0.009;
     private final static HashSet <Bonus> eventList = new HashSet<>();    
     //Regular fields
     private Random random;
@@ -62,14 +62,14 @@ public class BonusHandler {
     public void createRandomBonus() { 
         
         int chance = new Random().nextInt(BonusEnum.REGULAR_BONUS.getBonusProbabilityFactor() + BonusEnum.MAKE_SHORT_BONUS.getBonusProbabilityFactor() + BonusEnum.ADD_DEATH_BLOCK_BONUS.getBonusProbabilityFactor());
-        if(chance < BonusEnum.MAKE_SHORT_BONUS.getBonusProbabilityFactor()) {
-            createMakeShortBonus();
+        if(chance < BonusEnum.REGULAR_BONUS.getBonusProbabilityFactor()) {
+            createRegularBonus();
         }
-        else if (chance < BonusEnum.ADD_DEATH_BLOCK_BONUS.getBonusProbabilityFactor() + BonusEnum.MAKE_SHORT_BONUS.getBonusProbabilityFactor()) {
+        else if (chance < BonusEnum.ADD_DEATH_BLOCK_BONUS.getBonusProbabilityFactor() + BonusEnum.REGULAR_BONUS.getBonusProbabilityFactor()) {
             createAddDeathBlocksBonus();
         }
         else {
-            createRegularBonus();
+            createMakeShortBonus();
         }
     }
     /**

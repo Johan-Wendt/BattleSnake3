@@ -108,7 +108,7 @@ public final class Player {
         //Only act if player is alive, turn is set to a positive number and
         //the speed of the player allows it.
         int moved = 0;
-        if(isAlive && turn > 0 && turn % playerSlownes == playerDetails.getMoveTurn()) {
+        if(turn % playerSlownes == playerDetails.getMoveTurn() && isAlive && turn > 0) {
             moved = 1;
             int destination = currentLocation + currentDirection;
 
@@ -291,7 +291,7 @@ public final class Player {
     public void setCurrentDirection(KeyCode pressedKey) {
         if(controls.containsKey(pressedKey)) {
             int newDirection  = controls.get(pressedKey);
-            if(newDirection != -currentDirection && newDirection != currentDirection && mayChangeDirection) {
+            if(mayChangeDirection && newDirection != -currentDirection && newDirection != currentDirection) {
                 currentDirection = newDirection;
                 mayChangeDirection = false;
             }

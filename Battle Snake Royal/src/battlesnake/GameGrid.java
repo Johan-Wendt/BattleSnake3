@@ -67,6 +67,23 @@ public class GameGrid {
         }
         getBlock(playerStartpoint).setDeathBlockIrreveritble(); 
     }
+    public GameGrid(boolean useForBackground) {
+        blockSize = UserInterface.getBlockSize();
+        gridSize = UserInterface.getGridSize();
+        currentGridSize = gridSize / blockSize;
+
+        for(int i = 0; i < gridSize/blockSize; i ++) {
+            for(int j = 0; j < gridSize/blockSize; j ++) {
+                BuildingBlock block = new BuildingBlock(i * blockSize, j * blockSize, blockSize);
+                UserInterface.gameGridPane.getChildren().add(block.getShape());
+
+                if(isInSafeZone(j + i * GameEngine.MULIPLIER_X)) {
+                    block.setBlockColor(SAFE_ZONE_COLOR);
+                    block.setRevertColor(SAFE_ZONE_COLOR);
+                }
+            }
+        }
+    }
     /**
      * This creates the black death blocks that make the field smaller and smaller.
      * The method is called once every round by the thread that controlls game events
