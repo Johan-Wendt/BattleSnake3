@@ -20,7 +20,7 @@ import javafx.scene.shape.*;
 public class BuildingBlock {
     //Regular fields
     private final int blockId;
-    private Rectangle rectangle;
+    private Shape shape;
     private Color revertColor;
     private boolean isDeathBlock = false;
     private boolean isDeathBlockIrrevertible = false;
@@ -33,8 +33,14 @@ public class BuildingBlock {
     public BuildingBlock(int blockId, Color color) {
         this.blockId = blockId;
         this.revertColor = color;
-        rectangle = new Rectangle();
-        rectangle.setFill(color);
+        shape = new Circle();
+        shape.setFill(color);
+    }
+    
+    public BuildingBlock(int setX, int setY, int size) {
+        blockId = 0;
+        revertColor = GameGrid.GAMEGRID_COLOR;
+        createRectangle(setX, setY , size, revertColor);
     }
     /**
      * The commonly used constructor. 
@@ -46,7 +52,7 @@ public class BuildingBlock {
     public BuildingBlock(int setX, int setY, int size, int blockId) {
         this.blockId = blockId;
         revertColor = GameGrid.GAMEGRID_COLOR;
-        createSquare(setX, setY , size, revertColor);
+        createCircle(setX, setY , size, revertColor);
     }
     /**
      * Creates the square that is the base for the building block.
@@ -55,23 +61,30 @@ public class BuildingBlock {
      * @param size Base of the square
      * @param color Color of the square
      */
-    private void createSquare(int X, int Y, int size, Color color) {
-        rectangle = new Rectangle(size, size, color);
-        rectangle.setX(X);
-        rectangle.setY(Y);
-        rectangle.setStroke(Color.BLACK);
+    private void createCircle(int X, int Y, int size, Color color) {
+        shape = new Circle(size/2, color);
+        ((Circle)shape).setCenterX(X + size/2);
+        ((Circle)shape).setCenterY(Y + size/2);
+       // rectangle.setStroke(Color.BLACK);
+        
+    }
+    private void createRectangle(int X, int Y, int size, Color color) {
+        shape = new Rectangle(size, size, color);
+        ((Rectangle)shape).setX(X);
+        ((Rectangle)shape).setY(Y);
+       // rectangle.setStroke(Color.BLACK);
     }
     /**
      * Apply the lighting effect used for the bonuses
      */
     public void setLightingEffect() {
-        rectangle.setEffect(new Lighting());   
+        shape.setEffect(new Lighting());   
     }
     /**
      * Removes any effect applied to the square of this BuildingBlock.
      */
     public void removeEffect() {
-        rectangle.setEffect(null);   
+        shape.setEffect(null);   
     }
     /**
      * Returns the id for this block.
@@ -85,24 +98,24 @@ public class BuildingBlock {
      * @param color new revertColor for the block.
      */
     public void setBlockColor(Color color) {
-        rectangle.setFill(color);
+        shape.setFill(color);
     }
     /**
      * Returns the current revertColor af this block.
      * @return current block revertColor.
      */
     public Paint getBlockColor() {
-        return rectangle.getFill();
+        return shape.getFill();
     }
     public void setPlayerBlock(Color playerColor) {
         setBlockColor(playerColor);
         setDeathBlock();
     }
     public void resetBlock() {
-        rectangle.setFill(revertColor);
+        shape.setFill(revertColor);
         isDeathBlock = false;
         isDeathBlockIrrevertible = false;
-        rectangle.setEffect(null); 
+        shape.setEffect(null); 
     }
     public void setRevertColor(Color color) {
         revertColor = color;
@@ -112,7 +125,7 @@ public class BuildingBlock {
      * @return the shape (currently only rectangle)
      */
     public Shape getShape() {
-        return rectangle;
+        return shape;
     }
     /**
      * Returns true if this block is a death block.
@@ -132,7 +145,7 @@ public class BuildingBlock {
      * remove the death block property.
      */
     public void setDeathBlockIrreveritble() {
-        rectangle.setEffect(null);
+        shape.setEffect(null);
         isDeathBlock = true;
         setBlockColor(Color.BLACK);
         isDeathBlockIrrevertible = true;
@@ -145,7 +158,7 @@ public class BuildingBlock {
     public void revertDeathBlock(boolean isInSafeZone) {
         if(!isDeathBlockIrrevertible) {
             isDeathBlock = false;
-            rectangle.setFill(revertColor);
+            shape.setFill(revertColor);
         }
     }
 }
