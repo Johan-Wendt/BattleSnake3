@@ -4,5 +4,5 @@ Created-By: 1.8.0_45-b14 (Oracle Corporation)
 X-COMMENT: Main-Class will be added automatically by build
 Codebase: *
 Permissions: all-permissions
-Application-Name: BattleSnake
+Application-Name: FlowSnake
 
