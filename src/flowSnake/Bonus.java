@@ -8,7 +8,7 @@ import javafx.scene.paint.Color;
  */
 public abstract class Bonus {
     private final int lifespan;
-    private final int bonusHappening;
+    private final BonusEnum bonusEnum;
     private final BuildingBlock bonusBlock;
     private boolean isToRemove = false;
     private boolean isTaken = false;
@@ -21,13 +21,13 @@ public abstract class Bonus {
      * @param lifespan The how long this bonus should be on the GameGrid.
      * @param bonusHappening Int describing what happens when the bonus is taken.
      */
-    public Bonus(BuildingBlock bonusBlock, Color bonusColor, int lifespan, int bonusHappening) {
+    public Bonus(BuildingBlock bonusBlock, BonusEnum bonusEnum, int lifespan) {
         this.lifespan = GameEngine.getTurn() + lifespan;
         this.bonusBlock = bonusBlock;
-        this.bonusHappening = bonusHappening;
+        this.bonusEnum = bonusEnum;
         if(this.bonusBlock.getBlockColor().equals(GameGrid.GAMEGRID_COLOR)) {
-            this.bonusBlock.setBlockColor(bonusColor);
-            this.bonusBlock.setLightingEffect();
+            this.bonusBlock.addBacgoundImage(bonusEnum.getBonusImage());
+            //this.bonusBlock.setLightingEffect();
         }
         else {
             setTaken();
@@ -60,7 +60,7 @@ public abstract class Bonus {
      * @return happening for this bonus.
      */
     public int getBonusHappening() {
-        return bonusHappening;
+        return bonusEnum.getBonusNumber();
     }
     /**
      * Sets the isTaken property to true and also sets the isToRemove property to true.
@@ -75,6 +75,10 @@ public abstract class Bonus {
      * on the GameGrid.
      */
     public void executeBonus() {
+    }
+    
+    public void setPicture(String picture) {
+        bonusBlock.addBacgoundImage(picture);
     }
 
 }

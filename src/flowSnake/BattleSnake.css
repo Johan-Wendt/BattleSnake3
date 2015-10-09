@@ -4,10 +4,10 @@
     Author     : johanwendt
 */
 .root {
-     -fx-background-image: url("images.jpg");
+     -fx-background-image: url("telavoxBlue.jpg");
 }
 #RPane, #MBar {
-    -fx-background-image: url("background2.jpg");
+    -fx-background-image: url("newBackground.jpg");
 }
 .menu {
     -fx-font-size: 10px;

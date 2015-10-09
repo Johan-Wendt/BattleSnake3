@@ -23,28 +23,33 @@ import javafx.scene.paint.Color;
  * @author johanwendt
  */
 public enum BonusEnum {
-    REGULAR_BONUS (0, Color.web("#FF0000"), "Makes the player longer and faster.", 10),
-    MAKE_SHORT_BONUS (1, Color.web("#009933"), "Makes the player short.", 1),
-    ADD_DEATH_BLOCK_BONUS (2, Color.web("#FFFF00"), "Adds deathblocks to the field.", 18);
+    REGULAR_BONUS (0, "flowLogo.png", "Makes the player longer and faster.", 10),
+    MAKE_SHORT_BONUS (1, "flowLogo.png", "Makes the player short.", 1),
+    ADD_DEATH_BLOCK_BONUS (2, "flowLogo.png", "Adds deathblocks to the field.", 18);
     
-    private final Color bonusColor;
+    private final String bonusImage;
     private final String bonusDescription;
     private final int bonusProbabilityFactor;
+    private final int bonusNumber;
     
     
-    BonusEnum(int bonusHappening, Color bonusColor, String bonusDescription, int bonusProbabilityFactor) {
-    this.bonusColor = bonusColor;
+    BonusEnum(int bonusNumber, String bonusImage, String bonusDescription, int bonusProbabilityFactor) {
+    this.bonusImage = bonusImage;
     this.bonusDescription = bonusDescription;
     this.bonusProbabilityFactor = bonusProbabilityFactor;
+    this.bonusNumber = bonusNumber;
     }
 
     public String getBonusDescription() {
         return bonusDescription;
     }
-    public Color getBonusColor() {
-        return bonusColor;
+    public String getBonusImage() {
+        return bonusImage;
     }
     public int getBonusProbabilityFactor() {
         return bonusProbabilityFactor;
+    }
+    public int getBonusNumber() {
+        return bonusNumber;
     }
 }

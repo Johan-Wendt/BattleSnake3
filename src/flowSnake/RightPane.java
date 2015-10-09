@@ -51,23 +51,23 @@ public class RightPane {
         
     }
     public void setUpBonusInformation() {
-        regularBonusText.setEffect(scoreEffect.getEffect(BonusEnum.REGULAR_BONUS.getBonusColor()));
+        regularBonusText.setEffect(scoreEffect.getEffect(Color.RED));
         regularBonusText.setFont(new Font(UserInterface.getPlayerScoreSize() * 0.6));
 
-        makeShortBonusText.setEffect(scoreEffect.getEffect(BonusEnum.MAKE_SHORT_BONUS.getBonusColor()));
+        makeShortBonusText.setEffect(scoreEffect.getEffect(Color.RED));
         makeShortBonusText.setFont(new Font(UserInterface.getPlayerScoreSize() * 0.6));
 
-        addDeathBlockBonusText.setEffect(scoreEffect.getEffect(BonusEnum.ADD_DEATH_BLOCK_BONUS.getBonusColor()));
+        addDeathBlockBonusText.setEffect(scoreEffect.getEffect(Color.RED));
         addDeathBlockBonusText.setFont(new Font(UserInterface.getPlayerScoreSize() * 0.6));
         
         //Create the rectangles that show what type of bonus the description is about.
-        Rectangle regularBonusColor = new Rectangle(UserInterface.getBlockSize() * 1.5, UserInterface.getBlockSize() * 1.5, BonusEnum.REGULAR_BONUS.getBonusColor());
+        Rectangle regularBonusColor = new Rectangle(UserInterface.getBlockSize() * 1.5, UserInterface.getBlockSize() * 1.5, Color.RED);
         regularBonusColor.setStroke(Color.BLACK);
         regularBonusColor.setEffect(new Lighting());
-        Rectangle makeShortBonusColor = new Rectangle(UserInterface.getBlockSize() * 1.5, UserInterface.getBlockSize() * 1.5, BonusEnum.MAKE_SHORT_BONUS.getBonusColor());
+        Rectangle makeShortBonusColor = new Rectangle(UserInterface.getBlockSize() * 1.5, UserInterface.getBlockSize() * 1.5, Color.RED);
         makeShortBonusColor.setStroke(Color.BLACK);
         makeShortBonusColor.setEffect(new Lighting());
-        Rectangle addDeathBlockBonusColor = new Rectangle(UserInterface.getBlockSize() * 1.5, UserInterface.getBlockSize() * 1.5, BonusEnum.ADD_DEATH_BLOCK_BONUS.getBonusColor());
+        Rectangle addDeathBlockBonusColor = new Rectangle(UserInterface.getBlockSize() * 1.5, UserInterface.getBlockSize() * 1.5, Color.RED);
         addDeathBlockBonusColor.setStroke(Color.BLACK);
         addDeathBlockBonusColor.setEffect(new Lighting());
         

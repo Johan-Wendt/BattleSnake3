@@ -99,7 +99,7 @@ public abstract class PopUp {
         pupUpStage.setOnCloseRequest(c -> {
             showPopUp(false);
         });
-        setBackGround("images.jpg", true);
+        setBackGround("newBackground.jpg", true);
                 
         popUpPane.getChildren().add(popUpPaneInnerUpper);
         popUpPane.getChildren().add(extraPane);

@@ -89,7 +89,7 @@ public class UserInterface {
         standardPadding = (screenHeight - gridSize - menuBarSize) / 2;
         playerScoreSize = 0.9 * screenHeight / standardPadding;
         setUpMainScreen();
-        aboutStage = new AboutStage("About Flow Snake", getInfoAboutStage(), "I get it, let's play some more.", 400);
+        aboutStage = new AboutStage("About Flow Snake", getInfoAboutStage(), "I get it, let's play some more.", 600);
         controlsStage = new ControlsStage("Set player controls", "Back to the battlin'");
         RightPane rightPane = new RightPane();
         firstStage = new FirstStage("Start New Game", getInfoFirstStage(), " LET'S DO THIS! ", "  Cancel  ", gameEngine);
@@ -116,6 +116,7 @@ public class UserInterface {
     private static void setUpMainScreen() {
         Scene mainScene = new Scene(mainPane, screenWidth, screenHeight);
         gameGridPane.setPrefSize(gridSize, gridSize);
+        gameGridPane.setMaxSize(gridSize, gridSize);
         mainPane.setCenter(RightPane.getPane());
         mainPane.setLeft(gameGridPane);
         
