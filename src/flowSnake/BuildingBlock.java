@@ -9,7 +9,19 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import javafx.scene.effect.Lighting;
+import javafx.scene.image.Image;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundImage;
+import javafx.scene.layout.BackgroundPosition;
+import javafx.scene.layout.BackgroundRepeat;
+import javafx.scene.layout.BackgroundSize;
+import javafx.scene.layout.Border;
+import javafx.scene.layout.BorderStroke;
+import javafx.scene.layout.BorderStrokeStyle;
+import javafx.scene.layout.BorderWidths;
+import javafx.scene.layout.CornerRadii;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.ImagePattern;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.*;
@@ -104,6 +116,15 @@ public class BuildingBlock {
      */
     public void setBlockColor(Color color) {
         shape.setFill(color);
+    }
+    
+    public void addBacgoundImage(String picture) {
+        Image image = new Image(getClass().getResourceAsStream(picture));
+        
+        ImagePattern imagePattern = new ImagePattern(image);
+        
+        shape.setFill(imagePattern);
+                
     }
     /**
      * Returns the current revertColor af this block.

@@ -45,7 +45,7 @@ public abstract class PopUp {
    // private HBox extraPane = new HBox();
     
     protected final static int STANDARD_PANE_WIDTH = 600;
-    private final static int STANDARD_PANE_HEIGHT = 330;
+    private final static int STANDARD_PANE_HEIGHT = 600;
     private final static int INNER_UPPER_HEIGHT = STANDARD_PANE_HEIGHT - 50;
     private final static int INNER_LOWER_HEIGHT = STANDARD_PANE_HEIGHT - INNER_UPPER_HEIGHT;
     private final static int STANDARD_PADDING = 20;
@@ -99,7 +99,7 @@ public abstract class PopUp {
         pupUpStage.setOnCloseRequest(c -> {
             showPopUp(false);
         });
-        setBackGround("images.jpg", true);
+        setBackGround("flowLogo.png", true);
                 
         popUpPane.getChildren().add(popUpPaneInnerUpper);
        // popUpPane.getChildren().add(extraPane);

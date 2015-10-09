@@ -23,10 +23,10 @@ import javafx.scene.paint.Color;
  * @author johanwendt
  */
 public enum PlayerEnum {
-    PLAYER_ONE (1, "Flow Free", Color.web("#B200B2"), GameEngine.RIGHT, 2, "player1Death.wav"),
-    PLAYER_TWO (2, "Flow Fixed", Color.web("#66FF33"), GameEngine.LEFT, 4, "player2Death.wav"),
-    PLAYER_THREE (3, "Flow Mobile", Color.web("#E68A00"), GameEngine.UP, 6, "player3Death.wav"),
-    PLAYER_FOUR (4, "PBX-monster", Color.web("#00FFFF"), GameEngine.DOWN, 8, "player4Death.wav");
+    PLAYER_ONE (1, "Flow Free", Color.web("#006E00"), GameEngine.RIGHT, 2, "death.wav"),
+    PLAYER_TWO (2, "Flow Fixed", Color.web("#F10602"), GameEngine.LEFT, 4, "death.wav"),
+    PLAYER_THREE (3, "Flow Mobile", Color.web("#898989"), GameEngine.UP, 6, "death.wav"),
+    PLAYER_FOUR (4, "PBX-monster", Color.web("#FAFB1A"), GameEngine.DOWN, 8, "death.wav");
     
     private final int number;
     private final String name;

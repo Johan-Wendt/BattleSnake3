@@ -76,9 +76,9 @@ public final class Player {
         turn = -200;
         createPlayer();
         
-        regularBonusSound = new AudioClip(getClass().getResource("chips.wav").toExternalForm());
-        addDeathBlocksBonusSound = new AudioClip(getClass().getResource("burp.wav").toExternalForm());
-        makeShortBonusSound = new AudioClip(getClass().getResource("strange.mp3").toExternalForm());
+        regularBonusSound = new AudioClip(getClass().getResource("oldPhone.wav").toExternalForm());
+        addDeathBlocksBonusSound = new AudioClip(getClass().getResource("silenceMobile.wav").toExternalForm());
+        makeShortBonusSound = new AudioClip(getClass().getResource("bleep.aiff").toExternalForm());
         deathSound = new AudioClip(getClass().getResource(playerDetails.getDeathSound()).toExternalForm());
         
         regularBonusSound.play(0);
@@ -183,18 +183,18 @@ public final class Player {
                 turn = (turn % playerSlownes) - 2 * playerSlownes;
                 makeFaster(); 
                 score++; 
-                regularBonusSound.play();
+                regularBonusSound.play(0.3);
                 break;
             case BonusHandler.MAKE_SHORT_BONUS: 
                 setLength(8); 
                 score++;
                 turn = (turn % playerSlownes) - 2 * playerSlownes;
-                makeShortBonusSound.play();
+                makeShortBonusSound.play(0.3);
                 break;
             case BonusHandler.ADD_DEATH_BLOCK_BONUS: 
                 score++;
                 turn = (turn % playerSlownes) - 2 * playerSlownes;
-                addDeathBlocksBonusSound.play();
+                addDeathBlocksBonusSound.play(0.3);
                 break;
         }
     }

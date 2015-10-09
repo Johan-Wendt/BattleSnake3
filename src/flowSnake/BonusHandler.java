@@ -77,7 +77,7 @@ public class BonusHandler {
      */
     public static void createRegularBonus() {
         BuildingBlock bonusBlock = GameGrid.getRandomBlock();
-        Bonus bonus = new RegularBonus(bonusBlock, BonusEnum.REGULAR_BONUS.getBonusColor(), LIFESPAN_MIN + new Random().nextInt(LIFESPAN_MAX), REGULAR_BONUS);
+        Bonus bonus = new RegularBonus(bonusBlock, BonusEnum.REGULAR_BONUS, LIFESPAN_MIN + new Random().nextInt(LIFESPAN_MAX));
         eventList.add(bonus);
     }
     /**
@@ -85,7 +85,7 @@ public class BonusHandler {
      */
     public static void createMakeShortBonus() {
         BuildingBlock bonusBlock = GameGrid.getRandomBlock();
-        Bonus bonus = new MakeShortBonus(bonusBlock,BonusEnum.MAKE_SHORT_BONUS.getBonusColor(), LIFESPAN_MIN + new Random().nextInt(LIFESPAN_MAX), MAKE_SHORT_BONUS);
+        Bonus bonus = new MakeShortBonus(bonusBlock,BonusEnum.MAKE_SHORT_BONUS, LIFESPAN_MIN + new Random().nextInt(LIFESPAN_MAX));
         eventList.add(bonus);
     }
     /**
@@ -93,7 +93,7 @@ public class BonusHandler {
      */
     public static void createAddDeathBlocksBonus() {
         BuildingBlock bonusBlock = GameGrid.getRandomBlock();
-        Bonus bonus = new AddDeathBlocksBonus (bonusBlock,BonusEnum.ADD_DEATH_BLOCK_BONUS.getBonusColor(), LIFESPAN_MIN + new Random().nextInt(LIFESPAN_MAX), ADD_DEATH_BLOCK_BONUS);
+        Bonus bonus = new AddDeathBlocksBonus (bonusBlock,BonusEnum.ADD_DEATH_BLOCK_BONUS, LIFESPAN_MIN + new Random().nextInt(LIFESPAN_MAX));
         eventList.add(bonus);
     }
     /**

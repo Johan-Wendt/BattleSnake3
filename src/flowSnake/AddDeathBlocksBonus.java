@@ -20,8 +20,8 @@ public class AddDeathBlocksBonus extends Bonus{
      * @param lifespan The how long this bonus should be on the GameGrid.
      * @param bonusHappening Int describing what happens when the bonus is taken.
      */
-    public AddDeathBlocksBonus(BuildingBlock bonusBlock, Color bonusColor, int lifespan, int bonusHappening) {
-        super(bonusBlock, bonusColor, lifespan, bonusHappening);
+    public AddDeathBlocksBonus(BuildingBlock bonusBlock, BonusEnum bonusEnum, int lifespan) {
+        super(bonusBlock, bonusEnum, lifespan);
     }
     /**
      * Creates three death blocks and places them randomly on the GameGrid. 
