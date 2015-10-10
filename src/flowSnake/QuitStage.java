@@ -17,7 +17,7 @@ public class QuitStage extends PopUp {
     
     public QuitStage(String title, String infoText, String okMessage, String cancelMessage) {
         super(title, infoText, okMessage, cancelMessage, PopUp.STANDARD_PANE_WIDTH);
-        setBackGround("noose.jpg", false);
+       // setBackGround("noose.jpg", false);
         getCancelButton().requestFocus();
     }
     @Override

@@ -23,25 +23,31 @@ import javafx.scene.paint.Color;
  * @author johanwendt
  */
 public enum PlayerEnum {
-    PLAYER_ONE (1, "Flow Free", Color.web("#006E00"), GameEngine.RIGHT, 2, "death.wav"),
-    PLAYER_TWO (2, "Flow Fixed", Color.web("#F10602"), GameEngine.LEFT, 4, "death.wav"),
-    PLAYER_THREE (3, "Flow Mobile", Color.web("#898989"), GameEngine.UP, 6, "death.wav"),
-    PLAYER_FOUR (4, "PBX-monster", Color.web("#FAFB1A"), GameEngine.DOWN, 8, "death.wav");
+    PLAYER_ONE (1, "Flow Free", "flowFree.png", GameEngine.RIGHT, 2, "death.wav", "notificationLouder.wav", 0.5, Color.web("#01c9f3")),
+    PLAYER_TWO (2, "Flow Fixed", "flowFixed.png", GameEngine.LEFT, 4, "death.wav", "oldPhone.wav", 0.3, Color.web("#ffc02b")),
+    PLAYER_THREE (3, "Flow Mobile", "flowMobile.png", GameEngine.UP, 6, "death.wav", "silenceMobile.wav", 0.3, Color.web("#77ad37")),
+    PLAYER_FOUR (4, "PBX-monster", "pbx.png", GameEngine.DOWN, 8, "death.wav", "mikMik.wav", 0.3, Color.web("#594f63"));
     
     private final int number;
     private final String name;
-    private final Color color;
+    private final String playerImage;
     private final int startDirection;
     private final int moveTurn;
     private final String deathSound;
+    private final String bonusSound;
+    private final double bonusVolume;
+    private final Color scoreColor;
 
-    PlayerEnum(int playerNumber, String playerName, Color playerColor, int startDirection, int moveTurn, String deathSound) {
+    PlayerEnum(int playerNumber, String playerName, String playerImage, int startDirection, int moveTurn, String deathSound, String bonusSound, double bonusVolume, Color scoreColor) {
         this.number = playerNumber;
         this.name = playerName;
-        this.color = playerColor;
+        this.playerImage = playerImage;
         this.startDirection = startDirection;
         this.moveTurn = moveTurn;
         this.deathSound = deathSound;
+        this.bonusSound = bonusSound;
+        this.bonusVolume = bonusVolume;
+        this.scoreColor = scoreColor;
     }
     public int getNumber() {
         return number;
@@ -49,8 +55,8 @@ public enum PlayerEnum {
     public String getName() {
         return name;
     }
-    public Color getColor() {
-        return color;
+    public String getImage() {
+        return playerImage;
     }
     public int getStartDirection() {
         return startDirection;
@@ -60,5 +66,14 @@ public enum PlayerEnum {
     }
     public String getDeathSound() {
         return deathSound;
+    }
+    public String getBonusSound() {
+        return bonusSound;
+    }
+    public double getBonusVolume() {
+        return bonusVolume;
+    }
+    public Color getScoreColor() {
+        return scoreColor;
     }
 }

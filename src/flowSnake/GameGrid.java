@@ -71,7 +71,7 @@ public class GameGrid {
                 gridList.put(block.getBlockId(), block);
             }
         }
-        getBlock(playerStartpoint).setDeathBlockIrreveritble(); 
+        getBlock(playerStartpoint).setStartBlock(); 
     }
     public GameGrid(boolean useForBackground) {
         blockSize = UserInterface.getBlockSize();
@@ -147,7 +147,7 @@ public class GameGrid {
             block.resetBlock();
         }
         
-        getBlock(playerStartpoint).setDeathBlockIrreveritble(); 
+        getBlock(playerStartpoint).setStartBlock(); 
         deathCounter = 0;
         deathLocation = 0;
         deathDirection = GameEngine.RIGHT;
