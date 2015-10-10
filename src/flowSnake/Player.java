@@ -52,9 +52,7 @@ public final class Player {
     
     //private long startTime = System.currentTimeMillis();
     
-    private final AudioClip regularBonusSound;
-    private final AudioClip addDeathBlocksBonusSound;
-    private final AudioClip makeShortBonusSound;
+    private final AudioClip bonusSound;
     private final AudioClip deathSound;
 
 
@@ -76,14 +74,10 @@ public final class Player {
         turn = -200;
         createPlayer();
         
-        regularBonusSound = new AudioClip(getClass().getResource("oldPhone.wav").toExternalForm());
-        addDeathBlocksBonusSound = new AudioClip(getClass().getResource("silenceMobile.wav").toExternalForm());
-        makeShortBonusSound = new AudioClip(getClass().getResource("bleep.aiff").toExternalForm());
+        bonusSound = new AudioClip(getClass().getResource(playerDetails.getBonusSound()).toExternalForm());
         deathSound = new AudioClip(getClass().getResource(playerDetails.getDeathSound()).toExternalForm());
         
-        regularBonusSound.play(0);
-        addDeathBlocksBonusSound.play(0);
-        makeShortBonusSound.play(0);
+        bonusSound.play(0);
         deathSound.play(0);
     }
     /**
@@ -145,7 +139,7 @@ public final class Player {
 
             //Move the player, see if a bonus was taken and handle bonus happenings.
             BuildingBlock moveTo = GameGrid.getBlock(destination);
-            moveTo.setPlayerBlock(playerDetails.getColor());
+            moveTo.setPlayerBlock(playerDetails.getImage());
             handleBonuses(BonusHandler.getBonus(destination));
             currentLocation = moveTo.getBlockId();
             body.add(moveTo);
@@ -176,25 +170,24 @@ public final class Player {
      * @param bonusHappening the static final for the event.
      */
     public void handleBonuses(int bonusHappening) {
-        
         switch(bonusHappening) {
             case BonusHandler.REGULAR_BONUS: 
                 makeLonger(4); 
                 turn = (turn % playerSlownes) - 2 * playerSlownes;
                 makeFaster(); 
-                score++; 
-                regularBonusSound.play(0.3);
+                score++;
+                bonusSound.play(playerDetails.getBonusVolume());
                 break;
             case BonusHandler.MAKE_SHORT_BONUS: 
                 setLength(8); 
                 score++;
                 turn = (turn % playerSlownes) - 2 * playerSlownes;
-                makeShortBonusSound.play(0.3);
+                bonusSound.play(playerDetails.getBonusVolume());
                 break;
             case BonusHandler.ADD_DEATH_BLOCK_BONUS: 
                 score++;
                 turn = (turn % playerSlownes) - 2 * playerSlownes;
-                addDeathBlocksBonusSound.play(0.3);
+                bonusSound.play(playerDetails.getBonusVolume());
                 break;
         }
     }

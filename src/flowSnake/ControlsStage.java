@@ -104,10 +104,10 @@ public class ControlsStage extends PopUp{
         player3.setFont(Font.font(fontSize));
         player4.setFont(Font.font(fontSize));
         pauseKey.setFont(Font.font(fontSize));
-        player1.setFill(PlayerEnum.PLAYER_ONE.getColor());
-        player2.setFill(PlayerEnum.PLAYER_TWO.getColor());
-        player3.setFill(PlayerEnum.PLAYER_THREE.getColor());
-        player4.setFill(PlayerEnum.PLAYER_FOUR.getColor());
+      //  player1.setFill(PlayerEnum.PLAYER_ONE.getImage());
+      //  player2.setFill(PlayerEnum.PLAYER_TWO.getImage());
+      //  player3.setFill(PlayerEnum.PLAYER_THREE.getImage());
+      //  player4.setFill(PlayerEnum.PLAYER_FOUR.getImage());
         
         Up.setFont(Font.font(fontSize));
         Right.setFont(Font.font(fontSize));

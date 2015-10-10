@@ -6,10 +6,12 @@ import javafx.geometry.Pos;
 import javafx.scene.effect.Bloom;
 import javafx.scene.effect.Light;
 import javafx.scene.effect.Lighting;
+import javafx.scene.image.Image;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.ImagePattern;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
@@ -61,15 +63,20 @@ public class RightPane {
         addDeathBlockBonusText.setFont(new Font(UserInterface.getPlayerScoreSize() * 0.6));
         
         //Create the rectangles that show what type of bonus the description is about.
-        Rectangle regularBonusColor = new Rectangle(UserInterface.getBlockSize() * 1.5, UserInterface.getBlockSize() * 1.5, Color.RED);
-        regularBonusColor.setStroke(Color.BLACK);
-        regularBonusColor.setEffect(new Lighting());
-        Rectangle makeShortBonusColor = new Rectangle(UserInterface.getBlockSize() * 1.5, UserInterface.getBlockSize() * 1.5, Color.RED);
-        makeShortBonusColor.setStroke(Color.BLACK);
-        makeShortBonusColor.setEffect(new Lighting());
-        Rectangle addDeathBlockBonusColor = new Rectangle(UserInterface.getBlockSize() * 1.5, UserInterface.getBlockSize() * 1.5, Color.RED);
-        addDeathBlockBonusColor.setStroke(Color.BLACK);
-        addDeathBlockBonusColor.setEffect(new Lighting());
+        Rectangle regularBonusColor = new Rectangle(UserInterface.getBlockSize() * 1.5, UserInterface.getBlockSize() * 1.5);
+        Image imageRegular = new Image(getClass().getResourceAsStream(BonusEnum.REGULAR_BONUS.getBonusImage()));
+        ImagePattern imagePatternRegular = new ImagePattern(imageRegular);  
+        regularBonusColor.setFill(imagePatternRegular);
+        
+        Rectangle makeShortBonusColor = new Rectangle(UserInterface.getBlockSize() * 1.5, UserInterface.getBlockSize() * 1.5);
+        Image imageMakeShort = new Image(getClass().getResourceAsStream(BonusEnum.MAKE_SHORT_BONUS.getBonusImage()));
+        ImagePattern imagePatternMakeShort = new ImagePattern(imageMakeShort);  
+        makeShortBonusColor.setFill(imagePatternMakeShort);
+        
+        Rectangle addDeathBlockBonusColor = new Rectangle(UserInterface.getBlockSize() * 1.5, UserInterface.getBlockSize() * 1.5);
+        Image imageAddDeath = new Image(getClass().getResourceAsStream(BonusEnum.ADD_DEATH_BLOCK_BONUS.getBonusImage()));
+        ImagePattern imagePatternAddDeath = new ImagePattern(imageAddDeath);  
+        addDeathBlockBonusColor.setFill(imagePatternAddDeath);
         
         //Add the bonus information to the pane.
         innerBonusPane.add(regularBonusColor, 0, 0);
@@ -97,9 +104,11 @@ public class RightPane {
         scorePane.getChildren().clear();
         
         scorePane.setSpacing(UserInterface.getStandardPadding());
-        scorePane.setPadding(new Insets(2 * UserInterface.getStandardPadding()));
+        scorePane.setPadding(new Insets(4 * UserInterface.getStandardPadding(), 2 * UserInterface.getStandardPadding(), 2 * UserInterface.getStandardPadding(), 2 * UserInterface.getStandardPadding()));
         //Create, add the header nad apply efects.
-        Text scoreHeader = new Text("Scores");
+
+        /**
+        Text scoreHeader = new Text();
         HBox scoreHeaderPane = new HBox(scoreHeader);
         scoreHeaderPane.setAlignment(Pos.CENTER);
         scorePane.getChildren().add(scoreHeaderPane);
@@ -107,8 +116,8 @@ public class RightPane {
         scoreHeader.setFill(Color.web("#4D4DFF"));
         scoreHeader.setUnderline(true);
         scoreHeader.setEffect(scoreEffect.getEffect(Color.web("#4D4DFF")));
-        scoreHeaderPane.setPadding(new Insets(0, 0, 2 * UserInterface.getStandardPadding(), 0));
-        
+        scoreHeaderPane.setPadding(new Insets(0, 0, 2 * UserInterface.getStandardPadding() / 4, 0));
+        **/
     }
     /**
      * Makes the score board only show scores for relevant players.
@@ -123,8 +132,8 @@ public class RightPane {
         while(i >= 1) {
             playerScores.get(i).setText(GameEngine.getPlayer(i).scoreToString());
             playerScores.get(i).setFont(Font.font(UserInterface.getPlayerScoreSize()));
-            playerScores.get(i).setEffect(scoreEffect.getEffect(GameEngine.getPlayer(i).getPlayerDetails().getColor()));
-            scorePane.getChildren().add(1, playerScores.get(i));
+            playerScores.get(i).setFill(GameEngine.getPlayer(i).getPlayerDetails().getScoreColor());
+            scorePane.getChildren().add(0, playerScores.get(i));
             playerScores.add(new Text());
             i--;
         }

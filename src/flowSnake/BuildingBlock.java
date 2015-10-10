@@ -5,9 +5,6 @@ package flowSnake;
  *
  * @author johanwendt
  */
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
 import javafx.scene.effect.Lighting;
 import javafx.scene.image.Image;
 import javafx.scene.layout.Background;
@@ -35,7 +32,7 @@ import javafx.scene.shape.*;
 public class BuildingBlock {
     //Regular fields
     private final int blockId;
-    private Shape shape;
+    private Rectangle rectangle;
     private Color revertColor;
     private boolean isDeathBlock = false;
     private boolean isDeathBlockIrrevertible = false;
@@ -50,8 +47,8 @@ public class BuildingBlock {
     public BuildingBlock(int blockId, Color color) {
         this.blockId = blockId;
         this.revertColor = color;
-        shape = new Circle();
-        shape.setFill(color);
+        rectangle = new Rectangle();
+        rectangle.setFill(color);
     }
     
     public BuildingBlock(int setX, int setY, int size) {
@@ -69,7 +66,7 @@ public class BuildingBlock {
     public BuildingBlock(int setX, int setY, int size, int blockId) {
         this.blockId = blockId;
         revertColor = GameGrid.GAMEGRID_COLOR;
-        createCircle(setX, setY , size, revertColor);
+        createRectangle(setX, setY , size, revertColor);
     }
     /**
      * Creates the square that is the base for the building block.
@@ -78,30 +75,32 @@ public class BuildingBlock {
      * @param size Base of the square
      * @param color Color of the square
      */
+    /**
     private void createCircle(int X, int Y, int size, Color color) {
         shape = new Circle(size/2.0, color);
         ((Circle)shape).setCenterX(X + size/2);
         ((Circle)shape).setCenterY(Y + size/2);
        // rectangle.setStroke(Color.BLACK);
-        
+       *      
     }
+    * **/
     private void createRectangle(int X, int Y, int size, Color color) {
-        shape = new Rectangle(size, size, color);
-        ((Rectangle)shape).setX(X);
-        ((Rectangle)shape).setY(Y);
+        rectangle = new Rectangle(size, size, color);
+        rectangle.setX(X);
+        rectangle.setY(Y);
        // rectangle.setStroke(Color.BLACK);
     }
     /**
      * Apply the lighting effect used for the bonuses
      */
     public void setLightingEffect() {
-        shape.setEffect(new Lighting());   
+        rectangle.setEffect(new Lighting());   
     }
     /**
      * Removes any effect applied to the square of this BuildingBlock.
      */
     public void removeEffect() {
-        shape.setEffect(null);   
+        rectangle.setEffect(null);   
     }
     /**
      * Returns the id for this block.
@@ -115,7 +114,7 @@ public class BuildingBlock {
      * @param color new revertColor for the block.
      */
     public void setBlockColor(Color color) {
-        shape.setFill(color);
+        rectangle.setFill(color);
     }
     
     public void addBacgoundImage(String picture) {
@@ -123,7 +122,7 @@ public class BuildingBlock {
         
         ImagePattern imagePattern = new ImagePattern(image);
         
-        shape.setFill(imagePattern);
+        rectangle.setFill(imagePattern);
                 
     }
     /**
@@ -131,17 +130,17 @@ public class BuildingBlock {
      * @return current block revertColor.
      */
     public Paint getBlockColor() {
-        return shape.getFill();
+        return rectangle.getFill();
     }
-    public void setPlayerBlock(Color playerColor) {
-        setBlockColor(playerColor);
+    public void setPlayerBlock(String playerImage) {
+        addBacgoundImage(playerImage);
         setDeathBlock();
     }
     public void resetBlock() {
-        shape.setFill(GameGrid.GAMEGRID_COLOR);
+        rectangle.setFill(GameGrid.GAMEGRID_COLOR);
         isDeathBlock = false;
         isDeathBlockIrrevertible = false;
-        shape.setEffect(null); 
+        rectangle.setEffect(null); 
     }
     public void setRevertColor(Color color) {
         revertColor = color;
@@ -151,7 +150,7 @@ public class BuildingBlock {
      * @return the shape (currently only rectangle)
      */
     public Shape getShape() {
-        return shape;
+        return rectangle;
     }
     /**
      * Returns true if this block is a death block.
@@ -171,9 +170,18 @@ public class BuildingBlock {
      * remove the death block property.
      */
     public void setDeathBlockIrreveritble() {
-        shape.setEffect(null);
+        if(!isDeathBlockIrrevertible) {
+            rectangle.setEffect(null);
+            isDeathBlock = true;
+            addBacgoundImage("bbGrey.png");
+            isDeathBlockIrrevertible = true;
+        }
+    }
+    
+    public void setStartBlock() {
+        rectangle.setEffect(null);
         isDeathBlock = true;
-        setBlockColor(deathBlockColor);
+        addBacgoundImage("centerIcon.png");
         isDeathBlockIrrevertible = true;
     }
 
@@ -185,7 +193,7 @@ public class BuildingBlock {
     public void revertDeathBlock(boolean isInSafeZone) {
         if(!isDeathBlockIrrevertible) {
             isDeathBlock = false;
-            shape.setFill(revertColor);
+            rectangle.setFill(revertColor);
         }
     }
 }

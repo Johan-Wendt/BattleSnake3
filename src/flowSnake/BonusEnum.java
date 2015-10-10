@@ -23,9 +23,9 @@ import javafx.scene.paint.Color;
  * @author johanwendt
  */
 public enum BonusEnum {
-    REGULAR_BONUS (0, "flowLogo.png", "Makes the player longer and faster.", 10),
-    MAKE_SHORT_BONUS (1, "flowLogo.png", "Makes the player short.", 1),
-    ADD_DEATH_BLOCK_BONUS (2, "flowLogo.png", "Adds deathblocks to the field.", 18);
+    REGULAR_BONUS (0, "bbGreen.png", "Makes the player longer and faster.", 10),
+    MAKE_SHORT_BONUS (1, "bbYellow.png", "Makes the player short.", 1),
+    ADD_DEATH_BLOCK_BONUS (2, "bbRed.png", "Adds deathblocks to the field.", 18);
     
     private final String bonusImage;
     private final String bonusDescription;

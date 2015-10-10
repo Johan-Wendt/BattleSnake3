@@ -45,7 +45,7 @@ public class GameEngine extends Application implements Runnable{
     
     public static final int PLAYER_START_SLOWNESS = 22;
     public static final int PLAYER_DEATH_PENALTY = -2;
-    public static final int PLAYER_START_LENGTH = 20;
+    public static final int PLAYER_START_LENGTH = 1;
     public static final int MAX_NUMBER_OF_PLAYERS = 4;
     
     //Must be an uneven number
