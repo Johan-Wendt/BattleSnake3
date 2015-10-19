@@ -19,6 +19,7 @@ package flowSnake;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -42,10 +43,7 @@ public class GameEngine extends Application implements Runnable{
     public static final int LEFT = -MULIPLIER_X;
     public static final int DOWN = 1;
     public static final int UP = -1;
-    
-    public static final int PLAYER_START_SLOWNESS = 22;
-    public static final int PLAYER_DEATH_PENALTY = -2;
-    public static final int PLAYER_START_LENGTH = 1;
+
     public static final int MAX_NUMBER_OF_PLAYERS = 4;
     
     //Must be an uneven number
@@ -53,13 +51,13 @@ public class GameEngine extends Application implements Runnable{
     
     private static final boolean isRunning = true;
     
-    private static final HashSet<Player> players = new HashSet<>(4);
+    private static final ArrayList<Player> players = new ArrayList<>(4);
     private static final HashMap<KeyCode, Integer> player1Controls = new HashMap<>();
     private static final HashMap<KeyCode, Integer> player2Controls = new HashMap<>();
     private static final HashMap<KeyCode, Integer> player3Controls = new HashMap<>();
     private static final HashMap<KeyCode, Integer> player4Controls = new HashMap<>();
     
-    private static int gameSpeed = 3;
+    public static int GAME_SPEED = 3;
     private static Stage battleStage;
     
     private static boolean isPaused = true;
@@ -110,6 +108,7 @@ public class GameEngine extends Application implements Runnable{
                     while (isRunning) {
                         int moved = 0;
                         if(!isPaused) {
+                            handleMovingObjects();
                             
                             for(Player player: players) {
                                 moved += player.movePlayer();
@@ -117,20 +116,21 @@ public class GameEngine extends Application implements Runnable{
                             if(!(moved < 0) && turn > 500) GameGrid.deathBuilder();
                             if(turn % 30 == 2) {
                                 BonusHandler.bonusRound();
-                                RightPane.showScores();
                                 moved ++;
                             }
+                            /**
                             if((GameGrid.isDeathRunning() == false && getNumberOfAlivePlayers() < 2) || getNumberOfAlivePlayers() < 1) {
                                 Platform.runLater(() -> {
                                     gameOver();
                                 });
                             }
+                            * **/
                             turn++;
                         }
                         if(turn < 50 && turn >= 0) {
                             thread.sleep((long) Math.sqrt(50 - turn));
                         }
-                        thread.sleep(gameSpeed);
+                        thread.sleep(GAME_SPEED);
                         if(turn % 2000 == 0) System.gc();
                     }
                 }
@@ -142,18 +142,29 @@ public class GameEngine extends Application implements Runnable{
 /*
  * Brings up the initial screen and displays the winner of the game.
  */
-    public void gameOver() {
-        PlayerEnum winner = null;
-        int highest = -10000;
-        int i = 1;
-            for(Player player: players) {
-            if(player.getScore() > highest && i <= numberToPlay) {
-                highest = player.getScore();
-                winner = player.getPlayerDetails();
-                i++;
+    public static void gameOver() {
+        if((GameGrid.isDeathRunning() == false) || getNumberOfAlivePlayers() < 2) {
+            
+            PlayerEnum winner = null;
+            int highest = -10000;
+            int i = 1;
+            boolean  noScore = true;
+                for(Player player: players) {
+                if(player.getCurrentLength() > highest) {
+                    highest = player.getCurrentLength();
+                    winner = player.getPlayerDetails();
+                    if(!(player.getCurrentLength() < 1)) noScore = false;
+                    i++;
+                }
             }
+            UserInterface.gameOver(winner, noScore);
         }
-        UserInterface.gameOver(winner);
+    }
+    private void handleMovingObjects() {
+        HashSet<MovingObject> movingObjects = new HashSet(MovingObject.getMovingObjects());
+        for(MovingObject movingObject:movingObjects) {
+            movingObject.move();
+        }
     }
     public static void takePressedKey(KeyCode key) {
         if(key.equals(pauseKey)) {
@@ -163,6 +174,11 @@ public class GameEngine extends Application implements Runnable{
             for(Player player: players) {
                 player.setCurrentDirection(key);
             }
+        }
+    }
+    public static void killPlayer(PlayerEnum playerDetails, int hitBlock) {
+        if(playerDetails != null) {
+            getPlayer(playerDetails.getNumber()).chopPlayer(hitBlock);
         }
     }
     /**
@@ -176,7 +192,7 @@ public class GameEngine extends Application implements Runnable{
             case 1: getPlayer(PlayerEnum.PLAYER_ONE.getNumber()).setAlive(true);
         } 
         for(Player player: players) {
-            player.createPlayer();
+            player.createPlayer(true);
         }
     }
     /**
@@ -185,11 +201,13 @@ public class GameEngine extends Application implements Runnable{
      */
     public void restart() {
         for(Player player: players) {
-            player.clearScore();
             player.clearBody();
             player.setAlive(false);
             player.setTurn(-20);
+            player.setCurrentLength(0);
         }
+        MovingObject.getMovingObjects().clear();
+        BonusHandler.getBonusList().clear();
         turn = 0;
         GameGrid.reset();
         UserInterface.restart();
@@ -207,8 +225,8 @@ public class GameEngine extends Application implements Runnable{
      * anywhere in the game.
      */
     public static void turnUpGameSpeed() {
-        if(gameSpeed > 1) {
-            gameSpeed --;
+        if(GAME_SPEED > 1) {
+            GAME_SPEED --;
         }
     }
     /**
@@ -217,8 +235,8 @@ public class GameEngine extends Application implements Runnable{
      * anywhere in the game.
      */
     public static void turnDownGameSpeed() {
-        if(gameSpeed < 10) {
-            gameSpeed ++;
+        if(GAME_SPEED < 10) {
+            GAME_SPEED ++;
         }
     }
     /**
@@ -266,15 +284,7 @@ public class GameEngine extends Application implements Runnable{
         return numberToPlay;
     }
     public static Player getPlayer(int playerNumber) {
-        for(Player player: players) {
-            if(player.getPlayerDetails().getNumber() == playerNumber) {
-                return player;
-            }
-        }
-        return null;
-    }
-    public static HashSet<Player> getPlayers() {
-        return players;
+        return players.get(playerNumber - 1);
     }
     public static void setPauseKey(KeyCode newPauseKey) {
         ControlsStage.updatePausedKeyText(newPauseKey.toString());
@@ -286,7 +296,7 @@ public class GameEngine extends Application implements Runnable{
      * wheter the game is over or not.
      * @return The number of players still alive.
      */
-    public int getNumberOfAlivePlayers() {
+    public static int getNumberOfAlivePlayers() {
         int result = 0;
         for(Player player: players) {
             if(player.isAlive()) {
@@ -299,13 +309,13 @@ public class GameEngine extends Application implements Runnable{
      * Creates the chosen number of players.
      */
     private static void createPlayers () {
-        players.add(new Player(PlayerEnum.PLAYER_FOUR, player4Controls));
-        players.add(new Player(PlayerEnum.PLAYER_THREE, player3Controls));
-        players.add(new Player(PlayerEnum.PLAYER_TWO, player2Controls));
         players.add(new Player(PlayerEnum.PLAYER_ONE, player1Controls));
+        players.add(new Player(PlayerEnum.PLAYER_TWO, player2Controls));
+        players.add(new Player(PlayerEnum.PLAYER_THREE, player3Controls));
+        players.add(new Player(PlayerEnum.PLAYER_FOUR, player4Controls));
     }
     private void loadMedia() {
-        Media backGroundMusic = new Media(getClass().getResource("backgroundLong.wav").toExternalForm());
+        Media backGroundMusic = new Media(getClass().getResource("backgroundLongest.wav").toExternalForm());
         Media menuMusic = new Media(getClass().getResource("menuMusic.wav").toExternalForm());
         backgroundPlayer = new MediaPlayer(backGroundMusic);
         menuPlayer = new MediaPlayer(menuMusic);

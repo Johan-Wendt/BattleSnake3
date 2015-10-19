@@ -10,6 +10,7 @@ import java.util.HashMap;
 import javafx.scene.paint.Color;
 import java.util.HashSet;
 import java.util.Random;
+import javafx.application.Platform;
 
 /**
  *This class the grid where the players move around. It also creates the block that
@@ -25,7 +26,7 @@ public class GameGrid {
     public static final Color GAMEGRID_COLOR = Color.TRANSPARENT;
     public static final Color SAFE_ZONE_COLOR = Color.web("#4D4DFF");
     
-    private static final int DEATH_SLOWNESS = GameEngine.PLAYER_START_SLOWNESS * 2;
+    private static final int DEATH_SLOWNESS = Player.PLAYER_START_SLOWNESS * 2;
     //private static final int DEATH_SLOWNESS = 1;
     private static final HashMap<Integer, BuildingBlock> gridList = new HashMap<>(GameEngine.BRICKS_PER_ROW * GameEngine.BRICKS_PER_ROW + 10);
     private static final HashSet<Integer> safeList = new HashSet<>(SAFE_ZONE_DIAMETER * SAFE_ZONE_DIAMETER);
@@ -62,7 +63,7 @@ public class GameGrid {
         for(int i = 0; i < gridSize/blockSize; i ++) {
             for(int j = 0; j < gridSize/blockSize; j ++) {
                 BuildingBlock block = new BuildingBlock(i * blockSize, j * blockSize, blockSize, (j + i * GameEngine.MULIPLIER_X));
-                UserInterface.gameGridPane.getChildren().add(block.getShape());
+                UserInterface.gameGridPane.getChildren().addAll(block.getRectangle(), block.getCircle());
 
              //   if(isInSafeZone(block.getBlockId())) {
                //     block.setBlockColor(SAFE_ZONE_COLOR);
@@ -81,7 +82,7 @@ public class GameGrid {
         for(int i = 0; i < gridSize/blockSize; i ++) {
             for(int j = 0; j < gridSize/blockSize; j ++) {
                 BuildingBlock block = new BuildingBlock(i * blockSize, j * blockSize, blockSize);
-                UserInterface.gameGridPane.getChildren().add(block.getShape());
+                UserInterface.gameGridPane.getChildren().addAll(block.getRectangle(), block.getCircle());
 
                 if(isInSafeZone(j + i * GameEngine.MULIPLIER_X)) {
                    // block.setBlockColor(SAFE_ZONE_COLOR);
@@ -108,6 +109,7 @@ public class GameGrid {
                     changeDeathDirection();
                 }
                 BuildingBlock deathReturn = getBlock(deathLocation);
+                GameEngine.killPlayer(deathReturn.getOccupiedBy(), deathLocation);
                 deathReturn.setDeathBlockIrreveritble();
                 deathList.add(deathReturn);
                 deathCounter ++;
@@ -146,7 +148,6 @@ public class GameGrid {
         for(BuildingBlock block: resetGrid) {
             block.resetBlock();
         }
-        
         getBlock(playerStartpoint).setStartBlock(); 
         deathCounter = 0;
         deathLocation = 0;
@@ -154,12 +155,14 @@ public class GameGrid {
         deathPause = 1;
         currentGridSize = gridSize / blockSize;
         isDeathRunning = true;
-        outsideBlock.setDeathBlock();
+        outsideBlock.setDeathBlockIrreveritble();
         deathList.clear();
     }
+    /***
     public static boolean killedByDeath(Collection body) {
         return !Collections.disjoint(body, deathList);
     }
+    **/
     /**
      * Returns true if the death builder is still running and false if not.
      * @return true if death builder is still running.
@@ -230,7 +233,7 @@ public class GameGrid {
         int randomY = random.nextInt(GameEngine.BRICKS_PER_ROW);
         int randomX = random.nextInt(GameEngine.BRICKS_PER_ROW) * GameEngine.MULIPLIER_X;
         BuildingBlock randomBlock = getBlock(randomY + randomX);
-        if(randomBlock.getBlockColor().equals(Color.TRANSPARENT)) {
+        if(randomBlock.getBlockColor().equals(Color.TRANSPARENT) && !isInSafeZone(randomBlock.getBlockId())) {
             return randomBlock;
         }
         return outsideBlock;

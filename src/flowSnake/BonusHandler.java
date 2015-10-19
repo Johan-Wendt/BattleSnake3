@@ -3,7 +3,6 @@
  */
 package flowSnake;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Random;
 import javafx.scene.paint.Color;
@@ -21,8 +20,8 @@ public class BonusHandler {
     public static final int ADD_DEATH_BLOCK_BONUS = 2;
     private static final int LIFESPAN_MIN = 500;
     private static final int LIFESPAN_MAX = 2500;
-    private static final double BONUS_PROBABILITY = 0.09;
-    private final static HashSet <Bonus> eventList = new HashSet<>();    
+    private static final double BONUS_PROBABILITY = 0.15;
+    private final static HashSet<Bonus> eventList = new HashSet<>();    
     //Regular fields
     private Random random;
     
@@ -42,7 +41,7 @@ public class BonusHandler {
         for(Bonus event: eventList) {
             if(event.getBonusId() == blockId) {
                 event.setTaken();
-                event.executeBonus();
+               // event.executeBonus();
                 return event.getBonusHappening();
             }
         }
@@ -61,12 +60,15 @@ public class BonusHandler {
      */
     public static void createRandomBonus() { 
         
-        int chance = new Random().nextInt(BonusEnum.REGULAR_BONUS.getBonusProbabilityFactor() + BonusEnum.MAKE_SHORT_BONUS.getBonusProbabilityFactor() + BonusEnum.ADD_DEATH_BLOCK_BONUS.getBonusProbabilityFactor());
+        int chance = new Random().nextInt(BonusEnum.REGULAR_BONUS.getBonusProbabilityFactor() + BonusEnum.MAKE_SHORT_BONUS.getBonusProbabilityFactor() + BonusEnum.ADD_DEATH_BLOCK_BONUS.getBonusProbabilityFactor() + BonusEnum.DEATH_BLOCK.getBonusProbabilityFactor());
         if(chance < BonusEnum.REGULAR_BONUS.getBonusProbabilityFactor()) {
             createRegularBonus();
         }
         else if (chance < BonusEnum.ADD_DEATH_BLOCK_BONUS.getBonusProbabilityFactor() + BonusEnum.REGULAR_BONUS.getBonusProbabilityFactor()) {
             createAddDeathBlocksBonus();
+        }
+        else if (chance < BonusEnum.ADD_DEATH_BLOCK_BONUS.getBonusProbabilityFactor() + BonusEnum.REGULAR_BONUS.getBonusProbabilityFactor()+ BonusEnum.DEATH_BLOCK.getBonusProbabilityFactor()) {
+            createBonusGrey();
         }
         else {
             createMakeShortBonus();
@@ -93,8 +95,14 @@ public class BonusHandler {
      */
     public static void createAddDeathBlocksBonus() {
         BuildingBlock bonusBlock = GameGrid.getRandomBlock();
-        Bonus bonus = new AddDeathBlocksBonus (bonusBlock,BonusEnum.ADD_DEATH_BLOCK_BONUS, LIFESPAN_MIN + new Random().nextInt(LIFESPAN_MAX));
+        Bonus bonus = new AddDeathBlocksBonus(bonusBlock,BonusEnum.ADD_DEATH_BLOCK_BONUS, LIFESPAN_MIN + new Random().nextInt(LIFESPAN_MAX));
         eventList.add(bonus);
+    }
+    
+    public static void createBonusGrey() {
+        BuildingBlock bonusBlock = GameGrid.getRandomBlock();
+        Bonus bonus = new BonusGrey(bonusBlock,BonusEnum.DEATH_BLOCK, LIFESPAN_MIN + new Random().nextInt(LIFESPAN_MAX));
+        //eventList.add(bonus);
     }
     /**
      * Removes all bonuses on the GameGrid that are taken or have outlived their lifespan.
@@ -107,5 +115,8 @@ public class BonusHandler {
                 itr.remove();
             }
         }
+    }
+    public static HashSet<Bonus> getBonusList() {
+        return eventList;
     }
 }

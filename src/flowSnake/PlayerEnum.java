@@ -17,16 +17,17 @@
 package flowSnake;
 
 import javafx.scene.paint.Color;
+import javafx.scene.paint.ImagePattern;
 
 /**
  *
  * @author johanwendt
  */
 public enum PlayerEnum {
-    PLAYER_ONE (1, "Flow Free", "flowFree.png", GameEngine.RIGHT, 2, "death.wav", "notificationLouder.wav", 0.5, Color.web("#01c9f3")),
-    PLAYER_TWO (2, "Flow Fixed", "flowFixed.png", GameEngine.LEFT, 4, "death.wav", "oldPhone.wav", 0.3, Color.web("#ffc02b")),
-    PLAYER_THREE (3, "Flow Mobile", "flowMobile.png", GameEngine.UP, 6, "death.wav", "silenceMobile.wav", 0.3, Color.web("#77ad37")),
-    PLAYER_FOUR (4, "PBX-monster", "pbx.png", GameEngine.DOWN, 8, "death.wav", "mikMik.wav", 0.3, Color.web("#594f63"));
+    PLAYER_ONE (1, "FLOW FREE", "flowFree.png", GameEngine.RIGHT, 2, "death.wav", "notificationLouder.wav", 0.5, Color.web("#01c9f3"), "busyTone.mp3", BuildingBlock.playerOneImage()),
+    PLAYER_TWO (2, "FLOW FIXED", "flowFixed.png", GameEngine.LEFT, 4, "death.wav", "oldPhone.wav", 0.3, Color.web("#ffc02b"), "busyTone.mp3", BuildingBlock.playerTwoImage()),
+    PLAYER_THREE (3, "FLOW MOBILE", "flowMobile.png", GameEngine.UP, 6, "death.wav", "silenceMobile.wav", 0.3, Color.web("#77ad37"), "busyTone.mp3", BuildingBlock.playerThreeImage()),
+    PLAYER_FOUR (4, "PBX-MONSTER", "pbx.png", GameEngine.DOWN, 8, "death.wav", "mikMik.wav", 0.3, Color.web("#594f63"), "busyTone.mp3", BuildingBlock.playerFourImage());
     
     private final int number;
     private final String name;
@@ -37,8 +38,10 @@ public enum PlayerEnum {
     private final String bonusSound;
     private final double bonusVolume;
     private final Color scoreColor;
+    private final String busySound;
+    private ImagePattern blockImage;
 
-    PlayerEnum(int playerNumber, String playerName, String playerImage, int startDirection, int moveTurn, String deathSound, String bonusSound, double bonusVolume, Color scoreColor) {
+    PlayerEnum(int playerNumber, String playerName, String playerImage, int startDirection, int moveTurn, String deathSound, String bonusSound, double bonusVolume, Color scoreColor, String busySound, ImagePattern blockImage) {
         this.number = playerNumber;
         this.name = playerName;
         this.playerImage = playerImage;
@@ -48,6 +51,8 @@ public enum PlayerEnum {
         this.bonusSound = bonusSound;
         this.bonusVolume = bonusVolume;
         this.scoreColor = scoreColor;
+        this.busySound = busySound;
+        this.blockImage = blockImage;
     }
     public int getNumber() {
         return number;
@@ -75,5 +80,14 @@ public enum PlayerEnum {
     }
     public Color getScoreColor() {
         return scoreColor;
+    }
+    public String getBusySound() {
+        return busySound;
+    }
+    public ImagePattern getBlockImage() {
+        return blockImage;
+    }
+    public void setBlockImage(ImagePattern image) {
+        blockImage = image;
     }
 }
