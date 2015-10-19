@@ -19,20 +19,15 @@ package flowSnake;
 /**
  * @author johanwendt
  */
-import com.sun.javafx.scene.control.behavior.KeyBinding;
-import java.util.ArrayList;
 import javafx.stage.Stage;
 import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
-import javafx.scene.paint.Color;
 import javafx.geometry.Insets;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundImage;
@@ -44,6 +39,7 @@ import javafx.scene.layout.BorderStroke;
 import javafx.scene.layout.BorderStrokeStyle;
 import javafx.scene.layout.BorderWidths;
 import javafx.scene.layout.CornerRadii;
+import javafx.scene.paint.Color;
 import javafx.scene.shape.StrokeLineCap;
 import javafx.scene.shape.StrokeLineJoin;
 import javafx.scene.shape.StrokeType;
@@ -54,15 +50,11 @@ import javafx.stage.Screen;
  * It takes input from the user and it holds all the GUI-stuff.
  */
 public class UserInterface {
-    //Fields
-    private static final BorderPane mainPane = new BorderPane();
-    //private static Scene mainScene;
+   // private static final BorderPane mainPane = new BorderPane();
     private static final Stage battleStage = new Stage();
     private static MenuBar menuBar;
-   // private static Menu menu;
     private static AboutStage aboutStage;
     private static FirstStage firstStage;
-    //private static RightPane rightPane;
     private static ControlsStage controlsStage;
     private static QuitStage quitStage;
 
@@ -77,32 +69,36 @@ public class UserInterface {
     private static double borderWidth; 
    
     private static double playerScoreSize;
-        
+    
+    private static final Color infoColor = Color.web("#eb1959");
+            
     /**
      * Creates the grafical interface.
      * @param gameEngine The GameEngine that runs the game.
      */
     public UserInterface (GameEngine gameEngine) {        
         borderWidth = screenHeight / 200.0;
-        blockSize = (int) ((screenHeight - (screenHeight * 0.06)) / GameEngine.BRICKS_PER_ROW);
+        blockSize = (int) ((screenHeight - (screenHeight * 0.01)) / GameEngine.BRICKS_PER_ROW);
         gridSize = blockSize * GameEngine.BRICKS_PER_ROW;
         standardPadding = (screenHeight - gridSize - menuBarSize) / 2;
         playerScoreSize = 0.9 * screenHeight / standardPadding;
-        setUpMainScreen();
+        BorderPane mainPane = new BorderPane();
+        setUpMainScreen(mainPane);
         aboutStage = new AboutStage("About Flow Snake", getInfoAboutStage(), "I get it, let's play some more.", 600);
         controlsStage = new ControlsStage("Set player controls", "Back to the battlin'");
-        RightPane rightPane = new RightPane();
+      //  RightPane rightPane = new RightPane(mainPane);
+      //  LeftPane leftPane = new LeftPane(mainPane);
         firstStage = new FirstStage("Start New Game", getInfoFirstStage(), " LET'S DO THIS! ", "  Cancel  ", gameEngine);
         quitStage = new QuitStage("Quit?!", getInfoQuitStage(), "Just leave me alone!", "Hell no!");
+        gameGridPane.setManaged(false);
+        
     }
-    public static void gameOver(PlayerEnum winner) {
-        firstStage.setUpWinnerInfo(winner);
+    public static void gameOver(PlayerEnum winner, boolean noScore) {
+        firstStage.setUpWinnerInfo(winner, noScore);
         firstStage.showPopUp(true);
     }
     public static void restart() {
-        firstStage.setUpWinnerInfo(null);
-        RightPane.setUpScoreBoard();
-        RightPane.initiateScoreBoard();         
+        firstStage.setUpWinnerInfo(null, false);
     }
     public static int getGridSize() {
         return gridSize;
@@ -113,14 +109,16 @@ public class UserInterface {
     /**
      * This sets upp the main game screen.
      */
-    private static void setUpMainScreen() {
+    private static void setUpMainScreen(BorderPane mainPane) {
         Scene mainScene = new Scene(mainPane, screenWidth, screenHeight);
         gameGridPane.setPrefSize(gridSize, gridSize);
         gameGridPane.setMaxSize(gridSize, gridSize);
-        mainPane.setCenter(RightPane.getPane());
-        mainPane.setLeft(gameGridPane);
+      //  mainPane.setCenter(RightPane.getPane());
+        mainPane.setCenter(gameGridPane);
+        battleStage.setFullScreen(true);
         
-        BorderPane.setMargin(gameGridPane, new Insets(standardPadding));
+       // BorderPane.setMargin(gameGridPane, new Insets(standardPadding));
+        
         
         //Exit the game on closing this window.
         battleStage.setOnCloseRequest(c -> {
@@ -136,7 +134,7 @@ public class UserInterface {
         });
         
         //Create Menubar-system
-        buildMenuSystem();
+        buildMenuSystem(mainPane);
         
         //Activate the stage
         battleStage.setScene(mainScene);
@@ -145,7 +143,7 @@ public class UserInterface {
         battleStage.show();  
     }
         
-    private static void buildMenuSystem() {
+    private static void buildMenuSystem(BorderPane mainPane) {
         Menu menu = new Menu("Flow Snake");
         MenuItem underMenu1 = new MenuItem("Set up game");
         MenuItem underMenu2 = new MenuItem("About");
@@ -227,11 +225,11 @@ public class UserInterface {
     public static double getStandardPadding() {
         return standardPadding;
     }
+    public static Color infoColor() {
+        return infoColor;
+    }
     private String getInfoFirstStage() {
-        return "Battle against your friends. Collect bonuses for points, and lose "
-        + "them when you die. When the field is reduced to the core, "
-        + "the elimination begins as snakes with negative scores are terminated." 
-        + " Last snake crawling wins!";
+        return "";
     }
     private String getInfoQuitStage() {
         return "Really quit being a snake and return to your boring life"

@@ -26,7 +26,7 @@ public abstract class Bonus {
         this.bonusBlock = bonusBlock;
         this.bonusEnum = bonusEnum;
         if(this.bonusBlock.getBlockColor().equals(GameGrid.GAMEGRID_COLOR)) {
-            this.bonusBlock.addBacgoundImage(bonusEnum.getBonusImage());
+            this.bonusBlock.setBonusBlock(bonusEnum);
             //this.bonusBlock.setLightingEffect();
         }
         else {
@@ -44,7 +44,7 @@ public abstract class Bonus {
         if(GameEngine.getTurn() > lifespan) {
             isToRemove = true;
             bonusBlock.removeEffect();
-            if(!isTaken) bonusBlock.revertDeathBlock(false);
+            if(!isTaken) bonusBlock.revertDeathBlock();
         }
         return isToRemove;
     }
@@ -76,9 +76,4 @@ public abstract class Bonus {
      */
     public void executeBonus() {
     }
-    
-    public void setPicture(String picture) {
-        bonusBlock.addBacgoundImage(picture);
-    }
-
 }

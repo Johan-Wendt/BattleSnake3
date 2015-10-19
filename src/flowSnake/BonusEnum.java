@@ -17,27 +17,31 @@
 package flowSnake;
 
 import javafx.scene.paint.Color;
+import javafx.scene.paint.ImagePattern;
 
 /**
  *
  * @author johanwendt
  */
 public enum BonusEnum {
-    REGULAR_BONUS (0, "bbGreen.png", "Makes the player longer and faster.", 10),
-    MAKE_SHORT_BONUS (1, "bbYellow.png", "Makes the player short.", 1),
-    ADD_DEATH_BLOCK_BONUS (2, "bbRed.png", "Adds deathblocks to the field.", 18);
+    REGULAR_BONUS (0, "bbGreen.png", "ADD A LICENSE", 10, BuildingBlock.greenBonusImage()),
+    MAKE_SHORT_BONUS (1, "bbYellow.png", "ADD MORE FLOW", 10, BuildingBlock.yellowBonusImage()),
+    ADD_DEATH_BLOCK_BONUS (2, "bbRed.png", "LOOSE FLOW", 10, BuildingBlock.redBonusImage()),
+    DEATH_BLOCK (3, "bbGrey.png", "LOOSE A LICENSE", 10, BuildingBlock.greyBonusImage());
     
     private final String bonusImage;
     private final String bonusDescription;
     private final int bonusProbabilityFactor;
     private final int bonusNumber;
+    private ImagePattern blockImage;
     
     
-    BonusEnum(int bonusNumber, String bonusImage, String bonusDescription, int bonusProbabilityFactor) {
+    BonusEnum(int bonusNumber, String bonusImage, String bonusDescription, int bonusProbabilityFactor, ImagePattern blockImage) {
     this.bonusImage = bonusImage;
     this.bonusDescription = bonusDescription;
     this.bonusProbabilityFactor = bonusProbabilityFactor;
     this.bonusNumber = bonusNumber;
+    this.blockImage = blockImage;
     }
 
     public String getBonusDescription() {
@@ -51,5 +55,11 @@ public enum BonusEnum {
     }
     public int getBonusNumber() {
         return bonusNumber;
+    }
+    public ImagePattern getBlockImage() {
+        return blockImage;
+    }
+    public void setBlockImage(ImagePattern image) {
+        blockImage = image;
     }
 }

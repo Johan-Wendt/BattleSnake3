@@ -4,7 +4,7 @@
     Author     : johanwendt
 */
 .root {
-     -fx-background-image: url("newBackground.jpg");
+     -fx-background-image: url("telavoxLogo.jpg");
 }
 #RPane, #MBar {
     -fx-background-image: url("telavoxLogo.jpg");

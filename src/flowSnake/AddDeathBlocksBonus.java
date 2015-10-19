@@ -24,10 +24,11 @@ public class AddDeathBlocksBonus extends Bonus{
         super(bonusBlock, bonusEnum, lifespan);
     }
     /**
+    /**
      * Creates three death blocks and places them randomly on the GameGrid. 
      * The death blocks are set to irrevertible with the consequence that they can populate 
      * the safe zone.
-     */
+     
     @Override
     public void executeBonus() {
         for(int i = 0; i < 3; i++) {
@@ -37,5 +38,6 @@ public class AddDeathBlocksBonus extends Bonus{
             }
         }
     }
+    **/
     
 }

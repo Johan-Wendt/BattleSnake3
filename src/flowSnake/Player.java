@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Stack;
+import javafx.application.Platform;
 import javafx.scene.input.KeyCode;
 
 /**
@@ -38,15 +39,20 @@ public final class Player {
    // private LinkedList<BuildingBlock> eraseBody = new LinkedList<>();
     private final PlayerEnum playerDetails;
     
+    public static final int PLAYER_START_SLOWNESS = 25;
+    public static final int PLAYER_DEATH_PENALTY = -1;
+    public static final int PLAYER_START_LENGTH = 3;
+    
     private int turn;
     private int currentLocation;
     private int currentDirection;
     private int delayedChangeDirection = 0;
-    private int currentLength = GameEngine.PLAYER_START_LENGTH;
-    private int playerSlownes = GameEngine.PLAYER_START_SLOWNESS;
+    private int currentLength = PLAYER_START_LENGTH;
+    private int playerSlownes = PLAYER_START_SLOWNESS;
     private boolean isAlive = true;
     private boolean mayChangeDirection = true;
-    private int score = 0;
+    private boolean isChopped = false;
+   // private int score = 0;
     private HashMap<KeyCode, Integer> controls = new HashMap<>();
     private BuildingBlock lastBlock = null;
     
@@ -54,6 +60,7 @@ public final class Player {
     
     private final AudioClip bonusSound;
     private final AudioClip deathSound;
+    private final AudioClip busySound;
 
 
     
@@ -76,9 +83,11 @@ public final class Player {
         
         bonusSound = new AudioClip(getClass().getResource(playerDetails.getBonusSound()).toExternalForm());
         deathSound = new AudioClip(getClass().getResource(playerDetails.getDeathSound()).toExternalForm());
+        busySound = new AudioClip(getClass().getResource(playerDetails.getBusySound()).toExternalForm());
         
         bonusSound.play(0);
         deathSound.play(0);
+        busySound.play(0);
     }
     /**
      * This creates the player on game start and recreates the player after death by stripping 
@@ -86,10 +95,27 @@ public final class Player {
      * activated.
      */
     public void createPlayer() {
+
         if(isAlive) {
-            makeShort();
-            makeSlow();
             BuildingBlock startSnake = GameGrid.getBlock(GameGrid.getStartPosition());
+            makeSlow();
+
+            //Only first block in the stack is added. This makes the snake start 
+            //being only one block in size. The rest is added by mevement.
+            body.add(startSnake);    
+
+            //If deathblocks are blocking the the newly created player, get rid of them.
+            currentDirection = playerDetails.getStartDirection();
+            currentLocation = GameGrid.getStartPosition();
+            mayChangeDirection = false;
+        }
+    }
+    public void createPlayer(boolean gameStart) {
+
+        if(isAlive && gameStart) {
+            currentLength = PLAYER_START_LENGTH;
+            BuildingBlock startSnake = GameGrid.getBlock(GameGrid.getStartPosition());
+            makeSlow();
 
             //Only first block in the stack is added. This makes the snake start 
             //being only one block in size. The rest is added by mevement.
@@ -107,24 +133,45 @@ public final class Player {
      * the player move depends of the speed (or lack of slowness) of the player.
      * @return 0 if player didnt move and one if it did. 
      */
-    public int movePlayer() {
+    public int movePlayer() throws InterruptedException {
     int moved = 0;
         if(body.contains(lastBlock)) {
-            if(body.peek().equals(lastBlock)) {
-                    lastBlock = null;
+            if(isChopped) {
+                if(body.peekFirst().equals(lastBlock)) {
+                lastBlock = null;
+                isChopped = false;
                 }
-            if(GameGrid.isInSafeZone(body.peek().getBlockId())) {
-                body.poll().revertDeathBlock(true);
+                if(!GameGrid.isInSafeZone(body.peekLast().getBlockId())) {
+                    body.pollFirst().setDeathBlockIrreveritble();
+                }
+                else {
+                    body.pollFirst().revertDeathBlock();
+                }
+                
+                currentLength--;
+                if(currentLength < 1) {
+                    GameGrid.getBlock(currentLocation).setPlayerDiedBlock();
+                    deathSound.play();
+                    setAlive(false);
+                    Platform.runLater(() -> {
+                        GameEngine.gameOver();
+                    });
+                }
             }
             else {
-                body.poll().setDeathBlockIrreveritble();
+                if(body.peekLast().equals(lastBlock)) {
+                lastBlock = null;
+                }
+                body.pollLast().revertDeathBlock();
             }
         }
+       
         //Only act if player is alive, turn is set to a positive number and
         //the speed of the player allows it.
         if(turn % playerSlownes == playerDetails.getMoveTurn() && turn > 0 && isAlive) {
             moved = 1;
             int destination = currentLocation + currentDirection;
+            BuildingBlock moveTo = GameGrid.getBlock(destination);
 
             //If the end of the grid is reached and no deathblock is in the way
             //set the destination to the other side of the screen.
@@ -132,17 +179,30 @@ public final class Player {
               //  destination = jumpToOtherSide(GameGrid.getBlock(currentLocation));
            // }
             //If the destination block is a death block or the startpoint kill the player.
-            if(GameGrid.getBlock(destination).isDeathBlock() || GameGrid.killedByDeath(body) == true) {
+            if(moveTo.isDeathBlock()) {
+                
+                if(moveTo.isMovableObject() && moveTo.getMovableObjectDirection() == (-currentDirection)) {
+                  //  currentLength = 0;
+                  //  moveTo.removeMovableObject();
+                  //  chopPlayer(currentLocation);
+                    turn = -50;
+                    return 1;
+                }
                 killPlayer();
                 return 1;
             }
 
             //Move the player, see if a bonus was taken and handle bonus happenings.
-            BuildingBlock moveTo = GameGrid.getBlock(destination);
-            moveTo.setPlayerBlock(playerDetails.getImage());
+            moveTo.setPlayerBlock(playerDetails);
             handleBonuses(BonusHandler.getBonus(destination));
             currentLocation = moveTo.getBlockId();
             body.add(moveTo);
+            if (body.size() > currentLength) {
+                body.poll().revertDeathBlock();  
+            }
+            if (body.size() > currentLength) {
+                body.poll().revertDeathBlock();  
+            }
             mayChangeDirection = true;
             if (delayedChangeDirection != 0) {
                 currentDirection = delayedChangeDirection;
@@ -152,15 +212,8 @@ public final class Player {
             //If the body is longer than it should be, which is the usual case after
             //a new block has been reached, peel the oldest block of. Repeat
             //to enable player to shrink after the make short bonus.
-            if (body.size() > currentLength) {
-                int blockId = body.peek().getBlockId();
-                body.poll().revertDeathBlock(GameGrid.isInSafeZone(blockId));  
-            }
-            if (body.size() > currentLength) {
-                int blockId = body.peek().getBlockId();
-                body.poll().revertDeathBlock(GameGrid.isInSafeZone(blockId)); 
+            
 
-            }
         }
         turn ++;
         return moved;
@@ -172,22 +225,23 @@ public final class Player {
     public void handleBonuses(int bonusHappening) {
         switch(bonusHappening) {
             case BonusHandler.REGULAR_BONUS: 
-                makeLonger(4); 
+                makeLonger(1); 
                 turn = (turn % playerSlownes) - 2 * playerSlownes;
-                makeFaster(); 
-                score++;
+            //    score++;
                 bonusSound.play(playerDetails.getBonusVolume());
                 break;
             case BonusHandler.MAKE_SHORT_BONUS: 
-                setLength(8); 
-                score++;
+                 
+            //    score++;
                 turn = (turn % playerSlownes) - 2 * playerSlownes;
+                makeFaster();
                 bonusSound.play(playerDetails.getBonusVolume());
                 break;
             case BonusHandler.ADD_DEATH_BLOCK_BONUS: 
-                score++;
+             //   score++;
                 turn = (turn % playerSlownes) - 2 * playerSlownes;
-                bonusSound.play(playerDetails.getBonusVolume());
+                busySound.play(0.5);
+                MovingObject movingObject = new MovingObject(currentLocation, currentDirection, playerSlownes);
                 break;
         }
     }
@@ -196,6 +250,8 @@ public final class Player {
      * @param alive set true for alive.
      */
     public void setAlive(boolean alive) {
+        if(alive) {
+        }
         isAlive = alive;
     }
 
@@ -216,13 +272,28 @@ public final class Player {
      */
     public void killPlayer() {
         deathSound.play();
-        lastBlock = body.getLast();
-        addToScore(GameEngine.PLAYER_DEATH_PENALTY);
-        if(score  < 0 && !GameGrid.isDeathRunning()) {
+        lastBlock = body.getFirst();
+        currentLength--;
+        if(!GameGrid.isInSafeZone(body.peekLast().getBlockId())) {
+            body.pollLast().setDeathBlockIrreveritble();
+        }
+        else {
+            body.pollLast().revertDeathBlock();
+        }
+        if(currentLength < 1) {
+            GameGrid.getBlock(currentLocation).setPlayerDiedBlock();
             setAlive(false);
+            Platform.runLater(() -> {
+                GameEngine.gameOver();
+            });
         }
         createPlayer();
         turn = -500;
+    }
+    
+    public void chopPlayer(int blockId) {
+        lastBlock = getBlock(blockId);
+        isChopped = true;
     }
     /**
      * Makes the player slightly faster.
@@ -244,30 +315,26 @@ public final class Player {
      * The player is shortened to the start length. Used after death.
      */
     public void makeShort() {
-        currentLength = GameEngine.PLAYER_START_LENGTH;
-    }
-    /**
-     * The player length is changed.
-     * @param length new length for the player.
-     */
-    public void setLength(int length) {
-        currentLength = length;
+        currentLength = PLAYER_START_LENGTH;
     }
     /**
      * Slows the player to startspeed. Used after death.
      */
     public void makeSlow() {
-        playerSlownes = GameEngine.PLAYER_START_SLOWNESS;
+        playerSlownes = PLAYER_START_SLOWNESS;
     }
     /**
      * Returns the player score, as an int for comparability.
      * @return player score.
      */
-    public int getScore() {
-        return score;
+    public int getCurrentLength() {
+        return currentLength;
     }
     public void clearBody() {
         body.clear();
+    }
+    public void setCurrentLength(int length) {
+        currentLength = length;
     }
     /**
      * Returns the enum with name, color, number and start direction of the player.
@@ -275,11 +342,6 @@ public final class Player {
      */
     public PlayerEnum getPlayerDetails() {
         return playerDetails;
-    }
-    
-    public String scoreToString() {
-        String scoreString = playerDetails.getName() + ": " + score;
-        return scoreString;
     }
 
     /**
@@ -290,16 +352,18 @@ public final class Player {
      */
     public boolean containsBlock(BuildingBlock buildingBlock) {
         return body.contains(buildingBlock);
-        /*
-        boolean isFound = false;
+        
+    }
+    public BuildingBlock getBlock(int blockId) {
+        
+        BuildingBlock returnBlock = null;
         HashSet<BuildingBlock> bodyCopy = new HashSet<BuildingBlock>(body);
         for(BuildingBlock block: bodyCopy) {
             if(block.getBlockId() == blockId) {
-                isFound = true;
+                returnBlock = block;
             }
         }
-        return isFound;
-        */
+        return returnBlock;
     }
     /**
      * Boolean property to check if the player is still alive.
@@ -326,16 +390,6 @@ public final class Player {
                 delayedChangeDirection = newDirection;
             }
         }
-    }
-    /**
-     * Adds to the players score.
-     * @param addToScore points to add.
-     */
-    public void addToScore(int addToScore) {
-        score += addToScore;
-    }
-    public void clearScore(){
-        score = 0;
     }
     public void setTurn(int newTurn) {
         turn = newTurn;

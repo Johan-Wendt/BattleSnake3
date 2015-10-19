@@ -22,19 +22,16 @@ import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
-import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Priority;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
-import javafx.stage.Stage;
 
 /**
  *Creates the stage where the player can set the controls.
  * @author johanwendt
  */
 public class ControlsStage extends PopUp{
-    private static final GridPane controlsPane = new GridPane();
+    private final GridPane controlsPane = new GridPane();
     
     private static final HashMap<Integer, TextField> playerOneControls = new HashMap<>();
     private static final HashMap<Integer, TextField> playerTwoControls = new HashMap<>();
@@ -85,8 +82,6 @@ public class ControlsStage extends PopUp{
         Text player4 = new Text(PlayerEnum.PLAYER_FOUR.getName() + " ");
         Text pauseKey = new Text("Pause ");
         
-        //ColumnConstraints rightAlign = new ColumnConstraints(150, 150, 150, Priority.NEVER, HPos.RIGHT, true);
-        //controlsPane.getColumnConstraints().add(0, rightAlign);
         GridPane.setHalignment(player1, HPos.RIGHT);
         GridPane.setHalignment(player2, HPos.RIGHT);
         GridPane.setHalignment(player3, HPos.RIGHT);
@@ -115,7 +110,6 @@ public class ControlsStage extends PopUp{
         Left.setFont(Font.font(fontSize));
   
         controlsPane.addRow(0,new Text(""), Up, Right, Down, Left);
-       // controlsPane.addColumn(0, new Text(""), new Text(""),new Text(""), new Text(""), new Text(""));
         controlsPane.addColumn(0, player1, player2, player3, player4, pauseKey);
         
         
@@ -281,5 +275,8 @@ public class ControlsStage extends PopUp{
     }
     public static void updatePausedKeyText(String key) {
         pauseKeyField.setText(key);
+    }
+    public GridPane getExtraPane() {
+        return controlsPane;
     }
 }

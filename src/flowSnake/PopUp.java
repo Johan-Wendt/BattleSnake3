@@ -182,7 +182,7 @@ public abstract class PopUp {
     protected Button getCancelButton() {
         return cancelButton;
     }
-    protected VBox getPopUpPane() {
+    public VBox getPopUpPane() {
         return popUpPane;
     }
     protected VBox getPopUpPaneInnerUpper() {
