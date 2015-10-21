@@ -13,6 +13,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.ImagePattern;
 import javafx.scene.shape.Rectangle;
@@ -30,11 +31,7 @@ public class FirstStage extends PopUp{
     
     
     private static final GridPane controlsPane = new GridPane();
-    private static final HashMap<Integer, TextField> playerOneControls = new HashMap<>();
-    private static final HashMap<Integer, TextField> playerTwoControls = new HashMap<>();
-    private static final HashMap<Integer, TextField> playerThreeControls = new HashMap<>();
-    private static final HashMap<Integer, TextField> playerFourControls = new HashMap<>();
-    private static TextField pauseKeyField = new TextField();
+
     
     
     
@@ -48,7 +45,7 @@ public class FirstStage extends PopUp{
         setUpWinnerInfo(null, false);
         addComboBox();
         setUpLowerPart();
-        addExtraPane(setUpBonusInformation());
+        addExtraPane(setUpMenuShortcuts());
         showPopUp(true);
     }
     private void addComboBox() {
@@ -75,7 +72,7 @@ public class FirstStage extends PopUp{
     protected void setOnActions() {
         getOkButton().setOnAction(e -> {
             gameEngine.restart();
-            UserInterface.setDisableMenuBar(false);
+           // UserInterface.setDisableMenuBar(false);
             showPopUp(false);
             getCancelButton().setDisable(false);
         });
@@ -104,67 +101,45 @@ public class FirstStage extends PopUp{
             infoLabel.setText("The winner is " + winner.getName());                    
         }
     }
-    public GridPane setUpBonusInformation() {
+    public HBox setUpMenuShortcuts() {
         
-        GridPane innerBonusPane = new GridPane();
+        HBox innerButtonPane = new HBox();
         
-        Color textColor = UserInterface.infoColor();
+        final Button controllButton = new Button("Controlls");
+        final Button ruleButton = new Button("  Rules  ");
+        final Button quitButton = new Button("   Quit  ");
         
-        Text regularBonusText = new Text(BonusEnum.REGULAR_BONUS.getBonusDescription());  
-        Text makeShortBonusText = new Text(BonusEnum.MAKE_SHORT_BONUS.getBonusDescription());  
-        Text addDeathBlockBonusText = new Text(BonusEnum.ADD_DEATH_BLOCK_BONUS.getBonusDescription());
-        Text deathBlockText = new Text(BonusEnum.DEATH_BLOCK.getBonusDescription());
-
-        regularBonusText.setFill(textColor);
-        makeShortBonusText.setFill(textColor);
-        addDeathBlockBonusText.setFill(textColor);
-        deathBlockText.setFill(textColor);
-                
-        Font textFont = new Font("Impact", UserInterface.getPlayerScoreSize());
-        regularBonusText.setFont(textFont);
-        makeShortBonusText.setFont(textFont);
-        addDeathBlockBonusText.setFont(textFont);
-        deathBlockText.setFont(textFont);
+        controllButton.setStyle("-fx-base: #01c9f3; -fx-font-size: 15px;");
+        ruleButton.setStyle("-fx-base: #01c9f3; -fx-font-size: 15px;");
+        quitButton.setStyle("-fx-base: #01c9f3; -fx-font-size: 15px;");
         
-        //Create the rectangles that show what type of bonus the description is about.
-        Rectangle regularBonusColor = new Rectangle(UserInterface.getBlockSize() * 2.5, UserInterface.getBlockSize() * 2.5);
-        Image imageRegular = new Image(getClass().getResourceAsStream(BonusEnum.REGULAR_BONUS.getBonusImage()));
-        ImagePattern imagePatternRegular = new ImagePattern(imageRegular);  
-        regularBonusColor.setFill(imagePatternRegular);
+        controllButton.setMinWidth(150);
+        ruleButton.setMinWidth(150);
+        ruleButton.setMinWidth(150);
         
-        Rectangle makeShortBonusColor = new Rectangle(UserInterface.getBlockSize() * 2.5, UserInterface.getBlockSize() * 2.5);
-        Image imageMakeShort = new Image(getClass().getResourceAsStream(BonusEnum.MAKE_SHORT_BONUS.getBonusImage()));
-        ImagePattern imagePatternMakeShort = new ImagePattern(imageMakeShort);  
-        makeShortBonusColor.setFill(imagePatternMakeShort);
+        controllButton.setPadding(new Insets(PopUp.getStandardPadding() * 3));
+        ruleButton.setPadding(new Insets(PopUp.getStandardPadding() * 3));
+        quitButton.setPadding(new Insets(PopUp.getStandardPadding() * 3));
         
-        Rectangle addDeathBlockBonusColor = new Rectangle(UserInterface.getBlockSize() * 2.5, UserInterface.getBlockSize() * 2.5);
-        Image imageAddDeath = new Image(getClass().getResourceAsStream(BonusEnum.ADD_DEATH_BLOCK_BONUS.getBonusImage()));
-        ImagePattern imagePatternAddDeath = new ImagePattern(imageAddDeath);  
-        addDeathBlockBonusColor.setFill(imagePatternAddDeath);
-        
-        Rectangle deathBlockColor = new Rectangle(UserInterface.getBlockSize() * 2.5, UserInterface.getBlockSize() * 2.5);
-        Image imageDeath = new Image(getClass().getResourceAsStream(BonusEnum.DEATH_BLOCK.getBonusImage()));
-        ImagePattern imagePatternDeath = new ImagePattern(imageDeath);  
-        deathBlockColor.setFill(imagePatternDeath);
-        
-        //Add the bonus information to the pane.
+        controllButton.setMinWidth(100);
+        ruleButton.setMinWidth(100);
+        ruleButton.setMinWidth(100);
         
         
-        innerBonusPane.add(regularBonusColor, 0, 0);
-        innerBonusPane.add(makeShortBonusColor, 0, 1);
-        innerBonusPane.add(addDeathBlockBonusColor, 0, 2);
-        innerBonusPane.add(deathBlockColor, 0, 3);
+        HBox.setMargin(ruleButton, new Insets(0, PopUp.getStandardPadding() / 4, 0, PopUp.getStandardPadding() / 4));
         
-        innerBonusPane.add(regularBonusText, 1, 0);
-        innerBonusPane.add(makeShortBonusText, 1, 1);
-        innerBonusPane.add(addDeathBlockBonusText, 1, 2);
-        innerBonusPane.add(deathBlockText, 1, 3);
+        controllButton.setOnAction(e -> {
+            UserInterface.showControllStage(true);
+        });
+        ruleButton.setOnAction(e -> {
+            UserInterface.showRulesStage(true);
+        });
+        quitButton.setOnAction(e -> {
+            UserInterface.showQuitStage(true);
+        });
         
-        //Adjust positioning
-        innerBonusPane.setVgap(UserInterface.getStandardPadding() / 2);
-        innerBonusPane.setHgap(UserInterface.getStandardPadding());
-        innerBonusPane.setPadding(new Insets(UserInterface.getStandardPadding()));
+        innerButtonPane.getChildren().addAll(controllButton, ruleButton, quitButton);
         
-        return innerBonusPane;
+        return innerButtonPane;
     }
 }

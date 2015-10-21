@@ -57,6 +57,7 @@ public class UserInterface {
     private static FirstStage firstStage;
     private static ControlsStage controlsStage;
     private static QuitStage quitStage;
+    private static RulesStage rulesStage;
 
     public static final Pane gameGridPane = new Pane();
     
@@ -70,7 +71,7 @@ public class UserInterface {
    
     private static double playerScoreSize;
     
-    private static final Color infoColor = Color.web("#eb1959");
+    private static final Color infoColor = Color.web("#01c9f3");
             
     /**
      * Creates the grafical interface.
@@ -86,6 +87,7 @@ public class UserInterface {
         setUpMainScreen(mainPane);
         aboutStage = new AboutStage("About Flow Snake", getInfoAboutStage(), "I get it, let's play some more.", 600);
         controlsStage = new ControlsStage("Set player controls", "Back to the battlin'");
+        rulesStage = new RulesStage("The Rules", "Ok, that's easy");
       //  RightPane rightPane = new RightPane(mainPane);
       //  LeftPane leftPane = new LeftPane(mainPane);
         firstStage = new FirstStage("Start New Game", getInfoFirstStage(), " LET'S DO THIS! ", "  Cancel  ", gameEngine);
@@ -115,6 +117,7 @@ public class UserInterface {
         gameGridPane.setMaxSize(gridSize, gridSize);
       //  mainPane.setCenter(RightPane.getPane());
         mainPane.setCenter(gameGridPane);
+        battleStage.setFullScreenExitKeyCombination(KeyCombination.NO_MATCH);
         battleStage.setFullScreen(true);
         
        // BorderPane.setMargin(gameGridPane, new Insets(standardPadding));
@@ -149,7 +152,8 @@ public class UserInterface {
         MenuItem underMenu2 = new MenuItem("About");
         MenuItem underMenu3 = new MenuItem("Controls");
         MenuItem underMenu4 = new MenuItem("Quit");
-        menu.getItems().addAll(underMenu1, underMenu2, underMenu3, underMenu4);
+        MenuItem underMenu5 = new MenuItem("Rules");
+        menu.getItems().addAll(underMenu1, underMenu2, underMenu3, underMenu4, underMenu5);
         menuBar = new MenuBar();
         menuBar.setPrefHeight(menuBarSize);
         menuBar.getMenus().add(menu);
@@ -182,6 +186,10 @@ public class UserInterface {
         underMenu4.setAccelerator(KeyCombination.keyCombination("CTRL + Q"));
         underMenu4.setOnAction(a -> {
             quitStage.showPopUp(true);
+        }); 
+        underMenu5.setAccelerator(KeyCombination.keyCombination("CTRL + R"));
+        underMenu5.setOnAction(a -> {
+            rulesStage.showPopUp(true);
         }); 
     }
     public void addBacgoundImage(String outerPicture, String innerPicture, boolean cover) {
@@ -232,8 +240,7 @@ public class UserInterface {
         return "";
     }
     private String getInfoQuitStage() {
-        return "Really quit being a snake and return to your boring life"
-                + " as a corporate drone??";
+        return "Really?! No more Flow?";
     }
     private String getInfoAboutStage() {
         return " \nCreated by Johan Wendt. \n" 
@@ -241,5 +248,14 @@ public class UserInterface {
         + "johan.wendt1981@gmail.com \n"
         + "\n"
         + "Thank you for playing!";
+    }
+    public static void showControllStage(boolean show) {
+        controlsStage.showPopUp(show);
+    }
+    public static void showQuitStage(boolean show) {
+        quitStage.showPopUp(show);
+    }
+    public static void showRulesStage(boolean show) {
+        rulesStage.showPopUp(show);
     }
 }
