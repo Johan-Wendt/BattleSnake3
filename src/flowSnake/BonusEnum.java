@@ -24,10 +24,10 @@ import javafx.scene.paint.ImagePattern;
  * @author johanwendt
  */
 public enum BonusEnum {
-    REGULAR_BONUS (0, "bbGreen.png", "ADD A LICENSE", 10, BuildingBlock.greenBonusImage()),
-    MAKE_SHORT_BONUS (1, "bbYellow.png", "ADD MORE FLOW", 10, BuildingBlock.yellowBonusImage()),
-    ADD_DEATH_BLOCK_BONUS (2, "bbRed.png", "LOOSE FLOW", 10, BuildingBlock.redBonusImage()),
-    DEATH_BLOCK (3, "bbGrey.png", "LOOSE A LICENSE", 10, BuildingBlock.greyBonusImage());
+    REGULAR_BONUS (0, "bbGreen.png", "ADD A LICENSE - Become longer", 10, BuildingBlock.greenBonusImage()),
+    MAKE_SHORT_BONUS (1, "bbYellow.png", "ADD MORE FLOW - Become faster", 10, BuildingBlock.yellowBonusImage()),
+    ADD_DEATH_BLOCK_BONUS (2, "bbRed.png", "FLOW SHOT - Shoot you opponents", 10, BuildingBlock.redBonusImage()),
+    DEATH_BLOCK (3, "bbGrey.png", "LOOSE A LICENSE - Become shorter", 10, BuildingBlock.greyBonusImage());
     
     private final String bonusImage;
     private final String bonusDescription;

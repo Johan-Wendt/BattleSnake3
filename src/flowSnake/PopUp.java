@@ -13,7 +13,6 @@ import javafx.scene.control.Control;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.KeyCode;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundImage;
 import javafx.scene.layout.BackgroundPosition;
@@ -220,8 +219,12 @@ public abstract class PopUp {
     }
     protected void addExtraPane(Pane pane) {
         popUpPaneInnerUpper.getChildren().add(pane);
+        popUpPaneInnerUpper.setAlignment(Pos.TOP_CENTER);
     }
     protected Stage getPopUpStage() {
         return pupUpStage;
+    }
+    protected static int getStandardPadding() {
+        return STANDARD_PADDING;
     }
 }

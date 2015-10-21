@@ -24,10 +24,10 @@ import javafx.scene.paint.ImagePattern;
  * @author johanwendt
  */
 public enum PlayerEnum {
-    PLAYER_ONE (1, "FLOW FREE", "flowFree.png", GameEngine.RIGHT, 2, "death.wav", "notificationLouder.wav", 0.5, Color.web("#01c9f3"), "busyTone.mp3", BuildingBlock.playerOneImage()),
-    PLAYER_TWO (2, "FLOW FIXED", "flowFixed.png", GameEngine.LEFT, 4, "death.wav", "oldPhone.wav", 0.3, Color.web("#ffc02b"), "busyTone.mp3", BuildingBlock.playerTwoImage()),
-    PLAYER_THREE (3, "FLOW MOBILE", "flowMobile.png", GameEngine.UP, 6, "death.wav", "silenceMobile.wav", 0.3, Color.web("#77ad37"), "busyTone.mp3", BuildingBlock.playerThreeImage()),
-    PLAYER_FOUR (4, "PBX-MONSTER", "pbx.png", GameEngine.DOWN, 8, "death.wav", "mikMik.wav", 0.3, Color.web("#594f63"), "busyTone.mp3", BuildingBlock.playerFourImage());
+    PLAYER_ONE (1, "Player 1", "flowFree.png", GameEngine.RIGHT, 2, "death.wav", "notificationLouder.wav", 0.5, Color.web("#01c9f3"), "busyTone.mp3", BuildingBlock.playerOneImage()),
+    PLAYER_TWO (2, "Player 2", "flowFixed.png", GameEngine.LEFT, 4, "death.wav", "oldPhone.wav", 0.3, Color.web("#ffc02b"), "busyTone.mp3", BuildingBlock.playerTwoImage()),
+    PLAYER_THREE (3, "Player 3", "flowMobile.png", GameEngine.UP, 6, "death.wav", "silenceMobile.wav", 0.3, Color.web("#77ad37"), "busyTone.mp3", BuildingBlock.playerThreeImage()),
+    PLAYER_FOUR (4, "Player 4", "pbx.png", GameEngine.DOWN, 8, "death.wav", "mikMik.wav", 0.3, Color.web("#594f63"), "busyTone.mp3", BuildingBlock.playerFourImage());
     
     private final int number;
     private final String name;

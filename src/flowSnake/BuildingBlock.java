@@ -187,7 +187,6 @@ public class BuildingBlock {
     }
     public void setPlayerBlock(PlayerEnum player) throws InterruptedException {
         setBlockImage(player.getBlockImage());
-        move(20);
         setDeathBlock();
         occupiedBy = player;
     }
@@ -323,12 +322,5 @@ public class BuildingBlock {
             isMovableObject = false;
         }
     }
-    public void move(int time) {
-        final Timeline timeline = new Timeline();
- timeline.setCycleCount(2);
- timeline.setAutoReverse(true);
- timeline.getKeyFrames().add(new KeyFrame(Duration.millis(time),
-   new KeyValue (rectangle.translateXProperty(), GameGrid.getBlockSize())));
- timeline.play();
-    }
+
 }
