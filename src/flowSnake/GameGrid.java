@@ -10,7 +10,12 @@ import java.util.HashMap;
 import javafx.scene.paint.Color;
 import java.util.HashSet;
 import java.util.Random;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.application.Platform;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import javafx.util.Duration;
 
 /**
  *This class the grid where the players move around. It also creates the block that
@@ -28,13 +33,13 @@ public class GameGrid {
     
     private static final int DEATH_SLOWNESS = Player.PLAYER_START_SLOWNESS * 2;
     //private static final int DEATH_SLOWNESS = 1;
-    private static final HashMap<Integer, BuildingBlock> gridList = new HashMap<>(GameEngine.BRICKS_PER_ROW * GameEngine.BRICKS_PER_ROW + 10);
+   // private static final HashMap<Integer, BuildingBlock> gridList = new HashMap<>(GameEngine.BRICKS_PER_ROW * GameEngine.BRICKS_PER_ROW + 10);
     private static final HashSet<Integer> safeList = new HashSet<>(SAFE_ZONE_DIAMETER * SAFE_ZONE_DIAMETER);
+    private final static BuildingBlock outsideBlock = new BuildingBlock(-100, Color.BLACK);
     
     //This block is returned from the grid if it gets asked about a grid id that it cannot
     //find. This is used for making the player move from one side to another on the 
     //field if no death blocks are in the way.
-    private final static BuildingBlock outsideBlock = new BuildingBlock(-1, Color.BLACK);
     
     //This value is used for the blocks that make tha field smaller and smaller.
     //For convinience this gridsize is normalized to number of blocks.
@@ -44,11 +49,14 @@ public class GameGrid {
     private static int deathLocation = 0;
     private static int deathDirection = GameEngine.RIGHT;
     private static int deathPause = 1;
-    private static boolean isDeathRunning = true;
+    private static boolean isDeathRunning = false;
+    private static boolean firstRound = true;
     
     private static final Random random = new Random();
     
     private static final HashSet<BuildingBlock> deathList = new HashSet<>();
+    
+    private static Timeline deathLoop = new Timeline();
 
     /**
      * Constructor for the main game field grid. It creates the field from BuildingBlocks.
@@ -64,32 +72,9 @@ public class GameGrid {
             for(int j = 0; j < gridSize/blockSize; j ++) {
                 BuildingBlock block = new BuildingBlock(i * blockSize, j * blockSize, blockSize, (j + i * GameEngine.MULIPLIER_X));
                 UserInterface.gameGridPane.getChildren().addAll(block.getRectangle(), block.getCircle());
-
-             //   if(isInSafeZone(block.getBlockId())) {
-               //     block.setBlockColor(SAFE_ZONE_COLOR);
-                 //   block.setRevertColor(SAFE_ZONE_COLOR);
-           //     }
-                gridList.put(block.getBlockId(), block);
             }
         }
-        getBlock(playerStartpoint).setStartBlock(); 
-    }
-    public GameGrid(boolean useForBackground) {
-        blockSize = UserInterface.getBlockSize();
-        gridSize = UserInterface.getGridSize();
-        currentGridSize = gridSize / blockSize;
-
-        for(int i = 0; i < gridSize/blockSize; i ++) {
-            for(int j = 0; j < gridSize/blockSize; j ++) {
-                BuildingBlock block = new BuildingBlock(i * blockSize, j * blockSize, blockSize);
-                UserInterface.gameGridPane.getChildren().addAll(block.getRectangle(), block.getCircle());
-
-                if(isInSafeZone(j + i * GameEngine.MULIPLIER_X)) {
-                   // block.setBlockColor(SAFE_ZONE_COLOR);
-                   // block.setRevertColor(SAFE_ZONE_COLOR);
-                }
-            }
-        }
+        BuildingBlock.getBlock(playerStartpoint).setStartBlock(); 
     }
     /**
      * This creates the black death blocks that make the field smaller and smaller.
@@ -98,35 +83,55 @@ public class GameGrid {
      * is used for killing players cought in the death builder.
      * @return id for the deathblock if a new one has been created or -1 if nothing happened.
      */
+    
+    public static void startDeathBuilder() {
+        deathLoop.setCycleCount( Timeline.INDEFINITE );
+        
+        final long timeStart = System.currentTimeMillis();
+        
+        KeyFrame kf = new KeyFrame( Duration.millis(DEATH_SLOWNESS), new EventHandler<ActionEvent>() {
+            public void handle(ActionEvent ae) {
+                double t = (System.currentTimeMillis() - timeStart) / 1000.0; 
+                if (isDeathRunning) {
+                    deathBuilder();
+                }
+            }
+        });
+        deathLoop.getKeyFrames().add( kf );
+        deathLoop.play();
+        GameEngine.addToOngoingTimelines(deathLoop);
+    }
+    
     public static void deathBuilder() {
+        
+        
         if(isInSafeZone(deathLocation) == true) {
             isDeathRunning = false;
+            GameEngine.gameOver();
         }
-        //Slow down the building progress to match the initial speed of players.
         if(isDeathRunning) {
-            if(deathPause % (DEATH_SLOWNESS) == 0) {
                 if(!(deathCounter < currentGridSize -1)) {
                     changeDeathDirection();
                 }
-                BuildingBlock deathReturn = getBlock(deathLocation);
-                GameEngine.killPlayer(deathReturn.getOccupiedBy(), deathLocation);
-                deathReturn.setDeathBlockIrreveritble();
-                deathList.add(deathReturn);
+                BuildingBlock deathReturn = BuildingBlock.getBlock(deathLocation);
+                handleCrash(deathReturn);
+                deathReturn.revertBlock();
+                deathReturn.setDeathBlock();
                 deathCounter ++;
                 deathLocation += deathDirection;
-            }
-            deathPause ++; 
         }
     }
+    
     //Checks if the end of the grid has been reached redirects the deathbuilder.
     private static void changeDeathDirection() {
         switch (deathDirection) {
             case GameEngine.RIGHT:
                 deathDirection = GameEngine.DOWN;
                 deathCounter = 0;
-                if (deathPause / (DEATH_SLOWNESS) > gridSize / blockSize) {
+                if (!firstRound) {
                     currentGridSize--;
                 }
+                else firstRound = false;
                 break;
             case GameEngine.DOWN:
                 deathDirection = GameEngine.LEFT;
@@ -143,19 +148,32 @@ public class GameGrid {
                 break;
         }
     }
+    private static void handleCrash(BuildingBlock block) {
+        if(block.hasOccupant()) {
+            VisibleObject crash = block.getOccupant();
+            if(crash instanceof Player) {
+                block.explodePlayer();
+            }
+            else {
+                block.explode();
+            }
+        }
+    }
     public static void reset() {
+        /*
         HashSet<BuildingBlock> resetGrid = new HashSet<>(gridList.values());
         for(BuildingBlock block: resetGrid) {
             block.resetBlock();
         }
-        getBlock(playerStartpoint).setStartBlock(); 
+        */
+        BuildingBlock.getBlock(playerStartpoint).setStartBlock(); 
         deathCounter = 0;
         deathLocation = 0;
         deathDirection = GameEngine.RIGHT;
         deathPause = 1;
         currentGridSize = gridSize / blockSize;
         isDeathRunning = true;
-        outsideBlock.setDeathBlockIrreveritble();
+        firstRound = true;
         deathList.clear();
     }
     /***
@@ -216,26 +234,30 @@ public class GameGrid {
      * @param blockId id of the requested block.
      * @return the BuildingBlock with the given id.
      */
+    /*
     public static BuildingBlock getBlock(int blockId) {
         if(gridList.containsKey(blockId)) {
             return gridList.get(blockId);
         }
         return outsideBlock;
     }
+    */
     /**
      * Used for getting a random block from the field, e.g. to place a bonus in.
      * It does not return blocks that have been occupied by the death builder.
      * @return a random BuildingBlock in the playable field.
      */
+    
     public static BuildingBlock getRandomBlock() {
         //int adjustToMiddle = ((gridSize / blockSize) - currentGridSize)/2;
-        //Random random = new Random();
+        Random random = new Random();
         int randomY = random.nextInt(GameEngine.BRICKS_PER_ROW);
         int randomX = random.nextInt(GameEngine.BRICKS_PER_ROW) * GameEngine.MULIPLIER_X;
-        BuildingBlock randomBlock = getBlock(randomY + randomX);
+        BuildingBlock randomBlock = BuildingBlock.getBlock(randomY + randomX);
         if(randomBlock.getBlockColor().equals(Color.TRANSPARENT) && !isInSafeZone(randomBlock.getBlockId())) {
             return randomBlock;
         }
         return outsideBlock;
     }
+    
 }

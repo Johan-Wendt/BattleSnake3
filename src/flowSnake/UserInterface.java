@@ -117,7 +117,7 @@ public class UserInterface {
         gameGridPane.setMaxSize(gridSize, gridSize);
       //  mainPane.setCenter(RightPane.getPane());
         mainPane.setCenter(gameGridPane);
-        battleStage.setFullScreenExitKeyCombination(KeyCombination.NO_MATCH);
+       // battleStage.setFullScreenExitKeyCombination(KeyCombination.NO_MATCH);
         battleStage.setFullScreen(true);
         
        // BorderPane.setMargin(gameGridPane, new Insets(standardPadding));

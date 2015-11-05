@@ -54,9 +54,9 @@ public class RulesStage extends PopUp{
         
         Color textColor = UserInterface.infoColor();
         
-        Text regularBonusText = new Text(BonusEnum.REGULAR_BONUS.getBonusDescription());  
-        Text makeShortBonusText = new Text(BonusEnum.MAKE_SHORT_BONUS.getBonusDescription());  
-        Text addDeathBlockBonusText = new Text(BonusEnum.ADD_DEATH_BLOCK_BONUS.getBonusDescription());
+        Text regularBonusText = new Text(BonusEnum.MAKE_LONG_BONUS.getBonusDescription());  
+        Text makeShortBonusText = new Text(BonusEnum.MAKE_FASTER_BONUS.getBonusDescription());  
+        Text addDeathBlockBonusText = new Text(BonusEnum.SHOOT_BONUS.getBonusDescription());
         Text deathBlockText = new Text(BonusEnum.DEATH_BLOCK.getBonusDescription());
 
         regularBonusText.setFill(textColor);
@@ -72,22 +72,22 @@ public class RulesStage extends PopUp{
         
         //Create the rectangles that show what type of bonus the description is about.
         Rectangle regularBonusColor = new Rectangle(UserInterface.getBlockSize() * 2.5, UserInterface.getBlockSize() * 2.5);
-        Image imageRegular = new Image(getClass().getResourceAsStream(BonusEnum.REGULAR_BONUS.getBonusImage()));
+        Image imageRegular = new Image(getClass().getResourceAsStream(VisibleObjects.MAKE_LONGER_BONUS.getImage()));
         ImagePattern imagePatternRegular = new ImagePattern(imageRegular);  
         regularBonusColor.setFill(imagePatternRegular);
         
         Rectangle makeShortBonusColor = new Rectangle(UserInterface.getBlockSize() * 2.5, UserInterface.getBlockSize() * 2.5);
-        Image imageMakeShort = new Image(getClass().getResourceAsStream(BonusEnum.MAKE_SHORT_BONUS.getBonusImage()));
+        Image imageMakeShort = new Image(getClass().getResourceAsStream(VisibleObjects.MAKE_FASTER_BONUS.getImage()));
         ImagePattern imagePatternMakeShort = new ImagePattern(imageMakeShort);  
         makeShortBonusColor.setFill(imagePatternMakeShort);
         
         Rectangle addDeathBlockBonusColor = new Rectangle(UserInterface.getBlockSize() * 2.5, UserInterface.getBlockSize() * 2.5);
-        Image imageAddDeath = new Image(getClass().getResourceAsStream(BonusEnum.ADD_DEATH_BLOCK_BONUS.getBonusImage()));
+        Image imageAddDeath = new Image(getClass().getResourceAsStream(VisibleObjects.SHOOT_BONUS.getImage()));
         ImagePattern imagePatternAddDeath = new ImagePattern(imageAddDeath);  
         addDeathBlockBonusColor.setFill(imagePatternAddDeath);
         
         Rectangle deathBlockColor = new Rectangle(UserInterface.getBlockSize() * 2.5, UserInterface.getBlockSize() * 2.5);
-        Image imageDeath = new Image(getClass().getResourceAsStream(BonusEnum.DEATH_BLOCK.getBonusImage()));
+        Image imageDeath = new Image(getClass().getResourceAsStream(VisibleObjects.DEATH.getImage()));
         ImagePattern imagePatternDeath = new ImagePattern(imageDeath);  
         deathBlockColor.setFill(imagePatternDeath);
         

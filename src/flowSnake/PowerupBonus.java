@@ -20,18 +20,10 @@ package flowSnake;
  *
  * @author johanwendt
  */
-public class BonusGrey extends Bonus {
-     /**
-     * Creates a bonus and places it in the field.
-     * @param bonusBlock The Building block to be changed to a Bonus. If the color of this block is 
-     * not the GameGrid color the bonus is removed directly.
-     * @param bonusColor The color of this Bonus.
-     * @param lifespan The how long this bonus should be on the GameGrid.
-     * @param bonusHappening Int describing what happens when the bonus is taken.
-     */
-    public BonusGrey(VisibleObjects details, BuildingBlock bonusBlock, BonusEnum bonusEnum, int lifespan) {
+public abstract class PowerupBonus extends Bonus{
+
+    public PowerupBonus(VisibleObjects details, BuildingBlock bonusBlock, BonusEnum bonusEnum, int lifespan) {
         super(details, bonusBlock, bonusEnum, lifespan);
-      //  bonusBlock.setDeathBlockIrreveritble();
     }
     
 }

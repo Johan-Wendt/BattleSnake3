@@ -24,14 +24,13 @@ import javafx.scene.paint.ImagePattern;
  * @author johanwendt
  */
 public enum PlayerEnum {
-    PLAYER_ONE (1, "Player 1", "flowFree.png", GameEngine.RIGHT, 2, "death.wav", "notificationLouder.wav", 0.5, Color.web("#01c9f3"), "busyTone.mp3", BuildingBlock.playerOneImage()),
-    PLAYER_TWO (2, "Player 2", "flowFixed.png", GameEngine.LEFT, 4, "death.wav", "oldPhone.wav", 0.3, Color.web("#ffc02b"), "busyTone.mp3", BuildingBlock.playerTwoImage()),
-    PLAYER_THREE (3, "Player 3", "flowMobile.png", GameEngine.UP, 6, "death.wav", "silenceMobile.wav", 0.3, Color.web("#77ad37"), "busyTone.mp3", BuildingBlock.playerThreeImage()),
-    PLAYER_FOUR (4, "Player 4", "pbx.png", GameEngine.DOWN, 8, "death.wav", "mikMik.wav", 0.3, Color.web("#594f63"), "busyTone.mp3", BuildingBlock.playerFourImage());
+    PLAYER_ONE (1, "Player 1", GameEngine.RIGHT, 2, "death.wav", "notificationLouder.wav", 0.5, Color.web("#01c9f3"), "busyTone.mp3"),
+    PLAYER_TWO (2, "Player 2", GameEngine.LEFT, 4, "death.wav", "oldPhone.wav", 0.3, Color.web("#ffc02b"), "busyTone.mp3"),
+    PLAYER_THREE (3, "Player 3", GameEngine.UP, 6, "death.wav", "silenceMobile.wav", 0.3, Color.web("#77ad37"), "busyTone.mp3"),
+    PLAYER_FOUR (4, "Player 4", GameEngine.DOWN, 8, "death.wav", "mikMik.wav", 0.3, Color.web("#594f63"), "busyTone.mp3");
     
     private final int number;
     private final String name;
-    private final String playerImage;
     private final int startDirection;
     private final int moveTurn;
     private final String deathSound;
@@ -39,12 +38,10 @@ public enum PlayerEnum {
     private final double bonusVolume;
     private final Color scoreColor;
     private final String busySound;
-    private ImagePattern blockImage;
 
-    PlayerEnum(int playerNumber, String playerName, String playerImage, int startDirection, int moveTurn, String deathSound, String bonusSound, double bonusVolume, Color scoreColor, String busySound, ImagePattern blockImage) {
+    PlayerEnum(int playerNumber, String playerName , int startDirection, int moveTurn, String deathSound, String bonusSound, double bonusVolume, Color scoreColor, String busySound) {
         this.number = playerNumber;
         this.name = playerName;
-        this.playerImage = playerImage;
         this.startDirection = startDirection;
         this.moveTurn = moveTurn;
         this.deathSound = deathSound;
@@ -52,16 +49,12 @@ public enum PlayerEnum {
         this.bonusVolume = bonusVolume;
         this.scoreColor = scoreColor;
         this.busySound = busySound;
-        this.blockImage = blockImage;
     }
     public int getNumber() {
         return number;
     }
     public String getName() {
         return name;
-    }
-    public String getImage() {
-        return playerImage;
     }
     public int getStartDirection() {
         return startDirection;
@@ -83,11 +76,5 @@ public enum PlayerEnum {
     }
     public String getBusySound() {
         return busySound;
-    }
-    public ImagePattern getBlockImage() {
-        return blockImage;
-    }
-    public void setBlockImage(ImagePattern image) {
-        blockImage = image;
     }
 }

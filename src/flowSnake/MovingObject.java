@@ -38,9 +38,9 @@ public class MovingObject {
         this.currentLocation = currentLocation;
         this.currentDirection = currentDirection;
         this.objectSlowness = objectSlowness - 1;
-        if(!GameGrid.getBlock(currentLocation + currentDirection).isDeathBlockIrrevertible()) this.currentLocation += 2 * currentDirection;
+       // if(!BuildingBlock.getBlock(currentLocation + currentDirection).isDeathBlockIrrevertible()) this.currentLocation += 2 * currentDirection;
         movingObjects.add(this);
-        GameGrid.getBlock(this.currentLocation).setMovableObjectBlock(currentDirection);
+        BuildingBlock.getBlock(this.currentLocation).setMovableObjectBlock(currentDirection);
         
         bounceSound = new AudioClip(getClass().getResource("bounce.wav").toExternalForm());
         hitSound = new AudioClip(getClass().getResource("explosion.wav").toExternalForm());
@@ -51,20 +51,20 @@ public class MovingObject {
             checkToBeRemoved();
             if(!isToBeRemoved) {
                 int destination = currentLocation + currentDirection;
-                if(GameGrid.getBlock(destination).isDeathBlockIrrevertible() || GameGrid.getBlock(destination).isMovableObject()) {
-                    currentDirection = -currentDirection;
-                    bounceSound.play();
-                    turn++;
-                    return;
-                }
-                if((GameGrid.getBlock(destination).getOccupiedBy() != null)) {
+            //    if(BuildingBlock.getBlock(destination).isDeathBlockIrrevertible() || BuildingBlock.getBlock(destination).isMovableObject()) {
+            //        currentDirection = -currentDirection;
+            //        bounceSound.play();
+            //        turn++;
+           //         return;
+            //    }
+                if((BuildingBlock.getBlock(destination).getOccupatorDetails() != null)) {
                     hitPlayer(destination);
                     turn++;
                     return;
                 }
-                BuildingBlock moveTo = GameGrid.getBlock(destination);
+                BuildingBlock moveTo = BuildingBlock.getBlock(destination);
 
-                GameGrid.getBlock(currentLocation).removeMovableObject();
+                BuildingBlock.getBlock(currentLocation).removeMovableObject();
                 moveTo.setMovableObjectBlock(currentDirection);
 
                 currentLocation = destination;
@@ -76,8 +76,8 @@ public class MovingObject {
         return movingObjects;
     }
     private void checkToBeRemoved() {
-        if(!GameGrid.getBlock(currentLocation).isMovableObject() || isToBeRemoved) {
-            GameGrid.getBlock(currentLocation).removeMovableObject();
+        if(!BuildingBlock.getBlock(currentLocation).isMovableObject() || isToBeRemoved) {
+            BuildingBlock.getBlock(currentLocation).removeMovableObject();
             removeFromMovingObjects();
         }
     }
@@ -95,10 +95,10 @@ public class MovingObject {
     }
     private void hitPlayer(int destination) {
         hitSound.play();
-        BuildingBlock hitBlock = GameGrid.getBlock(destination);
+        BuildingBlock hitBlock = BuildingBlock.getBlock(destination);
         hitBlock.explosion();
-        GameEngine.killPlayer(hitBlock.getOccupiedBy(), destination);
-        GameGrid.getBlock(currentLocation).removeMovableObject();
+     //   GameEngine.killPlayer(hitBlock.getOccupatorDetails(), destination);
+        BuildingBlock.getBlock(currentLocation).removeMovableObject();
         isToBeRemoved = true;
     }
 }

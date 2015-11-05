@@ -10,7 +10,7 @@ import javafx.scene.paint.Color;
  *Creates a death block bonus that randomly creates three death blocks on the 
  * game grid when taken.
  */
-public class AddDeathBlocksBonus extends Bonus{
+public class ShootBonus extends Bonus{
 
     /**
      * Creates a bonus and places it in the field.
@@ -20,8 +20,8 @@ public class AddDeathBlocksBonus extends Bonus{
      * @param lifespan The how long this bonus should be on the GameGrid.
      * @param bonusHappening Int describing what happens when the bonus is taken.
      */
-    public AddDeathBlocksBonus(BuildingBlock bonusBlock, BonusEnum bonusEnum, int lifespan) {
-        super(bonusBlock, bonusEnum, lifespan);
+    public ShootBonus(VisibleObjects details, BuildingBlock bonusBlock, BonusEnum bonusEnum, int lifespan) {
+        super(details, bonusBlock, bonusEnum, lifespan);
     }
     /**
     /**

@@ -1,13 +1,18 @@
 
 package flowSnake;
 
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.scene.paint.Color;
+import javafx.util.Duration;
 /**
  *
  * @author johanwendt
  */
-public abstract class Bonus {
-    private final int lifespan;
+public abstract class Bonus extends VisibleObject {
+    //private final int lifespan;
     private final BonusEnum bonusEnum;
     private final BuildingBlock bonusBlock;
     private boolean isToRemove = false;
@@ -21,17 +26,17 @@ public abstract class Bonus {
      * @param lifespan The how long this bonus should be on the GameGrid.
      * @param bonusHappening Int describing what happens when the bonus is taken.
      */
-    public Bonus(BuildingBlock bonusBlock, BonusEnum bonusEnum, int lifespan) {
-        this.lifespan = GameEngine.getTurn() + lifespan;
+    public Bonus(VisibleObjects details, BuildingBlock bonusBlock, BonusEnum bonusEnum, int lifespan) {
+        super(details);
+      //  this.lifespan = GameEngine.getTurn() + lifespan;
         this.bonusBlock = bonusBlock;
         this.bonusEnum = bonusEnum;
-        if(this.bonusBlock.getBlockColor().equals(GameGrid.GAMEGRID_COLOR)) {
-            this.bonusBlock.setBonusBlock(bonusEnum);
-            //this.bonusBlock.setLightingEffect();
-        }
-        else {
-            setTaken();
-        }
+        bonusBlock.Occupy(details, this, -1);
+        bonusBlock.setBlockImage(details.getBlockImage());
+        Timeline timeline = new Timeline(new KeyFrame(Duration.millis(lifespan),
+        ae -> bonusBlock.revertBlock(this)));
+        timeline.play();
+        GameEngine.addTimeLine(timeline);
     }
     /**
      * Checks if a bonus is to be removed from the GameGrid. If the bonus is
@@ -40,20 +45,25 @@ public abstract class Bonus {
      * the BuildingBlock.
      * @return If the bonus is to be removed.
      */
+    /*
     public boolean checkRemove() {
         if(GameEngine.getTurn() > lifespan) {
             isToRemove = true;
-            bonusBlock.removeEffect();
-            if(!isTaken) bonusBlock.revertDeathBlock();
+            if(!isTaken) bonusBlock.revertBlock();
         }
         return isToRemove;
     }
+    */
     /**
      * Returns the block id for the BuildingBlock that constitutes this bonus.
      * @return id for this bonus.
      */
     public int getBonusId() {
         return bonusBlock.getBlockId();
+    }
+    private void removeBonus(Timeline timeline) {
+        bonusBlock.revertBlock(this);
+        GameEngine.removeTimeline(timeline);
     }
     /**
      * Returns the bonus happening that lets the player instances know what to make of the bonus.
@@ -66,7 +76,6 @@ public abstract class Bonus {
      * Sets the isTaken property to true and also sets the isToRemove property to true.
      */
     public void setTaken() {
-        bonusBlock.removeEffect();
         isTaken = true;
         isToRemove = true;
     }
@@ -75,5 +84,13 @@ public abstract class Bonus {
      * on the GameGrid.
      */
     public void executeBonus() {
+    }
+    @Override
+    public int getDirection() {
+        return 0;
+    }
+    @Override
+    public int getSpeed() {
+        return 0;
     }
 }

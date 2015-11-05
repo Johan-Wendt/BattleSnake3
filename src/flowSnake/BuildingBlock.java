@@ -5,16 +5,14 @@ package flowSnake;
  *
  * @author johanwendt
  */
-import javafx.animation.Animation;
+import java.util.HashMap;
+import java.util.HashSet;
+import javafx.animation.Interpolator;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
-import javafx.application.Platform;
-import javafx.concurrent.ScheduledService;
-import javafx.concurrent.Task;
-import javafx.geometry.Rectangle2D;
 import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
+import javafx.scene.media.AudioClip;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.ImagePattern;
 import javafx.scene.paint.Paint;
@@ -35,11 +33,17 @@ public class BuildingBlock {
     private Color revertColor;
     private boolean isDeathBlock = false;
     private boolean isDeathBlockIrrevertible = false;
-    private PlayerEnum occupiedBy = null;
+    private VisibleObjects occupatorDetails = null;
+    private VisibleObject occupant = null;
     private boolean isMovableObject;
     private int movableObjectDirection;
     
+    private int playerDirection;
+    private int animationSpeed;
+    
     private Circle circle;
+    private int turn;
+    private int repeatTimes = 1;
     
    // private static final Color deathBlockColor = new Color(0, 0, 0, 0.5);
     
@@ -53,56 +57,65 @@ public class BuildingBlock {
     private static ImagePattern playerThreeImage;
     private static ImagePattern playerFourImage;
     private static ImagePattern deathPattern;
-    
     private static ImagePattern explosionView;
+    private final AudioClip explosionSound;
+            
     
     
+    private static final HashMap<Integer, BuildingBlock> gridList = new HashMap<>(GameEngine.BRICKS_PER_ROW * GameEngine.BRICKS_PER_ROW + 1); 
     /**
      * Constructor used for creating blocks that only need an id, not a graphical appearance.
      * @param blockId the block id to be set for this building block.
      * @param color the revertColor of the block
      */
     public BuildingBlock(int blockId, Color color) {
-        Image bbGreenImage = new Image(getClass().getResourceAsStream(BonusEnum.REGULAR_BONUS.getBonusImage()));
+        Image bbGreenImage = new Image(getClass().getResourceAsStream(VisibleObjects.MAKE_LONGER_BONUS.getImage()));
         bbGreen = new ImagePattern(bbGreenImage);
-        BonusEnum.REGULAR_BONUS.setBlockImage(bbGreen);
-        Image bbYellowImage = new Image(getClass().getResourceAsStream(BonusEnum.MAKE_SHORT_BONUS.getBonusImage()));
+        VisibleObjects.MAKE_LONGER_BONUS.setBlockImage(bbGreen);
+        Image bbYellowImage = new Image(getClass().getResourceAsStream(VisibleObjects.MAKE_FASTER_BONUS.getImage()));
         bbYellow = new ImagePattern(bbYellowImage);
-        BonusEnum.MAKE_SHORT_BONUS.setBlockImage(bbYellow);
-        Image bbRedImage = new Image(getClass().getResourceAsStream(BonusEnum.ADD_DEATH_BLOCK_BONUS.getBonusImage()));
+        VisibleObjects.MAKE_FASTER_BONUS.setBlockImage(bbYellow);
+        Image bbRedImage = new Image(getClass().getResourceAsStream(VisibleObjects.SHOOT_BONUS.getImage()));
         bbRed = new ImagePattern(bbRedImage);
-        BonusEnum.ADD_DEATH_BLOCK_BONUS.setBlockImage(bbRed);
-        Image bbGreyImage = new Image(getClass().getResourceAsStream(BonusEnum.DEATH_BLOCK.getBonusImage()));
+        VisibleObjects.SHOOT_BONUS.setBlockImage(bbRed);
+        Image bbGreyImage = new Image(getClass().getResourceAsStream(VisibleObjects.DEATH.getImage()));
         bbGrey = new ImagePattern(bbGreyImage);
-        BonusEnum.DEATH_BLOCK.setBlockImage(bbGrey);
-        Image playerOneImageImage = new Image(getClass().getResourceAsStream(PlayerEnum.PLAYER_ONE.getImage()));
+        VisibleObjects.DEATH.setBlockImage(bbGrey);
+        Image playerOneImageImage = new Image(getClass().getResourceAsStream(VisibleObjects.PLAYER_ONE.getImage()));
         playerOneImage = new ImagePattern(playerOneImageImage);
-        PlayerEnum.PLAYER_ONE.setBlockImage(playerOneImage);
-        Image playerTwoImageImage = new Image(getClass().getResourceAsStream(PlayerEnum.PLAYER_TWO.getImage()));
+        VisibleObjects.PLAYER_ONE.setBlockImage(playerOneImage);
+        Image playerTwoImageImage = new Image(getClass().getResourceAsStream(VisibleObjects.PLAYER_TWO.getImage()));
         playerTwoImage = new ImagePattern(playerTwoImageImage);
-        PlayerEnum.PLAYER_TWO.setBlockImage(playerTwoImage);
-        Image playerThreeImageImage = new Image(getClass().getResourceAsStream(PlayerEnum.PLAYER_THREE.getImage()));
+        VisibleObjects.PLAYER_TWO.setBlockImage(playerTwoImage);
+        Image playerThreeImageImage = new Image(getClass().getResourceAsStream(VisibleObjects.PLAYER_THREE.getImage()));
         playerThreeImage = new ImagePattern(playerThreeImageImage);
-        PlayerEnum.PLAYER_THREE.setBlockImage(playerThreeImage);
-        Image playerFourImageImage = new Image(getClass().getResourceAsStream(PlayerEnum.PLAYER_FOUR.getImage()));
+        VisibleObjects.PLAYER_THREE.setBlockImage(playerThreeImage);
+        Image playerFourImageImage = new Image(getClass().getResourceAsStream(VisibleObjects.PLAYER_FOUR.getImage()));
         playerFourImage = new ImagePattern(playerFourImageImage);
-        PlayerEnum.PLAYER_FOUR.setBlockImage(playerFourImage);
+        VisibleObjects.PLAYER_FOUR.setBlockImage(playerFourImage);
         Image deathImage = new Image(getClass().getResourceAsStream("cross.png"));
         deathPattern = new ImagePattern(deathImage);
         
        Image eplosionImage = new Image(getClass().getResourceAsStream("explosion.gif"));
        explosionView = new ImagePattern(eplosionImage);
+       
+       explosionSound = new AudioClip(getClass().getResource("explosion.wav").toExternalForm());
+       
+       explosionSound.play(0);
         
         this.blockId = blockId;
         this.revertColor = color;
         rectangle = new Rectangle();
         rectangle.setFill(color);
+        occupant = new Death(VisibleObjects.DEATH);
+        gridList.put(blockId, this);
     }
     
     public BuildingBlock(int setX, int setY, int size) {
         blockId = 0;
         revertColor = GameGrid.GAMEGRID_COLOR;
         createRectangle(setX, setY , size, revertColor);
+        explosionSound = new AudioClip(getClass().getResource("explosion.wav").toExternalForm());
     }
     /**
      * The commonly used constructor. 
@@ -112,12 +125,15 @@ public class BuildingBlock {
      * @param blockId the block id to be set for this building block.
      */
     public BuildingBlock(int setX, int setY, int size, int blockId) {
+
         this.blockId = blockId;
         revertColor = GameGrid.GAMEGRID_COLOR;
         createRectangle(setX, setY , size, revertColor);
         double circleAdjuster = size / 2.0;
         circle = new Circle(setX + circleAdjuster, setY + circleAdjuster, circleAdjuster);
         circle.setFill(revertColor);
+        gridList.put(blockId, this);
+        explosionSound = new AudioClip(getClass().getResource("explosion.wav").toExternalForm());
     }
     /**
      * Creates the square that is the base for the building block.
@@ -143,12 +159,6 @@ public class BuildingBlock {
     }
 
     /**
-     * Removes any effect applied to the square of this BuildingBlock.
-     */
-    public void removeEffect() {
-        rectangle.setEffect(null);   
-    }
-    /**
      * Returns the id for this block.
      * @return id for this block.
      */
@@ -169,6 +179,11 @@ public class BuildingBlock {
     public void setBlockImage(ImagePattern color) {
         rectangle.setFill(color);
     }
+    public void setBlockImageOnlyIfEmpty(ImagePattern color) {
+        if(occupant == null) {
+            rectangle.setFill(color);
+        }
+    }
     
     public void addBacgoundImage(String picture) {
         Image image = new Image(getClass().getResourceAsStream(picture));
@@ -185,37 +200,56 @@ public class BuildingBlock {
     public Paint getBlockColor() {
         return rectangle.getFill();
     }
-    public void setPlayerBlock(PlayerEnum player) throws InterruptedException {
-        setBlockImage(player.getBlockImage());
-        setDeathBlock();
-        occupiedBy = player;
+    public boolean Occupy(VisibleObjects details, VisibleObject newOccupant, int turn) {
+       // setBlockImage(details.getBlockImage());
+        boolean succeeded = false;
+        if(occupant == null || newOccupant instanceof Death) {
+            this.turn = turn;
+            //System.out.println("succes" + blockId);
+           // setBlockImage(details.getBlockImage());
+            setOccupant(newOccupant);
+            occupatorDetails = details;
+            succeeded = true;
+        }
+      //  System.out.println("moveTo succeeded" + succeeded);
+        return succeeded;
     }
+    
     public void setMovableObjectBlock(int direction) {
         setBlockImage(bbRed);
-        setDeathBlock();
+      //  setDeathBlock();
         isMovableObject = true;
         movableObjectDirection = direction;
     }
+    
     public void removeMovableObject() {
         isMovableObject = false;
         movableObjectDirection = 0;
-        if(!isDeathBlockIrrevertible && occupiedBy == null) {
+        if(!isDeathBlockIrrevertible && occupatorDetails == null) {
             rectangle.setFill(GameGrid.GAMEGRID_COLOR);
             isDeathBlock = false;
             isDeathBlockIrrevertible = false;
         }
     }
-    public PlayerEnum getOccupiedBy() {
-        return occupiedBy;
+    public VisibleObjects getOccupatorDetails() {
+        return occupatorDetails;
     }
-    public void setBonusBlock(BonusEnum bonus) {
-        setBlockImage(bonus.getBlockImage());
+    public void setBonusBlock(VisibleObjects details) {
+        setBlockImage(details.getBlockImage());
     }
     public void resetBlock() {
         rectangle.setFill(GameGrid.GAMEGRID_COLOR);
+        rectangle.setTranslateX(0);
+        rectangle.setTranslateY(0);
         isDeathBlock = false;
         isDeathBlockIrrevertible = false;
-        occupiedBy = null;
+        occupatorDetails = null;
+        occupant = null;
+        playerDirection = 0;
+        animationSpeed = 0;
+        turn = 0;
+        
+        
         removeMovableObject();
     }
     public void setRevertColor(Color color) {
@@ -234,49 +268,193 @@ public class BuildingBlock {
     public int getMovableObjectDirection() {
         return movableObjectDirection;
     }
-    /**
-     * Returns true if this block is a death block.
-     * @return true if deathblock,
-     */
-    public boolean isDeathBlock() {
-        return isDeathBlock;
-    }
-        public boolean isDeathBlockIrrevertible() {
-        return isDeathBlockIrrevertible;
-    }
-    /**
-     * Sets this building block to a deathblock.
-     */
-    public void setDeathBlock() {
-        isDeathBlock = true;
-    }
+
     public boolean isMovableObject() {
         return isMovableObject;
     }
     public void setPlayerDiedBlock() {
         rectangle.setFill(deathPattern);
     }
-    
-    /**
-     * Sets this building block to a death block and also makes it impossible to
-     * remove the death block property.
-     */
-    public void setDeathBlockIrreveritble() {
-        if(!isDeathBlockIrrevertible) {
-            isDeathBlock = true;
-            setBlockImage(bbGrey);
-            isDeathBlockIrrevertible = true;
-            occupiedBy = null;
-            isMovableObject = false;
+    public BuildingBlock getAdjacent(int direction) {
+        int askedFor = blockId + direction;
+        if(!gridList.containsKey(askedFor)) askedFor = -100;
+     //   System.out.println("adjacent recieved" + askedFor);
+        return gridList.get(askedFor);
+    }
+    public void setInMotion() {
+        Timeline timeline = new Timeline();
+        if(occupant instanceof MovableObject) {
+            playerDirection = occupant.getDirection();
+            setBlockImage(occupatorDetails.getBlockImage());
+            animationSpeed = occupant.getSpeed();
+
+            KeyFrame frame1 = new KeyFrame(Duration.millis(0), new KeyValue (rectangle.translateXProperty(), 0, Interpolator.DISCRETE));
+            KeyFrame frame2 = new KeyFrame(Duration.millis(animationSpeed), new KeyValue (rectangle.translateXProperty(), 0, Interpolator.DISCRETE));
+            timeline.getKeyFrames().addAll(frame1, frame2);
+
+            GameEngine.addTimeLine(timeline);
+            timeline.play();
         }
+        
+        timeline.setOnFinished(e -> {
+            occupant.setMayMove(true);
+            repeatMotion(timeline);
+        });
+       // return timeline;
+    }
+    public void repeatMotion(Timeline timeline) {
+        if(occupant != null && occupant.getLength() > repeatTimes) {
+
+            timeline.setOnFinished(e -> {
+                repeatMotion(timeline);
+            });
+            timeline.play();
+            repeatTimes ++;
+        }
+        else {
+            revertBlock();
+           // GameEngine.addLastBlock(this);
+            GameEngine.removeTimeline(timeline);
+            repeatTimes = 1;
+        }
+    }
+    public void setInSmoothMotion() {
+        Timeline timeline = new Timeline();
+        int direction = occupant.getDirection();
+        boolean makeSmooth = getAdjacent(direction).getOccupant() == null;
+        if(occupant instanceof MovableObject) {
+            rectangle.setTranslateX(0);
+            rectangle.setTranslateY(0);
+            //int direction = occupant.getDirection();
+            setBlockImage(occupatorDetails.getBlockImage());
+            animationSpeed = occupant.getSpeed();
+            
+
+            if(makeSmooth) {
+                if(Math.abs(direction) > 1) {
+                    KeyFrame frame1 = new KeyFrame(Duration.millis(0), new KeyValue (rectangle.translateXProperty(), 0, Interpolator.LINEAR));
+                    KeyFrame frame2 = new KeyFrame(Duration.millis(animationSpeed), new KeyValue (rectangle.translateXProperty(), ((direction / Math.abs(direction)) * GameGrid.getBlockSize()), Interpolator.LINEAR));
+                    timeline.getKeyFrames().addAll(frame1, frame2);
+                }
+                else {
+                    KeyFrame frame1 = new KeyFrame(Duration.millis(0), new KeyValue (rectangle.translateYProperty(), 0, Interpolator.LINEAR));
+                    KeyFrame frame2 = new KeyFrame(Duration.millis(animationSpeed), new KeyValue (rectangle.translateYProperty(), ((direction / Math.abs(direction)) * GameGrid.getBlockSize()), Interpolator.LINEAR));
+                    timeline.getKeyFrames().addAll(frame1, frame2);
+                }
+            }
+            else {
+                KeyFrame frame1 = new KeyFrame(Duration.millis(0), new KeyValue (rectangle.translateXProperty(), 0, Interpolator.DISCRETE));
+                KeyFrame frame2 = new KeyFrame(Duration.millis(animationSpeed), new KeyValue (rectangle.translateXProperty(), 0, Interpolator.DISCRETE));
+                timeline.getKeyFrames().addAll(frame1, frame2);
+            }
+
+            GameEngine.addTimeLine(timeline);
+            timeline.play();
+        }
+        
+        timeline.setOnFinished(e -> {
+            if(occupant != null) occupant.setMayMove(true);
+            rectangle.setTranslateX(0);
+            rectangle.setTranslateY(0);
+            if(makeSmooth) getAdjacent(direction).setBlockImage(occupatorDetails.getBlockImage());
+            revertBlock();
+            GameEngine.removeTimeline(timeline);
+        });
+    }
+    public void showStillImage(int time, int times) {
+        Rectangle extraRectangle = new Rectangle(rectangle.getX(), rectangle.getY(), rectangle.getHeight(), rectangle.getWidth());
+        extraRectangle.setFill(occupatorDetails.getBlockImage());
+        Timeline timeline = new Timeline();
+        timeline.setCycleCount(times);
+        timeline.getKeyFrames().add(new KeyFrame(Duration.millis(time), new KeyValue (extraRectangle.translateYProperty(), 0)));
+        timeline.setOnFinished(e -> {
+            revertBlock();
+            GameEngine.removeTimeline(timeline);
+        });
+        timeline.play();
+    }
+    public void explode() {
+        explosion();
+    }
+    public void explodePlayer() {
+        if(occupant instanceof Player) {
+            
+            for(Integer direction:GameEngine.getDirections()) {
+                if(getAdjacent(direction).getTurn() < turn) {
+                    getAdjacent(direction).explodePlayer(occupant);
+                }
+            }
+            occupant.setLength(occupant.getLength() - 1);
+            revertBlock();
+            setDeathBlock();
+            explosion();
+            
+        }
+    }
+    public boolean hasOccupant() {
+        return occupant != null;
+    }
+    public void explodePlayer(VisibleObject player) {
+        if(player.equals(occupant)) {
+          //  setDeathBlock();
+            for(Integer direction:GameEngine.getDirections()) {
+                if(getAdjacent(direction).getTurn() < turn) {
+                    getAdjacent(direction).explodePlayer(player);
+                }
+            }
+            occupant.setLength(occupant.getLength() - 1);
+            revertBlock();
+            setDeathBlock();
+        
+        }
+    }
+    public void playerDied(Player player) {
+      //  System.out.println("killed" + blockId);
+        revertBlock(player);
+        getAdjacent(GameEngine.UP).erasePlayer(player);
+        getAdjacent(GameEngine.DOWN).erasePlayer(player);
+        getAdjacent(GameEngine.LEFT).erasePlayer(player);
+        getAdjacent(GameEngine.RIGHT).erasePlayer(player);
+        setDeathBlock();
+    }
+    public void erasePlayer(Player player) {
+    //    System.out.println("erasePlayer BlockId " + blockId + "OccupiedBy" + occupant);
+        if(player.equals(occupant)) {
+      //      System.out.println("killedToo");
+            revertBlock(player);
+            getAdjacent(GameEngine.UP).erasePlayer(player);
+            getAdjacent(GameEngine.DOWN).erasePlayer(player);
+            getAdjacent(GameEngine.LEFT).erasePlayer(player);
+            getAdjacent(GameEngine.RIGHT).erasePlayer(player);
+        }
+    }
+    public void setDeathBlock() {
+        if(!GameGrid.isInSafeZone(blockId) && !(this.equals(BuildingBlock.getBlock(GameGrid.getStartPosition())))) {
+            Death death = new Death(VisibleObjects.DEATH);
+            death.occupy(this);
+            setBlockImage(occupatorDetails.getBlockImage());
+        }
+    }
+    public int getTurn() {
+        return turn;
+    }
+
+    public static BuildingBlock getBlock(int blockId) {
+        if(gridList.containsKey(blockId)) {
+            return gridList.get(blockId);
+        }
+        return null;
+    }
+    private void setOccupant(VisibleObject occupant) {
+        this.occupant = occupant;
+    }
+    public VisibleObject getOccupant() {
+        return occupant;
     }
     
     public void setStartBlock() {
-        rectangle.setEffect(null);
-        isDeathBlock = true;
+        setOccupant(new Death(VisibleObjects.DEATH));
         addBacgoundImage("tLogo.png");
-        isDeathBlockIrrevertible = true;
-        isMovableObject = false;
     }
     public static ImagePattern playerOneImage() {
         return playerOneImage;
@@ -304,6 +482,7 @@ public class BuildingBlock {
     }
     public void explosion() {
         circle.setFill(explosionView);
+        explosionSound.play();
         Timeline timeline = new Timeline(new KeyFrame(
         Duration.millis(1000),
         ae -> circle.setFill(GameGrid.GAMEGRID_COLOR)));
@@ -314,13 +493,38 @@ public class BuildingBlock {
  it and sets the correct revertColor for the block depending on where it is in the GameGrid.
      * @param isInSafeZone set true if the block is in the safe zone in the middle of the GameGrid.
      */
+    /*
     public void revertDeathBlock() {
         if(!isDeathBlockIrrevertible) {
             isDeathBlock = false;
             rectangle.setFill(revertColor);
-            occupiedBy = null;
+            
+            occupatorDetails = null;
             isMovableObject = false;
         }
+    }
+    */
+    public void revertBlock() {
+        if(!(occupant instanceof Death)) {
+            rectangle.setFill(revertColor);
+            occupatorDetails = null;
+            occupant = null;
+            turn = 0;
+        }
+    }
+    public void revertBlock(VisibleObject reverter) {
+        if(occupant != null && occupant.equals(reverter)) {
+            rectangle.setFill(revertColor);
+            occupatorDetails = null;
+            occupant = null;
+        }
+    }
+    public static void resetBuildingBlocks() {
+        HashSet<BuildingBlock> resetGrid = new HashSet<>(gridList.values());
+        for(BuildingBlock block: resetGrid) {
+            block.resetBlock();
+        }
+        gridList.get(-100).setOccupant(new Death(VisibleObjects.DEATH));
     }
 
 }

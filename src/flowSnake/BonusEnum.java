@@ -24,42 +24,30 @@ import javafx.scene.paint.ImagePattern;
  * @author johanwendt
  */
 public enum BonusEnum {
-    REGULAR_BONUS (0, "bbGreen.png", "ADD A LICENSE - Become longer", 10, BuildingBlock.greenBonusImage()),
-    MAKE_SHORT_BONUS (1, "bbYellow.png", "ADD MORE FLOW - Become faster", 10, BuildingBlock.yellowBonusImage()),
-    ADD_DEATH_BLOCK_BONUS (2, "bbRed.png", "FLOW SHOT - Shoot you opponents", 10, BuildingBlock.redBonusImage()),
-    DEATH_BLOCK (3, "bbGrey.png", "LOOSE A LICENSE - Become shorter", 10, BuildingBlock.greyBonusImage());
+    MAKE_LONG_BONUS (0, "ADD A LICENSE - Become longer", 10),
+    MAKE_FASTER_BONUS (1, "ADD MORE FLOW - Become faster", 10),
+    SHOOT_BONUS (2, "FLOW SHOT - Shoot you opponents", 5),
+    DEATH_BLOCK (3, "LOOSE A LICENSE - Become shorter", 10);
     
-    private final String bonusImage;
     private final String bonusDescription;
     private final int bonusProbabilityFactor;
     private final int bonusNumber;
-    private ImagePattern blockImage;
     
     
-    BonusEnum(int bonusNumber, String bonusImage, String bonusDescription, int bonusProbabilityFactor, ImagePattern blockImage) {
-    this.bonusImage = bonusImage;
+    BonusEnum(int bonusNumber , String bonusDescription, int bonusProbabilityFactor) {
     this.bonusDescription = bonusDescription;
     this.bonusProbabilityFactor = bonusProbabilityFactor;
     this.bonusNumber = bonusNumber;
-    this.blockImage = blockImage;
     }
 
     public String getBonusDescription() {
         return bonusDescription;
     }
-    public String getBonusImage() {
-        return bonusImage;
-    }
+
     public int getBonusProbabilityFactor() {
         return bonusProbabilityFactor;
     }
     public int getBonusNumber() {
         return bonusNumber;
-    }
-    public ImagePattern getBlockImage() {
-        return blockImage;
-    }
-    public void setBlockImage(ImagePattern image) {
-        blockImage = image;
     }
 }

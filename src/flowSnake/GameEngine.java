@@ -17,14 +17,15 @@
 package flowSnake;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.List;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.application.Application;
-import javafx.application.Platform;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.scene.input.KeyCode;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
@@ -34,7 +35,7 @@ import javafx.util.Duration;
  *This class is the master class. It drives the game via a loop.
  * @author johanwendt
  */
-public class GameEngine extends Application implements Runnable{
+public class GameEngine extends Application {
     //To be able to give every block in the field grid a unique id every 
     //block in y-direction adds 1 to the id while every block in 
     //x-direction adds 1000 (MULIPLIER_X).
@@ -43,6 +44,8 @@ public class GameEngine extends Application implements Runnable{
     public static final int LEFT = -MULIPLIER_X;
     public static final int DOWN = 1;
     public static final int UP = -1;
+    
+    private static final HashSet<Integer> directions = new HashSet<Integer>(4);
 
     public static final int MAX_NUMBER_OF_PLAYERS = 4;
     
@@ -52,17 +55,21 @@ public class GameEngine extends Application implements Runnable{
     private static final boolean isRunning = true;
     
     private static final ArrayList<Player> players = new ArrayList<>(4);
+   // private static final ArrayList<MovableObject> projectiles = Collections.synchronizedList(new ArrayList<>());
+    private static final List<MovableObject> projectiles = Collections.synchronizedList(new ArrayList<>());
     private static final HashMap<KeyCode, Integer> player1Controls = new HashMap<>();
     private static final HashMap<KeyCode, Integer> player2Controls = new HashMap<>();
     private static final HashMap<KeyCode, Integer> player3Controls = new HashMap<>();
     private static final HashMap<KeyCode, Integer> player4Controls = new HashMap<>();
+    
+    private static final ArrayList<Timeline> onetimerTimelines = new ArrayList<>();
+    private static final ArrayList<Timeline> ongoingTimelines = new ArrayList<>();
     
     public static int GAME_SPEED = 3;
     private static Stage battleStage;
     
     private static boolean isPaused = true;
     private static int numberToPlay = 0;
-    private Thread thread;
    // private static final BonusHandler bonusHandler = new BonusHandler();
     //private static GameGrid gameGrid;
     private static KeyCode pauseKey = KeyCode.SPACE;
@@ -79,6 +86,10 @@ public class GameEngine extends Application implements Runnable{
     
     private static MediaPlayer backgroundPlayer;
     private static MediaPlayer menuPlayer;
+    
+    private static Timeline gameLoop = new Timeline();
+    
+   // private static final ArrayList<BuildingBlock> lastBlocks = new ArrayList<>();
         
     public void NewGameEngine() {
     }
@@ -92,50 +103,52 @@ public class GameEngine extends Application implements Runnable{
         //gameGrid2 = new GameGrid(true);
         GameGrid gameGrid = new GameGrid();
         createPlayers();
+        fillUpDirections();
 
 
         
         setUpDefaultControlKeys();
-        thread = new Thread(this);
-        thread.start();
-    }
-
-            @Override
-            public void run() {
-                
-                thread.setPriority(Thread.MAX_PRIORITY);
-                try {
-                    while (isRunning) {
-                        int moved = 0;
+        
+        GameGrid.startDeathBuilder();
+        
+        //gameLoop = new Timeline();
+        addToOngoingTimelines(gameLoop);
+        gameLoop.setCycleCount( Timeline.INDEFINITE );
+        
+        final long timeStart = System.currentTimeMillis();
+        
+        KeyFrame kf = new KeyFrame( Duration.seconds(0.01667), new EventHandler<ActionEvent>() {
+            public void handle(ActionEvent ae) {
+                double t = (System.currentTimeMillis() - timeStart) / 1000.0; 
+               // System.out.println("game loop");
+                if (isRunning && !isPaused) {
+                    
                         if(!isPaused) {
-                            handleMovingObjects();
-                            
+                       //     revertLastBlock();
                             for(Player player: players) {
-                                moved += player.movePlayer();
+                                player.move();
                             }
-                            if(!(moved < 0) && turn > 500) GameGrid.deathBuilder();
-                            if(turn % 30 == 2) {
-                                BonusHandler.bonusRound();
-                                moved ++;
+                            for(MovableObject projectile:projectiles) {
+                                projectile.move();
+                            }
+                            BonusHandler.bonusRound();
+                            turn++;
+                        }
+                    //    if(turn % 2000 == 0) System.gc();
+                    }
+            }
+        });
+        gameLoop.getKeyFrames().add( kf );
+        gameLoop.play();
+    }
+/*
+
                             }
                             /**
                             if((GameGrid.isDeathRunning() == false && getNumberOfAlivePlayers() < 2) || getNumberOfAlivePlayers() < 1) {
                                 Platform.runLater(() -> {
                                     gameOver();
-                                });
-                            }
-                            * **/
-                            turn++;
-                        }
-                        if(turn < 50 && turn >= 0) {
-                            thread.sleep((long) Math.sqrt(50 - turn));
-                        }
-                        thread.sleep(GAME_SPEED);
-                        if(turn % 2000 == 0) System.gc();
-                    }
-                }
-                catch (InterruptedException ex) {
-                }
+
                 
 
     }
@@ -143,17 +156,20 @@ public class GameEngine extends Application implements Runnable{
  * Brings up the initial screen and displays the winner of the game.
  */
     public static void gameOver() {
-        if((GameGrid.isDeathRunning() == false) || getNumberOfAlivePlayers() < 2) {
+        if((getNumberOfAlivePlayers() < 1) || (getNumberOfAlivePlayers() < 2 && getNumberOfAliveBots() < 1)) {
+            for(Player player: players) {
+            player.setAlive(false);
+            }
             
             PlayerEnum winner = null;
             int highest = -10000;
             int i = 1;
             boolean  noScore = true;
                 for(Player player: players) {
-                if(player.getCurrentLength() > highest) {
-                    highest = player.getCurrentLength();
+                if(player.getLength() > highest) {
+                    highest = player.getLength();
                     winner = player.getPlayerDetails();
-                    if(!(player.getCurrentLength() < 1)) noScore = false;
+                    if(!(player.getLength() < 1)) noScore = false;
                     i++;
                 }
             }
@@ -176,24 +192,26 @@ public class GameEngine extends Application implements Runnable{
             }
         }
     }
-    public static void killPlayer(PlayerEnum playerDetails, int hitBlock) {
-        if(playerDetails != null) {
-            getPlayer(playerDetails.getNumber()).chopPlayer(hitBlock);
-        }
-    }
     /**
      * Unpauses the game and sets all players in status alive so they start moving.
      */
     public static void begin() {
+        for(Player player: players) {
+            player.setBot(false);
+        }
         switch(numberToPlay) {
-            case 4: getPlayer(PlayerEnum.PLAYER_FOUR.getNumber()).setAlive(true);
-            case 3: getPlayer(PlayerEnum.PLAYER_THREE.getNumber()).setAlive(true);
-            case 2: getPlayer(PlayerEnum.PLAYER_TWO.getNumber()).setAlive(true);
-            case 1: getPlayer(PlayerEnum.PLAYER_ONE.getNumber()).setAlive(true);
+            case 1: getPlayer(PlayerEnum.PLAYER_TWO.getNumber()).setBot(true);
+            case 2: getPlayer(PlayerEnum.PLAYER_THREE.getNumber()).setBot(true);
+            case 3: getPlayer(PlayerEnum.PLAYER_FOUR.getNumber()).setBot(true);
         } 
         for(Player player: players) {
+            player.setAlive(true);
             player.createPlayer(true);
         }
+      //  GameGrid.startDeathBuilder();
+    }
+    public static void addToOngoingTimelines(Timeline timeline) {
+        ongoingTimelines.add(timeline);
     }
     /**
      * Restart the game from the begining. Everything needed is reset or recreated
@@ -201,23 +219,24 @@ public class GameEngine extends Application implements Runnable{
      */
     public void restart() {
         for(Player player: players) {
-            player.clearBody();
             player.setAlive(false);
-            player.setTurn(-20);
-            player.setCurrentLength(0);
         }
+        removeTimelines();
+        BuildingBlock.resetBuildingBlocks();
         MovingObject.getMovingObjects().clear();
-        BonusHandler.getBonusList().clear();
+        
         turn = 0;
         GameGrid.reset();
         UserInterface.restart();
-        try {
-            TimeUnit.MILLISECONDS.sleep(500);
-        } catch (InterruptedException ex) {
-            Logger.getLogger(GameEngine.class.getName()).log(Level.SEVERE, null, ex);
-        }
+
         System.gc();
         begin(); 
+    }
+    public static void addTimeLine(Timeline timeline) {
+        onetimerTimelines.add(timeline);
+    }
+    public static void removeTimeline(Timeline timeline) {
+        onetimerTimelines.remove(timeline);
     }
     /**
      * Turns upp the game speed for all the players. It does this by making
@@ -270,11 +289,24 @@ public class GameEngine extends Application implements Runnable{
             isPaused = false;
             menuPlayer.stop();
             backgroundPlayer.play();
+            for(Timeline timeline:ongoingTimelines) {
+                timeline.play();
+            }
+            
+            for(Timeline timeline:onetimerTimelines) {
+                timeline.play();
+            }
         }
         else {
             isPaused = true;
             backgroundPlayer.stop();
             menuPlayer.play();
+            for(Timeline timeline:ongoingTimelines) {
+                timeline.pause();
+            }
+            for(Timeline timeline:onetimerTimelines) {
+                timeline.pause();
+            }
         }
     }
     public static void setNumberOfPlayers(int toPlay) {
@@ -290,7 +322,19 @@ public class GameEngine extends Application implements Runnable{
         ControlsStage.updatePausedKeyText(newPauseKey.toString());
         pauseKey = newPauseKey;
     }
+    public static void removeTimelines() {
+        for(Timeline timeline: onetimerTimelines) {
+            timeline.stop();
+        }
+        onetimerTimelines.clear();
+    }
 
+    public static void addProjectile(MovableObject projectile) {
+        projectiles.add(projectile);
+    }
+    public static void removeProjectile(MovableObject projectile) {
+        projectiles.remove(projectile);
+    }
     /**
      * Number of players that are still alive. Currently only used for determening 
      * wheter the game is over or not.
@@ -299,7 +343,16 @@ public class GameEngine extends Application implements Runnable{
     public static int getNumberOfAlivePlayers() {
         int result = 0;
         for(Player player: players) {
-            if(player.isAlive()) {
+            if(player.isAlive() && !player.isBot()) {
+                result ++;
+            }
+        }
+        return result;
+    }
+    public static int getNumberOfAliveBots() {
+        int result = 0;
+        for(Player player: players) {
+            if(player.isAlive() && player.isBot()) {
                 result ++;
             }
         }
@@ -309,16 +362,25 @@ public class GameEngine extends Application implements Runnable{
      * Creates the chosen number of players.
      */
     private static void createPlayers () {
-        players.add(new Player(PlayerEnum.PLAYER_ONE, player1Controls));
-        players.add(new Player(PlayerEnum.PLAYER_TWO, player2Controls));
-        players.add(new Player(PlayerEnum.PLAYER_THREE, player3Controls));
-        players.add(new Player(PlayerEnum.PLAYER_FOUR, player4Controls));
+        players.add(new Player(VisibleObjects.PLAYER_ONE, PlayerEnum.PLAYER_ONE, player1Controls));
+        players.add(new Player(VisibleObjects.PLAYER_TWO, PlayerEnum.PLAYER_TWO, player2Controls));
+        players.add(new Player(VisibleObjects.PLAYER_THREE, PlayerEnum.PLAYER_THREE, player3Controls));
+        players.add(new Player(VisibleObjects.PLAYER_FOUR, PlayerEnum.PLAYER_FOUR, player4Controls));
     }
     private void loadMedia() {
         Media backGroundMusic = new Media(getClass().getResource("backgroundLongest.wav").toExternalForm());
         Media menuMusic = new Media(getClass().getResource("menuMusic.wav").toExternalForm());
         backgroundPlayer = new MediaPlayer(backGroundMusic);
         menuPlayer = new MediaPlayer(menuMusic);
+    }
+    private void fillUpDirections() {
+        directions.add(UP);
+        directions.add(DOWN);
+        directions.add(LEFT);
+        directions.add(RIGHT);
+    }
+    public static HashSet<Integer> getDirections() {
+        return directions;
     }
     /**
      * Adds a key for contolling the direction of the backgroundPlayer. If a key for the 
@@ -390,4 +452,15 @@ public class GameEngine extends Application implements Runnable{
         
         setPauseKey(pauseKey);
     }
+    /**
+    public static void addLastBlock(BuildingBlock block) {
+        lastBlocks.add(block);
+    }
+    private static void revertLastBlock() {
+        for(BuildingBlock block:lastBlocks) {
+            block.revertBlock();
+        }
+        lastBlocks.clear();
+    }
+    * **/
 }
